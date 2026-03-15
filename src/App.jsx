@@ -1,37 +1,67 @@
 import { useState, useEffect, useCallback } from 'react';
 import { SUBJECTS } from './data';
+import { db } from './firebase';
+import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
 import PDFList from './components/PDFList';
 import PYQPage from './PYQPage';
 import './index.css';
 
-const STORAGE_KEY = 'bpsc-revision-data';
-
 import PasswordLock from './components/PasswordLock';
 
-function loadData() {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
-  } catch { return {}; }
-}
+const DOC_ID = 'user-revisions';
 
 function App() {
-  const [revisionData, setRevisionData] = useState(loadData);
+  const [revisionData, setRevisionData] = useState({});
   const [activeView, setActiveView] = useState('dashboard');
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
+  // Read data from Firebase real-time
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(revisionData));
-  }, [revisionData]);
+    const docRef = doc(db, 'appData', DOC_ID);
+    
+    // Set up a real-time listener
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        setRevisionData(docSnap.data().revisions || {});
+      } else {
+        // Initialize if doc doesn't exist
+        setDoc(docRef, { revisions: {} });
+      }
+      setIsLoading(false);
+    }, (error) => {
+      console.error("Error fetching data:", error);
+      setIsLoading(false);
+    });
 
-  const toggleRevision = useCallback((key) => {
-    setRevisionData(prev => ({
-      ...prev,
-      [key]: prev[key] ? null : Date.now()
-    }));
+    // Cleanup listener on unmount
+    return () => unsubscribe();
   }, []);
 
+  const toggleRevision = useCallback(async (key) => {
+    // Optimistic UI update
+    const newValue = revisionData[key] ? null : Date.now();
+    const updatedRevisions = {
+      ...revisionData,
+      [key]: newValue
+    };
+    
+    setRevisionData(updatedRevisions);
+
+    // Save to Firebase
+    try {
+      const docRef = doc(db, 'appData', DOC_ID);
+      await setDoc(docRef, { revisions: updatedRevisions }, { merge: true });
+    } catch (error) {
+      console.error("Error saving data:", error);
+    }
+  }, [revisionData]);
+
+  if (isLoading) {
+    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'white' }}>Loading your data securely...</div>;
+  }
   // Find the current view content
   let content = null;
   if (activeView === 'dashboard') {
