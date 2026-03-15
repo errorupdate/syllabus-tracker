@@ -1,0 +1,297 @@
+/* PYQPage.css */
+
+.pyq-page {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.pyq-header {
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.pyq-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, #fff 0%, #a0a0a0 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.pyq-header .subtitle {
+  color: var(--text);
+  font-size: 1.1rem;
+}
+
+.pyq-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px;
+  margin-bottom: 24px;
+  border-radius: 16px;
+}
+
+@media (min-width: 768px) {
+  .pyq-controls {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.search-box {
+  position: relative;
+  flex: 1;
+  max-width: 500px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 14px 14px 14px 48px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.2);
+  color: var(--text-h);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-bg);
+}
+
+.filters {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter-group label {
+  font-weight: 500;
+  color: var(--text);
+}
+
+.filter-group select {
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.2);
+  color: var(--text-h);
+  font-size: 0.95rem;
+  cursor: pointer;
+  outline: none;
+}
+
+.filter-group select:focus {
+  border-color: var(--accent);
+}
+
+.pyq-stats {
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.pyq-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+@media (min-width: 768px) {
+  .pyq-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1200px) {
+  .pyq-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.pyq-card {
+  background: rgba(30, 31, 38, 0.6);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  display: flex;
+  flex-direction: column;
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.pyq-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: var(--border);
+  transition: background 0.3s ease;
+}
+
+/* Year based accents */
+.pyq-card.year-2019::before { background: linear-gradient(90deg, #c084fc, #9333ea); }
+.pyq-card.year-2020::before { background: linear-gradient(90deg, #2dd4bf, #0d9488); }
+.pyq-card.year-2023::before { background: linear-gradient(90deg, #fbbf24, #d97706); }
+
+.pyq-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.card-header {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.exam-badge {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.year-2019 .exam-badge { background: rgba(192, 132, 252, 0.2); color: #e6a0ff; }
+.year-2020 .exam-badge { background: rgba(45, 212, 191, 0.2); color: #5eead4; }
+.year-2023 .exam-badge { background: rgba(251, 191, 36, 0.2); color: #fde68a; }
+
+.subject-badge {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text);
+}
+
+.card-theme {
+  font-size: 0.85rem;
+  color: var(--accent);
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.card-question {
+  font-size: 1.15rem;
+  line-height: 1.5;
+  color: var(--text-h);
+  margin: 0 0 20px 0;
+  flex: 1;
+}
+
+.toggle-answer-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-h);
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  width: 100%;
+  text-align: center;
+}
+
+.toggle-answer-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.toggle-answer-btn.open {
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+  color: var(--accent);
+}
+
+.card-answer-section {
+  margin-top: 16px;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.answer-box {
+  background: rgba(46, 204, 113, 0.1);
+  border-left: 4px solid #2ecc71;
+  padding: 12px 16px;
+  border-radius: 0 8px 8px 0;
+  margin-bottom: 12px;
+  color: #e2e8f0;
+}
+
+.answer-box strong {
+  color: #2ecc71;
+  margin-right: 8px;
+}
+
+.explanation-box {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 16px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+.explanation-box strong {
+  color: var(--text-h);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.no-results {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 20px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 16px;
+  border: 1px dashed var(--border);
+}
+
+.no-results h3 {
+  color: var(--text-h);
+  font-size: 1.5rem;
+  margin-bottom: 12px;
+}
