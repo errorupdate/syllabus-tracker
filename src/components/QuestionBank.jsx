@@ -33,6 +33,7 @@ export default function QuestionBank() {
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [shuffleSeed, setShuffleSeed] = useState(() => Date.now()); // changes every refresh
+  const [successMsg, setSuccessMsg] = useState(''); // toast message after adding
 
   // -- Add/Edit View State --
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -159,23 +160,29 @@ export default function QuestionBank() {
         // Update existing
         await updateDoc(doc(db, 'questionBank-v2', editingId), payload);
         setEditingId(null);
+        // After edit, go back to list
+        setNewQuestion({ subjectId: '', topicId: '', chapterId: '', text: '', opt1: '', opt2: '', opt3: '', correctAnswerId: 'opt1', explanation: '' });
+        setActiveTab('list');
       } else {
         // Add new
         payload.createdAt = serverTimestamp();
         await addDoc(collection(db, 'questionBank-v2'), payload);
+        // Stay on add form with same subject/topic, clear only question fields
+        setNewQuestion(prev => ({
+          ...prev,
+          chapterId: prev.chapterId, // keep chapter too
+          text: '',
+          opt1: '',
+          opt2: '',
+          opt3: '',
+          correctAnswerId: 'opt1',
+          explanation: ''
+        }));
+        // Show success toast
+        setSuccessMsg('✅ Question added! Add another one below.');
+        setTimeout(() => setSuccessMsg(''), 3000);
+        // Stay on 'add' tab - do NOT switch to list
       }
-      
-      // Reset
-      setNewQuestion(prev => ({
-        ...prev,
-        text: '',
-        opt1: '',
-        opt2: '',
-        opt3: '',
-        correctAnswerId: 'opt1',
-        explanation: ''
-      }));
-      setActiveTab('list');
     } catch (error) {
       console.error("Error saving document: ", error);
       alert("Failed to save question.");
@@ -291,6 +298,15 @@ export default function QuestionBank() {
           </button>
         </div>
       </div>
+
+      {/* Success Toast - Fixed overlay */}
+      {successMsg && (
+        <div className="qb-success-toast-overlay">
+          <div className="qb-success-toast">
+            {successMsg}
+          </div>
+        </div>
+      )}
 
       {activeTab === 'add' && (
         <form className="qb-add-form animate-fade" onSubmit={handleFormSubmit}>
