@@ -648,7 +648,7 @@ body::before {
   to { transform: rotate(360deg); }
 }
 
-/* ============ MOBILE ============ */
+/* ============ MOBILE (≤768px) ============ */
 @media (max-width: 768px) {
   .sidebar {
     transform: translateX(-100%);
@@ -668,20 +668,83 @@ body::before {
     z-index: 150;
     backdrop-filter: blur(4px);
   }
-  .stats-grid { grid-template-columns: repeat(2, 1fr); }
-  .dashboard-header h1 { font-size: 1.6rem; }
-  .content-area { padding: 16px; }
-  .col-revisions { width: auto; gap: 4px; }
-  .rev-circle { width: 30px; height: 30px; font-size: 0.7rem; }
-  .pdf-row { padding: 10px 12px; }
-  .pdf-table-head { padding: 10px 12px; }
-  .pdf-name { font-size: 0.78rem; }
+
+  /* Topbar */
+  .topbar { padding: 0 12px; height: 48px; }
+  .topbar-title { font-size: 0.85rem; }
+
+  /* Content */
+  .content-area { padding: 12px; }
+
+  /* Dashboard */
+  .dashboard-header h1 { font-size: 1.4rem; }
+  .dashboard-header .subtitle { font-size: 0.82rem; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .stat-card { padding: 16px 12px; }
+  .stat-number { font-size: 1.8rem; }
+  .stat-label { font-size: 0.75rem; }
+  .stat-number-sm { font-size: 0.95rem; }
+  .dashboard-columns { grid-template-columns: 1fr; gap: 16px; }
+  .dashboard-section h2 { font-size: 1.05rem; }
+  .subject-cards { grid-template-columns: 1fr; }
+  .subject-card { padding: 16px; }
+  .subject-card-header h3 { font-size: 0.95rem; }
+  .attention-item { padding: 12px 14px; }
+  .attention-name { font-size: 0.8rem; }
+
+  /* PDF List */
+  .pdf-list-header h1 { font-size: 1.2rem; }
+  .pdf-table-head { padding: 10px 12px; font-size: 0.7rem; }
+  .pdf-row { padding: 10px 10px; gap: 6px; }
+  .pdf-name { font-size: 0.76rem; gap: 6px; }
+  .pdf-icon { font-size: 0.85rem; }
+  .col-revisions { width: auto; gap: 3px; }
+  .rev-circle { width: 28px; height: 28px; font-size: 0.65rem; }
+  .col-progress { width: 50px; }
+  .progress-mini { font-size: 0.7rem; padding: 2px 6px; }
+  .rev-days { font-size: 0.55rem; bottom: -14px; }
 }
 
+/* ============ SMALL PHONE (≤480px) ============ */
 @media (max-width: 480px) {
-  .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
-  .stat-card { padding: 16px; }
-  .stat-number { font-size: 1.8rem; }
-  .subject-cards { grid-template-columns: 1fr; }
-  .attention-list { grid-template-columns: 1fr; }
+  .content-area { padding: 10px; }
+  .stats-grid { gap: 8px; }
+  .stat-card { padding: 14px 10px; }
+  .stat-number { font-size: 1.5rem; }
+  .stat-label { font-size: 0.7rem; }
+
+  .dashboard-header h1 { font-size: 1.2rem; }
+  .dashboard-header { margin-bottom: 20px; }
+  .stats-grid-secondary { margin-bottom: 20px; }
+  .dashboard-section { margin-bottom: 20px; }
+
+  .subject-card { padding: 14px; }
+  .subject-card-header h3 { font-size: 0.88rem; }
+  .subject-card-stats { font-size: 0.72rem; }
+
+  .attention-list { grid-template-columns: 1fr; gap: 8px; }
+  .attention-item { padding: 10px 12px; }
+
+  /* PDF List extra-small */
+  .pdf-list-header { margin-bottom: 16px; }
+  .pdf-list-header h1 { font-size: 1.05rem; }
+  .pdf-count { font-size: 0.72rem; padding: 3px 8px; }
+  .col-revisions { gap: 2px; }
+  .rev-circle { width: 24px; height: 24px; font-size: 0.6rem; border-width: 1.5px; }
+  .rev-head { width: 24px; font-size: 0.6rem; }
+  .col-progress { width: 40px; }
+  .progress-mini { font-size: 0.65rem; padding: 2px 4px; }
+  .pdf-name { font-size: 0.72rem; }
+  .pdf-row { padding: 8px 8px; }
+  .pdf-table-head { padding: 8px 8px; }
+}
+
+/* ============ VERY SMALL (≤360px) ============ */
+@media (max-width: 360px) {
+  .content-area { padding: 8px; }
+  .stat-number { font-size: 1.3rem; }
+  .stat-card { padding: 12px 8px; }
+  .dashboard-header h1 { font-size: 1.05rem; }
+  .rev-circle { width: 22px; height: 22px; font-size: 0.55rem; }
+  .pdf-name { font-size: 0.68rem; }
 }

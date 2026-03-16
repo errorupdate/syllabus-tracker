@@ -646,3 +646,45 @@ textarea.form-control {
   .questions-list { gap: 22px; }
   .question-card.v2 { padding: 24px; }
 }
+
+/* ============================================================
+   SMALL PHONE  (≤ 480px)
+   ============================================================ */
+@media (max-width: 480px) {
+  .qb-container { padding: 10px; }
+  .qb-header h2 { font-size: 1.2rem; gap: 6px; }
+
+  .qb-tab { font-size: 0.8rem; padding: 8px 10px; }
+
+  .qb-add-form { padding: 14px; border-radius: 12px; }
+  .form-row { flex-direction: column; gap: 12px; }
+  .form-group label { font-size: 0.85rem; }
+  .form-control { padding: 10px 12px; font-size: 0.9rem; }
+  .options-setup { padding: 14px; }
+  .btn-primary.large { padding: 14px; font-size: 1rem; }
+
+  .qb-filters { gap: 8px; margin: 12px 0 14px; }
+  .search-box input { padding: 10px 12px 10px 38px; font-size: 0.9rem; }
+  .filter-select { padding: 10px 12px; font-size: 0.9rem; }
+
+  .selection-toolbar { gap: 6px; }
+  .btn-select-mode { padding: 6px 12px; font-size: 0.8rem; }
+  .btn-select-all { padding: 6px 10px; font-size: 0.8rem; }
+  .btn-bulk-delete { padding: 6px 12px; font-size: 0.8rem; }
+  .selection-count { font-size: 0.78rem; }
+
+  .questions-list { gap: 12px; }
+  .question-card.v2 { padding: 14px; border-radius: 10px; }
+  .q-header { margin-bottom: 10px; }
+  .q-badge { font-size: 0.68rem; padding: 2px 7px; }
+  .q-text { font-size: 0.9rem; margin-bottom: 10px; line-height: 1.5; }
+  .q-option { padding: 10px 12px; gap: 8px; font-size: 0.88rem; border-radius: 8px; }
+  .opt-letter { font-size: 0.88rem; min-width: 20px; }
+
+  .attempt-feedback { padding-top: 10px; margin-top: 12px; }
+  .feedback-correct, .feedback-incorrect { font-size: 0.92rem; }
+  .q-explanation { padding: 12px 14px; font-size: 0.85rem; }
+
+  .empty-state { padding: 36px 16px; }
+  .empty-state p { font-size: 0.9rem; }
+}

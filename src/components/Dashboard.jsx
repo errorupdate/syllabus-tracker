@@ -164,14 +164,14 @@ export default function Dashboard({ subjects, revisionData }) {
               {qbStats.total} Total Questions
             </span>
           </div>
-          <div style={{ display: 'flex', gap: '20px', marginTop: '12px', flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, background: 'var(--surface)', borderRadius: '10px', padding: '12px 16px' }}>
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Computer Science</span>
-              <span style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--accent)' }}>{qbStats.cs}</span>
+          <div style={{ display: 'flex', gap: '12px', marginTop: '12px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, minWidth: '100px', background: 'var(--surface)', borderRadius: '10px', padding: '12px 10px' }}>
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>Computer Science</span>
+              <span style={{ fontSize: 'clamp(1.3rem, 4vw, 2rem)', fontWeight: 'bold', color: 'var(--accent)' }}>{qbStats.cs}</span>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, background: 'var(--surface)', borderRadius: '10px', padding: '12px 16px' }}>
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>General Paper</span>
-              <span style={{ fontSize: '2rem', fontWeight: 'bold', color: '#3fb950' }}>{qbStats.gp}</span>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, minWidth: '100px', background: 'var(--surface)', borderRadius: '10px', padding: '12px 10px' }}>
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>General Paper</span>
+              <span style={{ fontSize: 'clamp(1.3rem, 4vw, 2rem)', fontWeight: 'bold', color: '#3fb950' }}>{qbStats.gp}</span>
             </div>
           </div>
         </div>
