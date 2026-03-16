@@ -36,6 +36,10 @@ export default function QuestionBank() {
   const [successMsg, setSuccessMsg] = useState(''); // toast message after adding
   const questionTextRef = useRef(null); // ref for auto-focus after adding
 
+  // -- Single Card Navigation --
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [cardAnim, setCardAnim] = useState(''); // 'slide-left', 'slide-right', ''
+
   // -- Scoring State (persisted via localStorage) --
   const [score, setScore] = useState(() => {
     try {
@@ -217,13 +221,46 @@ export default function QuestionBank() {
         localStorage.setItem('qb-score', JSON.stringify(updated));
         return updated;
       });
+      // Auto-advance to next question after 1.5s
+      if (currentIndex < filteredQuestions.length - 1) {
+        setTimeout(() => goNext(), 1500);
+      }
     }
   };
+
+  // --- Card Navigation ---
+  const goToQuestion = (newIndex, direction) => {
+    setCardAnim(direction);
+    setTimeout(() => {
+      setCurrentIndex(newIndex);
+      setCardAnim('');
+    }, 280); // match animation duration
+  };
+
+  const goNext = () => {
+    if (currentIndex < filteredQuestions.length - 1) {
+      goToQuestion(currentIndex + 1, 'slide-left');
+    }
+  };
+
+  const goPrev = () => {
+    if (currentIndex > 0) {
+      goToQuestion(currentIndex - 1, 'slide-right');
+    }
+  };
+
+  // Reset index when filters change
+  useEffect(() => {
+    setCurrentIndex(0);
+    setCardAnim('');
+  }, [filterSubject, filterTopic, searchQuery]);
 
   const resetScore = () => {
     setScore({ attempted: 0, correct: 0, wrong: 0 });
     setAttempts({});
     localStorage.setItem('qb-score', JSON.stringify({ attempted: 0, correct: 0, wrong: 0 }));
+    setCurrentIndex(0);
+    setCardAnim('');
     // Re-shuffle on reset
     setShuffleSeed(Date.now());
     setShuffledOptionsMap({});
@@ -568,109 +605,135 @@ export default function QuestionBank() {
 
           {loading ? (
             <div className="loading-spinner"><div className="spinner"></div></div>
-          ) : (
+          ) : filteredQuestions.length === 0 ? (
+            <div className="empty-state">
+              <p>No questions found.</p>
+              <button className="btn-primary" onClick={() => setActiveTab('add')}>Add a Question</button>
+            </div>
+          ) : selectionMode ? (
+            /* Selection mode: show all cards */
             <div className="questions-list">
-              {filteredQuestions.length === 0 ? (
-                <div className="empty-state">
-                  <p>No questions found.</p>
-                  <button className="btn-primary" onClick={() => setActiveTab('add')}>Add a Question</button>
+              {filteredQuestions.map((q, index) => (
+                <div
+                  key={q.id}
+                  className={`question-card v2 ${selectedIds.has(q.id) ? 'selected' : ''}`}
+                  onClick={() => toggleSelect(q.id)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <div className="q-header">
+                    <div className="q-meta">
+                      <input type="checkbox" className="q-checkbox" checked={selectedIds.has(q.id)} onChange={() => toggleSelect(q.id)} onClick={e => e.stopPropagation()} />
+                      <span className="q-badge subject">{q.subjectName}</span>
+                      <span className="q-badge topic">{q.topicName.split('-')[1]?.trim() || q.topicName}</span>
+                      {q.chapterName && <span className="q-badge chapter">{q.chapterName.split('-')[1]?.trim() || q.chapterName}</span>}
+                    </div>
+                  </div>
+                  <div className="q-number">Q{index + 1}.</div>
+                  <div className="q-text">{q.text}</div>
+                  <div className="selection-mode-hint">Click card to select / deselect</div>
                 </div>
-              ) : (
-                filteredQuestions.map((q, index) => {
-                  const attemptedId = attempts[q.id];
-                  const isAttempted = !!attemptedId;
-                  const isCorrectAttempt = attemptedId === q.correctAnswerId;
+              ))}
+            </div>
+          ) : (
+            /* Single-card quiz mode */
+            (() => {
+              const safeIndex = Math.min(currentIndex, filteredQuestions.length - 1);
+              const q = filteredQuestions[safeIndex];
+              if (!q) return null;
 
-                  // Resolve the 5 options for this specific render using the shuffled map
-                  // A, B, C map to the shuffled opt1, opt2, opt3 ids
-                  const dynamicLayout = shuffledOptionsMap[q.id] || ['opt1', 'opt2', 'opt3'];
-                  
-                  const displayOptions = [
-                    { letter: 'A', id: dynamicLayout[0], text: q[dynamicLayout[0]] },
-                    { letter: 'B', id: dynamicLayout[1], text: q[dynamicLayout[1]] },
-                    { letter: 'C', id: dynamicLayout[2], text: q[dynamicLayout[2]] },
-                    { letter: 'D', id: 'optD', text: OPTION_D },
-                    { letter: 'E', id: 'optE', text: OPTION_E },
-                  ];
+              const attemptedId = attempts[q.id];
+              const isAttempted = !!attemptedId;
+              const isCorrectAttempt = attemptedId === q.correctAnswerId;
+              const dynamicLayout = shuffledOptionsMap[q.id] || ['opt1', 'opt2', 'opt3'];
+              const displayOptions = [
+                { letter: 'A', id: dynamicLayout[0], text: q[dynamicLayout[0]] },
+                { letter: 'B', id: dynamicLayout[1], text: q[dynamicLayout[1]] },
+                { letter: 'C', id: dynamicLayout[2], text: q[dynamicLayout[2]] },
+                { letter: 'D', id: 'optD', text: OPTION_D },
+                { letter: 'E', id: 'optE', text: OPTION_E },
+              ];
 
-                  return (
-                    <div
-                      key={q.id}
-                      className={`question-card v2 ${selectionMode && selectedIds.has(q.id) ? 'selected' : ''}`}
-                      onClick={selectionMode ? () => toggleSelect(q.id) : undefined}
-                      style={{ cursor: selectionMode ? 'pointer' : 'default' }}
-                    >
-                      <div className="q-header">
-                        <div className="q-meta">
-                          {selectionMode && (
-                            <input
-                              type="checkbox"
-                              className="q-checkbox"
-                              checked={selectedIds.has(q.id)}
-                              onChange={() => toggleSelect(q.id)}
-                              onClick={e => e.stopPropagation()}
-                            />
-                          )}
-                          <span className="q-badge subject">{q.subjectName}</span>
-                          <span className="q-badge topic">{q.topicName.split('-')[1]?.trim() || q.topicName}</span>
-                          {q.chapterName && <span className="q-badge chapter">{q.chapterName.split('-')[1]?.trim() || q.chapterName}</span>}
-                        </div>
-                        {!selectionMode && (
-                          <div className="q-actions">
-                            <button className="btn-edit" onClick={() => startEdit(q)} title="Edit">✏️</button>
-                            <button className="btn-delete" onClick={() => handleDelete(q.id)} title="Delete">🗑️</button>
+              return (
+                <div className="single-card-wrapper">
+                  {/* Navigation header */}
+                  <div className="card-nav-header">
+                    <button className="btn-nav" onClick={goPrev} disabled={safeIndex === 0}>
+                      ◀ Prev
+                    </button>
+                    <span className="card-counter">
+                      {safeIndex + 1} / {filteredQuestions.length}
+                    </span>
+                    <button className="btn-nav" onClick={goNext} disabled={safeIndex === filteredQuestions.length - 1}>
+                      Next ▶
+                    </button>
+                  </div>
+
+                  {/* The question card */}
+                  <div key={q.id} className={`question-card v2 single-card ${cardAnim}`}>
+                    <div className="q-header">
+                      <div className="q-meta">
+                        <span className="q-badge subject">{q.subjectName}</span>
+                        <span className="q-badge topic">{q.topicName.split('-')[1]?.trim() || q.topicName}</span>
+                        {q.chapterName && <span className="q-badge chapter">{q.chapterName.split('-')[1]?.trim() || q.chapterName}</span>}
+                      </div>
+                      <div className="q-actions">
+                        <button className="btn-edit" onClick={() => startEdit(q)} title="Edit">✏️</button>
+                        <button className="btn-delete" onClick={() => handleDelete(q.id)} title="Delete">🗑️</button>
+                      </div>
+                    </div>
+
+                    <div className="q-number">Q{safeIndex + 1}.</div>
+                    <div className="q-text">{q.text}</div>
+
+                    <div className="q-options-5">
+                      {displayOptions.map(opt => {
+                        let optionClass = '';
+                        if (isAttempted) {
+                          if (opt.id === q.correctAnswerId) optionClass = 'correct';
+                          else if (opt.id === attemptedId && !isCorrectAttempt) optionClass = 'incorrect';
+                        }
+                        return (
+                          <div
+                            key={opt.id}
+                            className={`q-option ${optionClass} ${!isAttempted ? 'interactive' : ''}`}
+                            onClick={() => !isAttempted && handleAttempt(q.id, opt.id, q.correctAnswerId)}
+                          >
+                            <span className="opt-letter">{opt.letter}.</span>
+                            <span className="opt-text">{opt.text}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Skip button - only if not attempted */}
+                    {!isAttempted && safeIndex < filteredQuestions.length - 1 && (
+                      <button className="btn-skip" onClick={goNext}>
+                        Skip ⏭
+                      </button>
+                    )}
+                    {isAttempted && (
+                      <div className="attempt-feedback slide-down">
+                        {isCorrectAttempt ? (
+                          <div className="feedback-correct">✅ Correct!</div>
+                        ) : (
+                          <div className="feedback-incorrect">
+                            ❌ Incorrect. The correct answer was <strong>Option {displayOptions.find(o => o.id === q.correctAnswerId)?.letter}</strong>.
                           </div>
                         )}
-                      </div>
-                      
-                      <div className="q-number">Q{index + 1}.</div>
-                      <div className="q-text">{q.text}</div>
-                      
-                      <div className="q-options-5">
-                        {!selectionMode && displayOptions.map(opt => {
-                          let optionClass = '';
-                          if (isAttempted) {
-                            if (opt.id === q.correctAnswerId) optionClass = 'correct'; // Show actual answer
-                            else if (opt.id === attemptedId && !isCorrectAttempt) optionClass = 'incorrect'; // Show wrong choice
-                          }
-
-                          return (
-                            <div 
-                              key={opt.id} 
-                              className={`q-option ${optionClass} ${!isAttempted && !selectionMode ? 'interactive' : ''}`}
-                              onClick={() => !isAttempted && !selectionMode && handleAttempt(q.id, opt.id, q.correctAnswerId)}
-                            >
-                              <span className="opt-letter">{opt.letter}.</span>
-                              <span className="opt-text">{opt.text}</span>
-                            </div>
-                          );
-                        })}
-                        {selectionMode && (
-                          <div className="selection-mode-hint">Click card to select / deselect</div>
+                        {q.explanation && (
+                          <div className="q-explanation">
+                            <strong>Explanation:</strong> {q.explanation}
+                          </div>
+                        )}
+                        {safeIndex < filteredQuestions.length - 1 && (
+                          <div className="auto-next-hint">Moving to next question...</div>
                         )}
                       </div>
-
-                      {isAttempted && (
-                        <div className="attempt-feedback slide-down">
-                          {isCorrectAttempt ? (
-                            <div className="feedback-correct">✅ Correct!</div>
-                          ) : (
-                            <div className="feedback-incorrect">
-                              ❌ Incorrect. The correct answer was <strong>Option {displayOptions.find(o => o.id === q.correctAnswerId)?.letter}</strong>.
-                            </div>
-                          )}
-                          {q.explanation && (
-                            <div className="q-explanation">
-                              <strong>Explanation:</strong> {q.explanation}
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })
-              )}
-            </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })()
           )}
         </div>
       )}

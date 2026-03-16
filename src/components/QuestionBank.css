@@ -409,6 +409,119 @@ textarea.form-control {
 }
 
 /* ============================================================
+   SINGLE-CARD QUIZ MODE
+   ============================================================ */
+.single-card-wrapper {
+  overflow: hidden;
+}
+
+.card-nav-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  gap: 12px;
+}
+
+.btn-nav {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  color: var(--text);
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-nav:hover:not(:disabled) {
+  background: var(--accent-bg);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.btn-nav:active:not(:disabled) {
+  transform: scale(0.96);
+}
+.btn-nav:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.card-counter {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent);
+  background: var(--accent-bg);
+  padding: 6px 16px;
+  border-radius: 20px;
+  letter-spacing: 1px;
+}
+
+/* Single Card Animations */
+.question-card.single-card {
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.28s ease;
+}
+
+.question-card.single-card.slide-left {
+  animation: cardSlideLeft 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.question-card.single-card.slide-right {
+  animation: cardSlideRight 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes cardSlideLeft {
+  0%   { opacity: 1; transform: translateX(0); }
+  100% { opacity: 0; transform: translateX(-60px); }
+}
+
+@keyframes cardSlideRight {
+  0%   { opacity: 1; transform: translateX(0); }
+  100% { opacity: 0; transform: translateX(60px); }
+}
+
+/* Auto-next hint */
+.auto-next-hint {
+  margin-top: 12px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-style: italic;
+  text-align: center;
+  animation: pulse-hint 1s ease-in-out infinite;
+}
+
+@keyframes pulse-hint {
+  0%, 100% { opacity: 0.5; }
+  50%      { opacity: 1; }
+}
+
+/* Skip button */
+.btn-skip {
+  display: block;
+  width: 100%;
+  margin-top: 14px;
+  padding: 12px;
+  background: transparent;
+  border: 1.5px dashed var(--border);
+  border-radius: 10px;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-skip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-bg);
+}
+.btn-skip:active {
+  transform: scale(0.98);
+}
+
+/* ============================================================
    QUESTION CARDS
    ============================================================ */
 .questions-list {
@@ -819,6 +932,10 @@ textarea.form-control {
   .score-label { font-size: 0.65rem; }
   .score-stat { padding: 6px 2px; }
   .btn-reset-score { padding: 5px 10px; font-size: 0.75rem; }
+
+  .btn-nav { padding: 8px 12px; font-size: 0.8rem; }
+  .card-counter { font-size: 0.85rem; padding: 5px 12px; }
+  .btn-skip { padding: 10px; font-size: 0.85rem; }
 
   .selection-toolbar { gap: 6px; }
   .btn-select-mode { padding: 6px 12px; font-size: 0.8rem; }
