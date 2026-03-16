@@ -248,6 +248,108 @@ textarea.form-control {
   box-sizing: border-box;
 }
 
+/* ============================================================
+   SCOREBOARD
+   ============================================================ */
+.qb-scoreboard {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.score-stats {
+  display: flex;
+  justify-content: space-around;
+  gap: 8px;
+  text-align: center;
+}
+
+.score-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  padding: 8px 4px;
+  border-radius: 10px;
+  transition: background 0.2s;
+}
+
+.score-num {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+
+.score-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+}
+
+.score-stat.attempted .score-num { color: var(--accent); }
+.score-stat.attempted { background: rgba(100, 108, 255, 0.06); }
+.score-stat.correct .score-num { color: #3fb950; }
+.score-stat.correct { background: rgba(46, 160, 67, 0.06); }
+.score-stat.wrong .score-num { color: #f85149; }
+.score-stat.wrong { background: rgba(248, 81, 73, 0.06); }
+.score-stat.accuracy .score-num { color: #d2a8ff; }
+.score-stat.accuracy { background: rgba(163, 113, 247, 0.06); }
+
+.score-bar-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.score-bar {
+  flex: 1;
+  height: 8px;
+  background: var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+}
+
+.score-bar-correct {
+  background: linear-gradient(90deg, #2ea043, #3fb950);
+  height: 100%;
+  transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 8px 0 0 8px;
+}
+
+.score-bar-wrong {
+  background: linear-gradient(90deg, #da3633, #f85149);
+  height: 100%;
+  transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-reset-score {
+  background: transparent;
+  border: 1.5px solid var(--border);
+  color: var(--text-muted);
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-reset-score:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-bg);
+}
+
 /* Multi-Select Toolbar */
 .selection-toolbar {
   display: flex;
@@ -711,6 +813,12 @@ textarea.form-control {
   .qb-filters { gap: 8px; margin: 12px 0 14px; }
   .search-box input { padding: 10px 12px 10px 38px; font-size: 0.9rem; }
   .filter-select { padding: 10px 12px; font-size: 0.9rem; }
+
+  .qb-scoreboard { padding: 12px; border-radius: 10px; margin-bottom: 12px; }
+  .score-num { font-size: 1.2rem; }
+  .score-label { font-size: 0.65rem; }
+  .score-stat { padding: 6px 2px; }
+  .btn-reset-score { padding: 5px 10px; font-size: 0.75rem; }
 
   .selection-toolbar { gap: 6px; }
   .btn-select-mode { padding: 6px 12px; font-size: 0.8rem; }

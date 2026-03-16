@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { db } from '../firebase';
 import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { SUBJECTS } from '../data';
@@ -34,6 +34,15 @@ export default function QuestionBank() {
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [shuffleSeed, setShuffleSeed] = useState(() => Date.now()); // changes every refresh
   const [successMsg, setSuccessMsg] = useState(''); // toast message after adding
+  const questionTextRef = useRef(null); // ref for auto-focus after adding
+
+  // -- Scoring State (persisted via localStorage) --
+  const [score, setScore] = useState(() => {
+    try {
+      const saved = localStorage.getItem('qb-score');
+      return saved ? JSON.parse(saved) : { attempted: 0, correct: 0, wrong: 0 };
+    } catch { return { attempted: 0, correct: 0, wrong: 0 }; }
+  });
 
   // -- Add/Edit View State --
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -181,6 +190,8 @@ export default function QuestionBank() {
         // Show success toast
         setSuccessMsg('✅ Question added! Add another one below.');
         setTimeout(() => setSuccessMsg(''), 3000);
+        // Auto-focus the question textarea for next entry
+        setTimeout(() => questionTextRef.current?.focus(), 100);
         // Stay on 'add' tab - do NOT switch to list
       }
     } catch (error) {
@@ -192,10 +203,30 @@ export default function QuestionBank() {
   };
 
   // --- List View Handlers ---
-  const handleAttempt = (questionId, answeredOptionId) => {
+  const handleAttempt = (questionId, answeredOptionId, correctAnswerId) => {
     if (!attempts[questionId]) {
       setAttempts(prev => ({ ...prev, [questionId]: answeredOptionId }));
+      // Update score
+      const isCorrect = answeredOptionId === correctAnswerId;
+      setScore(prev => {
+        const updated = {
+          attempted: prev.attempted + 1,
+          correct: prev.correct + (isCorrect ? 1 : 0),
+          wrong: prev.wrong + (isCorrect ? 0 : 1)
+        };
+        localStorage.setItem('qb-score', JSON.stringify(updated));
+        return updated;
+      });
     }
+  };
+
+  const resetScore = () => {
+    setScore({ attempted: 0, correct: 0, wrong: 0 });
+    setAttempts({});
+    localStorage.setItem('qb-score', JSON.stringify({ attempted: 0, correct: 0, wrong: 0 }));
+    // Re-shuffle on reset
+    setShuffleSeed(Date.now());
+    setShuffledOptionsMap({});
   };
 
   const handleDelete = async (questionId) => {
@@ -365,6 +396,7 @@ export default function QuestionBank() {
           <div className="form-group">
             <label>Question Text *</label>
             <textarea 
+              ref={questionTextRef}
               className="form-control" 
               placeholder="Enter the question..."
               value={newQuestion.text}
@@ -476,6 +508,39 @@ export default function QuestionBank() {
             </select>
           </div>
 
+          {/* Scoreboard */}
+          <div className="qb-scoreboard">
+            <div className="score-stats">
+              <div className="score-stat attempted">
+                <span className="score-num">{score.attempted}</span>
+                <span className="score-label">Attempted</span>
+              </div>
+              <div className="score-stat correct">
+                <span className="score-num">{score.correct}</span>
+                <span className="score-label">Correct</span>
+              </div>
+              <div className="score-stat wrong">
+                <span className="score-num">{score.wrong}</span>
+                <span className="score-label">Wrong</span>
+              </div>
+              <div className="score-stat accuracy">
+                <span className="score-num">{score.attempted > 0 ? Math.round((score.correct / score.attempted) * 100) : 0}%</span>
+                <span className="score-label">Accuracy</span>
+              </div>
+            </div>
+            {score.attempted > 0 && (
+              <div className="score-bar-wrapper">
+                <div className="score-bar">
+                  <div className="score-bar-correct" style={{ width: `${(score.correct / score.attempted) * 100}%` }} />
+                  <div className="score-bar-wrong" style={{ width: `${(score.wrong / score.attempted) * 100}%` }} />
+                </div>
+                <button className="btn-reset-score" onClick={resetScore} title="Reset scores & reshuffle">
+                  🔄 Reset
+                </button>
+              </div>
+            )}
+          </div>
+
           {/* Selection toolbar */}
           <div className="selection-toolbar">
             <button
@@ -573,7 +638,7 @@ export default function QuestionBank() {
                             <div 
                               key={opt.id} 
                               className={`q-option ${optionClass} ${!isAttempted && !selectionMode ? 'interactive' : ''}`}
-                              onClick={() => !isAttempted && !selectionMode && handleAttempt(q.id, opt.id)}
+                              onClick={() => !isAttempted && !selectionMode && handleAttempt(q.id, opt.id, q.correctAnswerId)}
                             >
                               <span className="opt-letter">{opt.letter}.</span>
                               <span className="opt-text">{opt.text}</span>
