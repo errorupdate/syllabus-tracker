@@ -32,6 +32,7 @@ export default function QuestionBank() {
   const [shuffledOptionsMap, setShuffledOptionsMap] = useState({}); // { qId: [shuffled custom options] }
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState(new Set());
+  const [shuffleSeed, setShuffleSeed] = useState(() => Date.now()); // changes every refresh
 
   // -- Add/Edit View State --
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -231,9 +232,25 @@ export default function QuestionBank() {
     }
   };
 
-  // Complex Filtering
+  // Shuffle question order (deterministic per refresh via shuffleSeed)
+  const shuffledQuestions = useMemo(() => {
+    const arr = [...questions];
+    // Seeded shuffle using shuffleSeed to ensure same order within a session
+    let seed = shuffleSeed;
+    const seededRandom = () => {
+      seed = (seed * 9301 + 49297) % 233280;
+      return seed / 233280;
+    };
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(seededRandom() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }, [questions, shuffleSeed]);
+
+  // Complex Filtering (applied on shuffled questions)
   const filteredQuestions = useMemo(() => {
-    return questions.filter(q => {
+    return shuffledQuestions.filter(q => {
       // 1. Search Query
       if (searchQuery) {
         const queryLower = searchQuery.toLowerCase();
@@ -251,7 +268,7 @@ export default function QuestionBank() {
 
       return true;
     });
-  }, [questions, searchQuery, filterSubject, filterTopic]);
+  }, [shuffledQuestions, searchQuery, filterSubject, filterTopic]);
 
   const currentFilterSubjectObj = SUBJECTS.find(s => s.id === filterSubject);
 
@@ -478,7 +495,7 @@ export default function QuestionBank() {
                   <button className="btn-primary" onClick={() => setActiveTab('add')}>Add a Question</button>
                 </div>
               ) : (
-                filteredQuestions.map((q) => {
+                filteredQuestions.map((q, index) => {
                   const attemptedId = attempts[q.id];
                   const isAttempted = !!attemptedId;
                   const isCorrectAttempt = attemptedId === q.correctAnswerId;
@@ -525,6 +542,7 @@ export default function QuestionBank() {
                         )}
                       </div>
                       
+                      <div className="q-number">Q{index + 1}.</div>
                       <div className="q-text">{q.text}</div>
                       
                       <div className="q-options-5">

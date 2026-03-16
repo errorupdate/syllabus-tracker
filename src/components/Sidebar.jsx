@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import ProgressBar from './ProgressBar';
 
-export default function Sidebar({ subjects, revisionData, activeView, onSelectView, onSelectDashboard, mobileOpen, onCloseMobile }) {
+export default function Sidebar({ subjects, revisionData, activeView, onSelectView, onSelectDashboard, mobileOpen, onCloseMobile, collapsed, totalUsageSeconds }) {
   const [expanded, setExpanded] = useState({});
 
   const toggle = (id) => setExpanded(prev => ({ ...prev, [id]: !prev[id] }));
@@ -44,7 +44,7 @@ export default function Sidebar({ subjects, revisionData, activeView, onSelectVi
   const overall = getOverallProgress();
 
   return (
-    <aside className={`sidebar ${mobileOpen ? 'open' : ''}`}>
+    <aside className={`sidebar ${mobileOpen ? 'open' : ''} ${collapsed ? 'collapsed' : ''}`}>
       <div className="sidebar-header">
         <div className="sidebar-logo" onClick={onSelectDashboard}>
           <span className="logo-icon">📚</span>
@@ -55,6 +55,16 @@ export default function Sidebar({ subjects, revisionData, activeView, onSelectVi
 
       <div className="sidebar-progress">
         <ProgressBar value={overall.done} max={overall.total} label="Overall Progress" size="sm" />
+      </div>
+
+      <div className="sidebar-usage-time">
+        <span className="usage-icon">⏱️</span>
+        <span className="usage-label">Time Spent</span>
+        <span className="usage-value">
+          {String(Math.floor(totalUsageSeconds / 3600)).padStart(2, '0')}:
+          {String(Math.floor((totalUsageSeconds % 3600) / 60)).padStart(2, '0')}:
+          {String(totalUsageSeconds % 60).padStart(2, '0')}
+        </span>
       </div>
 
       <nav className="sidebar-nav">
