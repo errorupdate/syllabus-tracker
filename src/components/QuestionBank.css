@@ -377,8 +377,14 @@ textarea.form-control {
   margin-top: 2px;
 }
 
-/* Delete Button */
-.btn-delete {
+/* Action Buttons */
+.q-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.btn-edit, .btn-delete {
   background: transparent;
   border: none;
   font-size: 1.1rem;
@@ -390,10 +396,42 @@ textarea.form-control {
   transition: opacity 0.2s, background 0.2s, transform 0.15s;
   -webkit-tap-highlight-color: transparent;
 }
+.btn-edit:hover, .btn-edit:active {
+  opacity: 1;
+  background: rgba(240, 136, 62, 0.12);
+  transform: scale(1.1);
+}
 .btn-delete:hover, .btn-delete:active {
   opacity: 1;
   background: rgba(248, 81, 73, 0.12);
   transform: scale(1.1);
+}
+
+/* Cancel Edit */
+.btn-cancel-edit {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: 2px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-cancel-edit:hover {
+  border-color: #f85149;
+  color: #f85149;
+  background: rgba(248, 81, 73, 0.05);
+}
+
+.form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 /* ============================================================

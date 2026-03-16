@@ -61,7 +61,22 @@ function App() {
   }, [revisionData]);
 
   if (isLoading) {
-    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'white' }}>Loading your data securely...</div>;
+    return (
+      <div style={{ 
+        display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', 
+        height: '100vh', background: '#0a0e1a', gap: '20px' 
+      }}>
+        <div style={{
+          width: '48px', height: '48px', borderRadius: '50%',
+          border: '4px solid rgba(139,92,246,0.15)',
+          borderTopColor: '#8b5cf6',
+          animation: 'spin 0.8s linear infinite'
+        }} />
+        <span style={{ color: '#94a3b8', fontSize: '0.95rem', fontFamily: 'Inter, sans-serif' }}>
+          Loading your data securely...
+        </span>
+      </div>
+    );
   }
   // Find the current view content
   let content = null;

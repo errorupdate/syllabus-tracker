@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { db } from '../firebase';
-import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, deleteDoc } from 'firebase/firestore';
+import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { SUBJECTS } from '../data';
 import './QuestionBank.css';
 
@@ -33,8 +33,9 @@ export default function QuestionBank() {
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState(new Set());
 
-  // -- Add View State --
+  // -- Add/Edit View State --
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editingId, setEditingId] = useState(null); // null = adding, string = editing
   const [newQuestion, setNewQuestion] = useState({
     subjectId: '',
     topicId: '',
@@ -97,7 +98,38 @@ export default function QuestionBank() {
   const currentAddSubject = SUBJECTS.find(s => s.id === newQuestion.subjectId);
   const currentAddTopic = currentAddSubject?.topics.find(t => t.id === newQuestion.topicId);
 
-  const handleAddSubmit = async (e) => {
+  const startEdit = (q) => {
+    setEditingId(q.id);
+    setNewQuestion({
+      subjectId: q.subjectId,
+      topicId: q.topicId,
+      chapterId: q.chapterId || '',
+      text: q.text,
+      opt1: q.opt1,
+      opt2: q.opt2,
+      opt3: q.opt3,
+      correctAnswerId: q.correctAnswerId,
+      explanation: q.explanation || ''
+    });
+    setActiveTab('add');
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setNewQuestion({
+      subjectId: '',
+      topicId: '',
+      chapterId: '',
+      text: '',
+      opt1: '',
+      opt2: '',
+      opt3: '',
+      correctAnswerId: 'opt1',
+      explanation: ''
+    });
+  };
+
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
     if (!newQuestion.subjectId || !newQuestion.topicId || !newQuestion.text.trim() || 
         !newQuestion.opt1.trim() || !newQuestion.opt2.trim() || !newQuestion.opt3.trim()) {
@@ -107,7 +139,6 @@ export default function QuestionBank() {
 
     setIsSubmitting(true);
     try {
-      // Save exact metadata for filtering, plus name caches for easy display
       const payload = {
         subjectId: newQuestion.subjectId,
         subjectName: currentAddSubject.name,
@@ -121,12 +152,19 @@ export default function QuestionBank() {
         opt3: newQuestion.opt3,
         correctAnswerId: newQuestion.correctAnswerId,
         explanation: newQuestion.explanation,
-        createdAt: serverTimestamp()
       };
 
-      await addDoc(collection(db, 'questionBank-v2'), payload);
+      if (editingId) {
+        // Update existing
+        await updateDoc(doc(db, 'questionBank-v2', editingId), payload);
+        setEditingId(null);
+      } else {
+        // Add new
+        payload.createdAt = serverTimestamp();
+        await addDoc(collection(db, 'questionBank-v2'), payload);
+      }
       
-      // Reset text fields only, keep dropdowns for rapid entry
+      // Reset
       setNewQuestion(prev => ({
         ...prev,
         text: '',
@@ -137,10 +175,9 @@ export default function QuestionBank() {
         explanation: ''
       }));
       setActiveTab('list');
-      alert('Question added successfully!');
     } catch (error) {
-      console.error("Error adding document: ", error);
-      alert("Failed to add question.");
+      console.error("Error saving document: ", error);
+      alert("Failed to save question.");
     } finally {
       setIsSubmitting(false);
     }
@@ -231,7 +268,7 @@ export default function QuestionBank() {
           </button>
           <button 
             className={`qb-tab add-btn ${activeTab === 'add' ? 'active' : ''}`}
-            onClick={() => setActiveTab('add')}
+            onClick={() => { cancelEdit(); setActiveTab('add'); }}
           >
             + Add Question
           </button>
@@ -239,7 +276,10 @@ export default function QuestionBank() {
       </div>
 
       {activeTab === 'add' && (
-        <form className="qb-add-form animate-fade" onSubmit={handleAddSubmit}>
+        <form className="qb-add-form animate-fade" onSubmit={handleFormSubmit}>
+          <h3 style={{ margin: '0 0 20px 0', color: editingId ? '#f0883e' : 'var(--accent)' }}>
+            {editingId ? '✏️ Edit Question' : '➕ New Question'}
+          </h3>
           <div className="form-row">
             <div className="form-group half">
               <label>Subject *</label>
@@ -353,8 +393,13 @@ export default function QuestionBank() {
           </div>
 
           <div className="form-actions">
+            {editingId && (
+              <button type="button" className="btn-cancel-edit" onClick={() => { cancelEdit(); setActiveTab('list'); }}>
+                Cancel Edit
+              </button>
+            )}
             <button type="submit" className="btn-primary large" disabled={isSubmitting}>
-              {isSubmitting ? 'Saving to Database...' : '+ Add Question'}
+              {isSubmitting ? 'Saving...' : editingId ? '💾 Save Changes' : '+ Add Question'}
             </button>
           </div>
         </form>
@@ -473,7 +518,10 @@ export default function QuestionBank() {
                           {q.chapterName && <span className="q-badge chapter">{q.chapterName.split('-')[1]?.trim() || q.chapterName}</span>}
                         </div>
                         {!selectionMode && (
-                          <button className="btn-delete" onClick={() => handleDelete(q.id)} title="Delete">🗑️</button>
+                          <div className="q-actions">
+                            <button className="btn-edit" onClick={() => startEdit(q)} title="Edit">✏️</button>
+                            <button className="btn-delete" onClick={() => handleDelete(q.id)} title="Delete">🗑️</button>
+                          </div>
                         )}
                       </div>
                       
