@@ -1,6 +1,24 @@
+import { useState, useEffect } from 'react';
+import { db } from '../firebase';
+import { collection, onSnapshot } from 'firebase/firestore';
 import ProgressBar from './ProgressBar';
 
 export default function Dashboard({ subjects, revisionData }) {
+  const [qbStats, setQbStats] = useState({ total: 0, cs: 0, gp: 0 });
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, 'questionBank-v2'), (snap) => {
+      let total = 0, cs = 0, gp = 0;
+      snap.forEach(doc => {
+        const d = doc.data();
+        total++;
+        if (d.subjectId === 'cs') cs++;
+        else if (d.subjectId === 'gp') gp++;
+      });
+      setQbStats({ total, cs, gp });
+    });
+    return () => unsubscribe();
+  }, []);
   function countPdfs(topic) {
     if (topic.chapters) return topic.chapters.reduce((s, ch) => s + ch.pdfs.length, 0);
     return (topic.pdfs || []).length;
@@ -134,6 +152,28 @@ export default function Dashboard({ subjects, revisionData }) {
              <span className="stat-number-sm glow-text-green">{overallPct}% ({totalRevDone}/{totalRevMax})</span>
            </div>
            <ProgressBar value={totalRevDone} max={totalRevMax} size="md" />
+        </div>
+      </div>
+
+      {/* Question Bank Stats Section */}
+      <div className="stats-grid-secondary" style={{ marginTop: '20px' }}>
+        <div className="stat-card glass-card fill-card">
+          <div className="card-row">
+            <span className="stat-label">📝 Question Bank</span>
+            <span className="stat-number-sm glow-text-green">
+              {qbStats.total} Total Questions
+            </span>
+          </div>
+          <div style={{ display: 'flex', gap: '20px', marginTop: '12px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, background: 'var(--surface)', borderRadius: '10px', padding: '12px 16px' }}>
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Computer Science</span>
+              <span style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--accent)' }}>{qbStats.cs}</span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, background: 'var(--surface)', borderRadius: '10px', padding: '12px 16px' }}>
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>General Paper</span>
+              <span style={{ fontSize: '2rem', fontWeight: 'bold', color: '#3fb950' }}>{qbStats.gp}</span>
+            </div>
+          </div>
         </div>
       </div>
 

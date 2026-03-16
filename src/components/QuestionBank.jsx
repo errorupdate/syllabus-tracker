@@ -1,0 +1,532 @@
+import { useState, useEffect, useMemo } from 'react';
+import { db } from '../firebase';
+import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, deleteDoc } from 'firebase/firestore';
+import { SUBJECTS } from '../data';
+import './QuestionBank.css';
+
+// Fixed Option Texts
+const OPTION_D = "More than one of the above";
+const OPTION_E = "None of the above";
+
+// Helper: Fisher-Yates shuffle
+function shuffle(array) {
+  let currentIndex = array.length, randomIndex;
+  while (currentIndex !== 0) {
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+    [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+  }
+  return array;
+}
+
+export default function QuestionBank() {
+  const [activeTab, setActiveTab] = useState('list'); // 'add', 'list'
+  const [questions, setQuestions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  
+  // -- List View State --
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterSubject, setFilterSubject] = useState('All');
+  const [filterTopic, setFilterTopic] = useState('All');
+  const [attempts, setAttempts] = useState({}); // { qId: selectedOptionId }
+  const [shuffledOptionsMap, setShuffledOptionsMap] = useState({}); // { qId: [shuffled custom options] }
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState(new Set());
+
+  // -- Add View State --
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [newQuestion, setNewQuestion] = useState({
+    subjectId: '',
+    topicId: '',
+    chapterId: '', // optional
+    text: '',
+    opt1: '',
+    opt2: '',
+    opt3: '',
+    correctAnswerId: 'opt1', // Maps to opt1, opt2, opt3, D, or E
+    explanation: ''
+  });
+
+  // Fetch Questions
+  useEffect(() => {
+    const q = query(collection(db, 'questionBank-v2'), orderBy('createdAt', 'desc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const qList = [];
+      const newShuffledMap = {};
+      
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        const id = doc.id;
+        qList.push({ id, ...data });
+        
+        // Ensure every question getting rendered has a shuffled state for its 3 custom options
+        // We shuffle the *IDs* of the custom options (opt1, opt2, opt3) so we map correctly to A, B, C
+        if (!shuffledOptionsMap[id]) {
+          newShuffledMap[id] = shuffle(['opt1', 'opt2', 'opt3']);
+        } else {
+          newShuffledMap[id] = shuffledOptionsMap[id];
+        }
+      });
+      setQuestions(qList);
+      setShuffledOptionsMap(prev => ({ ...prev, ...newShuffledMap }));
+      setLoading(false);
+    }, (error) => {
+      console.error("Error fetching questions: ", error);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [shuffledOptionsMap]); // Only run when map changes or initially
+
+  // --- Add Question Handlers ---
+  const handleAddQuestionChange = (field, value) => {
+    setNewQuestion(prev => {
+      const updated = { ...prev, [field]: value };
+      // Cascade resets
+      if (field === 'subjectId') {
+        updated.topicId = '';
+        updated.chapterId = '';
+      }
+      if (field === 'topicId') {
+        updated.chapterId = '';
+      }
+      return updated;
+    });
+  };
+
+  const currentAddSubject = SUBJECTS.find(s => s.id === newQuestion.subjectId);
+  const currentAddTopic = currentAddSubject?.topics.find(t => t.id === newQuestion.topicId);
+
+  const handleAddSubmit = async (e) => {
+    e.preventDefault();
+    if (!newQuestion.subjectId || !newQuestion.topicId || !newQuestion.text.trim() || 
+        !newQuestion.opt1.trim() || !newQuestion.opt2.trim() || !newQuestion.opt3.trim()) {
+      alert("Please fill out the required fields (Subject, Topic, Question, and the 3 custom options).");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      // Save exact metadata for filtering, plus name caches for easy display
+      const payload = {
+        subjectId: newQuestion.subjectId,
+        subjectName: currentAddSubject.name,
+        topicId: newQuestion.topicId,
+        topicName: currentAddTopic.name,
+        chapterId: newQuestion.chapterId,
+        chapterName: currentAddTopic.chapters?.find(c => c.id === newQuestion.chapterId)?.name || '',
+        text: newQuestion.text,
+        opt1: newQuestion.opt1,
+        opt2: newQuestion.opt2,
+        opt3: newQuestion.opt3,
+        correctAnswerId: newQuestion.correctAnswerId,
+        explanation: newQuestion.explanation,
+        createdAt: serverTimestamp()
+      };
+
+      await addDoc(collection(db, 'questionBank-v2'), payload);
+      
+      // Reset text fields only, keep dropdowns for rapid entry
+      setNewQuestion(prev => ({
+        ...prev,
+        text: '',
+        opt1: '',
+        opt2: '',
+        opt3: '',
+        correctAnswerId: 'opt1',
+        explanation: ''
+      }));
+      setActiveTab('list');
+      alert('Question added successfully!');
+    } catch (error) {
+      console.error("Error adding document: ", error);
+      alert("Failed to add question.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // --- List View Handlers ---
+  const handleAttempt = (questionId, answeredOptionId) => {
+    if (!attempts[questionId]) {
+      setAttempts(prev => ({ ...prev, [questionId]: answeredOptionId }));
+    }
+  };
+
+  const handleDelete = async (questionId) => {
+    if (window.confirm('Are you sure you want to completely delete this question?')) {
+      try {
+        await deleteDoc(doc(db, 'questionBank-v2', questionId));
+      } catch (error) {
+        console.error("Error deleting document: ", error);
+        alert("Failed to delete question.");
+      }
+    }
+  };
+
+  const toggleSelectMode = () => {
+    setSelectionMode(prev => !prev);
+    setSelectedIds(new Set());
+  };
+
+  const toggleSelect = (id) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  const selectAll = () => {
+    setSelectedIds(new Set(filteredQuestions.map(q => q.id)));
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.size === 0) return;
+    if (!window.confirm(`Delete ${selectedIds.size} selected question(s)? This cannot be undone.`)) return;
+    try {
+      await Promise.all([...selectedIds].map(id => deleteDoc(doc(db, 'questionBank-v2', id))));
+      setSelectedIds(new Set());
+      setSelectionMode(false);
+    } catch (error) {
+      console.error("Bulk delete failed:", error);
+      alert('Some questions could not be deleted.');
+    }
+  };
+
+  // Complex Filtering
+  const filteredQuestions = useMemo(() => {
+    return questions.filter(q => {
+      // 1. Search Query
+      if (searchQuery) {
+        const queryLower = searchQuery.toLowerCase();
+        const matchesText = q.text.toLowerCase().includes(queryLower);
+        const matchesTopic = q.topicName.toLowerCase().includes(queryLower);
+        const matchesSub = q.subjectName.toLowerCase().includes(queryLower);
+        if (!matchesText && !matchesTopic && !matchesSub) return false;
+      }
+      
+      // 2. Subject Filter
+      if (filterSubject !== 'All' && q.subjectId !== filterSubject) return false;
+
+      // 3. Topic Filter
+      if (filterTopic !== 'All' && q.topicId !== filterTopic) return false;
+
+      return true;
+    });
+  }, [questions, searchQuery, filterSubject, filterTopic]);
+
+  const currentFilterSubjectObj = SUBJECTS.find(s => s.id === filterSubject);
+
+  return (
+    <div className="qb-container">
+      <div className="qb-header">
+        <h2>📝 Advanced Question Bank</h2>
+        <div className="qb-tabs">
+          <button 
+            className={`qb-tab ${activeTab === 'list' ? 'active' : ''}`}
+            onClick={() => setActiveTab('list')}
+          >
+            🔍 Browse Questions
+          </button>
+          <button 
+            className={`qb-tab add-btn ${activeTab === 'add' ? 'active' : ''}`}
+            onClick={() => setActiveTab('add')}
+          >
+            + Add Question
+          </button>
+        </div>
+      </div>
+
+      {activeTab === 'add' && (
+        <form className="qb-add-form animate-fade" onSubmit={handleAddSubmit}>
+          <div className="form-row">
+            <div className="form-group half">
+              <label>Subject *</label>
+              <select 
+                className="form-control"
+                value={newQuestion.subjectId}
+                onChange={(e) => handleAddQuestionChange('subjectId', e.target.value)}
+                required
+              >
+                <option value="" disabled>Select Subject...</option>
+                {SUBJECTS.map(s => (
+                  <option key={s.id} value={s.id}>{s.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group half">
+              <label>Topic *</label>
+              <select 
+                className="form-control"
+                value={newQuestion.topicId}
+                onChange={(e) => handleAddQuestionChange('topicId', e.target.value)}
+                required
+                disabled={!newQuestion.subjectId}
+              >
+                <option value="" disabled>Select Topic...</option>
+                {currentAddSubject?.topics.map(t => (
+                  <option key={t.id} value={t.id}>{t.name.split('-')[1]?.trim() || t.name}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {currentAddTopic?.chapters && currentAddTopic.chapters.length > 0 && (
+            <div className="form-group">
+              <label>Sub-Topic / Chapter (Optional)</label>
+              <select 
+                className="form-control"
+                value={newQuestion.chapterId}
+                onChange={(e) => handleAddQuestionChange('chapterId', e.target.value)}
+              >
+                <option value="">None</option>
+                {currentAddTopic.chapters.map(c => (
+                  <option key={c.id} value={c.id}>{c.name.split('-')[1]?.trim() || c.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          <div className="form-group">
+            <label>Question Text *</label>
+            <textarea 
+              className="form-control" 
+              placeholder="Enter the question..."
+              value={newQuestion.text}
+              onChange={(e) => handleAddQuestionChange('text', e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="options-setup">
+            <h4>Dynamic Options</h4>
+            <p className="help-text">These 3 options will be randomly shuffled into A, B, and C positions every time the question is viewed.</p>
+            
+            <div className="form-group">
+              <label>Option 1 *</label>
+              <input type="text" className="form-control" required
+                value={newQuestion.opt1} onChange={e => handleAddQuestionChange('opt1', e.target.value)} />
+            </div>
+            <div className="form-group">
+              <label>Option 2 *</label>
+              <input type="text" className="form-control" required
+                value={newQuestion.opt2} onChange={e => handleAddQuestionChange('opt2', e.target.value)} />
+            </div>
+            <div className="form-group">
+              <label>Option 3 *</label>
+              <input type="text" className="form-control" required
+                value={newQuestion.opt3} onChange={e => handleAddQuestionChange('opt3', e.target.value)} />
+            </div>
+
+            <div className="fixed-options-preview">
+              <div className="fixed-opt"><strong>Fixed D:</strong> {OPTION_D}</div>
+              <div className="fixed-opt"><strong>Fixed E:</strong> {OPTION_E}</div>
+            </div>
+          </div>
+
+          <div className="form-group highlight-box">
+            <label>Which one is Correct? *</label>
+            <select 
+              className="form-control"
+              value={newQuestion.correctAnswerId}
+              onChange={(e) => handleAddQuestionChange('correctAnswerId', e.target.value)}
+            >
+              <option value="opt1">Option 1: {newQuestion.opt1 || '(Empty)'}</option>
+              <option value="opt2">Option 2: {newQuestion.opt2 || '(Empty)'}</option>
+              <option value="opt3">Option 3: {newQuestion.opt3 || '(Empty)'}</option>
+              <option value="optD">Fixed D: {OPTION_D}</option>
+              <option value="optE">Fixed E: {OPTION_E}</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label>Explanation (Optional)</label>
+            <textarea 
+              className="form-control" 
+              placeholder="Why is this the answer?"
+              value={newQuestion.explanation}
+              onChange={(e) => handleAddQuestionChange('explanation', e.target.value)}
+              style={{ minHeight: '80px' }}
+            />
+          </div>
+
+          <div className="form-actions">
+            <button type="submit" className="btn-primary large" disabled={isSubmitting}>
+              {isSubmitting ? 'Saving to Database...' : '+ Add Question'}
+            </button>
+          </div>
+        </form>
+      )}
+
+      {activeTab === 'list' && (
+        <div className="qb-list-view animate-fade">
+          <div className="qb-filters">
+            <div className="search-box">
+              <span className="search-icon">🔍</span>
+              <input 
+                type="text" 
+                placeholder="Search questions by keyword..." 
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+              />
+            </div>
+            
+            <select 
+              className="filter-select"
+              value={filterSubject}
+              onChange={e => {
+                setFilterSubject(e.target.value);
+                setFilterTopic('All'); // Reset topic when subject changes
+              }}
+            >
+              <option value="All">All Subjects</option>
+              {SUBJECTS.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+            </select>
+
+            <select 
+              className="filter-select"
+              value={filterTopic}
+              onChange={e => setFilterTopic(e.target.value)}
+              disabled={filterSubject === 'All'}
+            >
+              <option value="All">All Topics</option>
+              {currentFilterSubjectObj?.topics.map(t => (
+                <option key={t.id} value={t.id}>{t.name.split('-')[1]?.trim() || t.name}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Selection toolbar */}
+          <div className="selection-toolbar">
+            <button
+              className={`btn-select-mode ${selectionMode ? 'active' : ''}`}
+              onClick={toggleSelectMode}
+            >
+              {selectionMode ? '✕ Cancel' : '☑ Select'}
+            </button>
+            {selectionMode && (
+              <>
+                <button className="btn-select-all" onClick={selectAll}>
+                  Select All ({filteredQuestions.length})
+                </button>
+                {selectedIds.size > 0 && (
+                  <button className="btn-bulk-delete" onClick={handleBulkDelete}>
+                    🗑️ Delete {selectedIds.size} Selected
+                  </button>
+                )}
+                {selectedIds.size > 0 && (
+                  <span className="selection-count">{selectedIds.size} selected</span>
+                )}
+              </>
+            )}
+          </div>
+
+          {loading ? (
+            <div className="loading-spinner"><div className="spinner"></div></div>
+          ) : (
+            <div className="questions-list">
+              {filteredQuestions.length === 0 ? (
+                <div className="empty-state">
+                  <p>No questions found.</p>
+                  <button className="btn-primary" onClick={() => setActiveTab('add')}>Add a Question</button>
+                </div>
+              ) : (
+                filteredQuestions.map((q) => {
+                  const attemptedId = attempts[q.id];
+                  const isAttempted = !!attemptedId;
+                  const isCorrectAttempt = attemptedId === q.correctAnswerId;
+
+                  // Resolve the 5 options for this specific render using the shuffled map
+                  // A, B, C map to the shuffled opt1, opt2, opt3 ids
+                  const dynamicLayout = shuffledOptionsMap[q.id] || ['opt1', 'opt2', 'opt3'];
+                  
+                  const displayOptions = [
+                    { letter: 'A', id: dynamicLayout[0], text: q[dynamicLayout[0]] },
+                    { letter: 'B', id: dynamicLayout[1], text: q[dynamicLayout[1]] },
+                    { letter: 'C', id: dynamicLayout[2], text: q[dynamicLayout[2]] },
+                    { letter: 'D', id: 'optD', text: OPTION_D },
+                    { letter: 'E', id: 'optE', text: OPTION_E },
+                  ];
+
+                  return (
+                    <div
+                      key={q.id}
+                      className={`question-card v2 ${selectionMode && selectedIds.has(q.id) ? 'selected' : ''}`}
+                      onClick={selectionMode ? () => toggleSelect(q.id) : undefined}
+                      style={{ cursor: selectionMode ? 'pointer' : 'default' }}
+                    >
+                      <div className="q-header">
+                        <div className="q-meta">
+                          {selectionMode && (
+                            <input
+                              type="checkbox"
+                              className="q-checkbox"
+                              checked={selectedIds.has(q.id)}
+                              onChange={() => toggleSelect(q.id)}
+                              onClick={e => e.stopPropagation()}
+                            />
+                          )}
+                          <span className="q-badge subject">{q.subjectName}</span>
+                          <span className="q-badge topic">{q.topicName.split('-')[1]?.trim() || q.topicName}</span>
+                          {q.chapterName && <span className="q-badge chapter">{q.chapterName.split('-')[1]?.trim() || q.chapterName}</span>}
+                        </div>
+                        {!selectionMode && (
+                          <button className="btn-delete" onClick={() => handleDelete(q.id)} title="Delete">🗑️</button>
+                        )}
+                      </div>
+                      
+                      <div className="q-text">{q.text}</div>
+                      
+                      <div className="q-options-5">
+                        {!selectionMode && displayOptions.map(opt => {
+                          let optionClass = '';
+                          if (isAttempted) {
+                            if (opt.id === q.correctAnswerId) optionClass = 'correct'; // Show actual answer
+                            else if (opt.id === attemptedId && !isCorrectAttempt) optionClass = 'incorrect'; // Show wrong choice
+                          }
+
+                          return (
+                            <div 
+                              key={opt.id} 
+                              className={`q-option ${optionClass} ${!isAttempted && !selectionMode ? 'interactive' : ''}`}
+                              onClick={() => !isAttempted && !selectionMode && handleAttempt(q.id, opt.id)}
+                            >
+                              <span className="opt-letter">{opt.letter}.</span>
+                              <span className="opt-text">{opt.text}</span>
+                            </div>
+                          );
+                        })}
+                        {selectionMode && (
+                          <div className="selection-mode-hint">Click card to select / deselect</div>
+                        )}
+                      </div>
+
+                      {isAttempted && (
+                        <div className="attempt-feedback slide-down">
+                          {isCorrectAttempt ? (
+                            <div className="feedback-correct">✅ Correct!</div>
+                          ) : (
+                            <div className="feedback-incorrect">
+                              ❌ Incorrect. The correct answer was <strong>Option {displayOptions.find(o => o.id === q.correctAnswerId)?.letter}</strong>.
+                            </div>
+                          )}
+                          {q.explanation && (
+                            <div className="q-explanation">
+                              <strong>Explanation:</strong> {q.explanation}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}

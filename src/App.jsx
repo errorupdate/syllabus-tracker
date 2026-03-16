@@ -6,6 +6,7 @@ import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
 import PDFList from './components/PDFList';
 import PYQPage from './PYQPage';
+import QuestionBank from './components/QuestionBank';
 import './index.css';
 
 import PasswordLock from './components/PasswordLock';
@@ -68,6 +69,8 @@ function App() {
     content = <Dashboard subjects={SUBJECTS} revisionData={revisionData} />;
   } else if (activeView === 'pyq') {
     content = <PYQPage />;
+  } else if (activeView === 'questionBank') {
+    content = <QuestionBank />;
   } else {
     // Look for matching topic or chapter
     for (const subject of SUBJECTS) {
