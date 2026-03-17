@@ -94,14 +94,7 @@ export default function Sidebar({ subjects, revisionData, activeView, onSelectVi
           <span>Question Bank</span>
         </div>
 
-        <div
-          className={`nav-item dashboard-btn ${activeView === 'notes' ? 'active' : ''}`}
-          onClick={() => { onSelectView('notes'); onCloseMobile(); }}
-          style={{ marginTop: '8px', marginBottom: '8px', background: activeView === 'notes' ? 'var(--accent-bg)' : 'transparent', color: activeView === 'notes' ? 'var(--accent)' : 'inherit' }}
-        >
-          <span className="nav-icon">📒</span>
-          <span>Notes</span>
-        </div>
+
 
         {subjects.map(subject => {
           const sp = getSubjectProgress(subject);
