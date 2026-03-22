@@ -71,8 +71,15 @@ function App() {
     };
   }, []);
 
-  // Read data from Firebase real-time
+  // Read data from Firebase real-time and lock orientation
   useEffect(() => {
+    // Try to lock screen orientation to portrait
+    if (window.screen && window.screen.orientation && window.screen.orientation.lock) {
+      window.screen.orientation.lock('portrait').catch(() => {
+        // Ignore errors (not supported on all browsers or requires fullscreen)
+      });
+    }
+
     const docRef = doc(db, 'appData', DOC_ID);
     
     // Set up a real-time listener

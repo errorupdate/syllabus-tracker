@@ -812,3 +812,17 @@ body::before {
   .rev-circle { width: 22px; height: 22px; font-size: 0.55rem; }
   .pdf-name { font-size: 0.68rem; }
 }
+
+/* ============ FORCE PORTRAIT ============ */
+@media screen and (max-width: 900px) and (orientation: landscape) {
+  html {
+    transform: rotate(-90deg);
+    transform-origin: left top;
+    width: 100vh;
+    height: 100vw;
+    overflow-x: hidden;
+    position: absolute;
+    top: 100%;
+    left: 0;
+  }
+}
