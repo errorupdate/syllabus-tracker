@@ -11,6 +11,7 @@ import QuestionBank from './components/QuestionBank';
 import './index.css';
 
 import PasswordLock from './components/PasswordLock';
+import InstallPrompt from './components/InstallPrompt';
 
 const DOC_ID = 'user-revisions';
 
@@ -178,6 +179,7 @@ function App() {
 
   return (
     <PasswordLock>
+      <InstallPrompt />
       <div className={`app-layout ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
         <Sidebar
           subjects={SUBJECTS}
