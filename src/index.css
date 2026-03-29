@@ -815,14 +815,21 @@ body::before {
 
 /* ============ FORCE PORTRAIT ============ */
 @media screen and (max-width: 900px) and (orientation: landscape) {
-  html {
-    transform: rotate(-90deg);
-    transform-origin: left top;
-    width: 100vh;
-    height: 100vw;
-    overflow-x: hidden;
-    position: absolute;
-    top: 100%;
-    left: 0;
+  /* Removed CSS rotation hack as manifest.json now correctly enforces portrait-primary orientation for PWAs */
+  /* Fallback: hint to user if viewing in browser */
+  body::before {
+    content: "Please rotate your phone to portrait mode for the best experience.";
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 24px;
+    font-size: 1.2rem;
+    font-weight: bold;
   }
 }
