@@ -167,6 +167,7 @@ export default function TestDashboard() {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedTest, setSelectedTest] = useState(null);
+  const [expandedSubject, setExpandedSubject] = useState(null);
 
   useEffect(() => {
     const q = query(collection(db, 'testResults'), orderBy('timestamp', 'desc'));
@@ -194,13 +195,25 @@ export default function TestDashboard() {
     const subjectMap = {};
     history.forEach(t => {
       if (!t.subjectId || t.subjectId === 'all') return;
-      if (!subjectMap[t.subjectId]) subjectMap[t.subjectId] = { name: t.category?.split(' →')[0] || t.subjectId, accs: [] };
+      if (!subjectMap[t.subjectId]) subjectMap[t.subjectId] = { name: t.category?.split(' →')[0] || t.subjectId, accs: [], topics: {} };
       subjectMap[t.subjectId].accs.push(t.accuracy);
+      
+      const topicName = t.topicId === 'all' ? 'Mixed' : (t.category?.split(' → ')[1] || t.category || 'Topic');
+      if (!subjectMap[t.subjectId].topics[topicName]) {
+        subjectMap[t.subjectId].topics[topicName] = { count: 0, accs: [] };
+      }
+      subjectMap[t.subjectId].topics[topicName].count++;
+      subjectMap[t.subjectId].topics[topicName].accs.push(t.accuracy);
     });
     const subjectStats = Object.values(subjectMap).map(s => ({
       name: s.name,
       avg: avg(s.accs),
       count: s.accs.length,
+      topics: Object.entries(s.topics).map(([tName, tData]) => ({
+        name: tName,
+        count: tData.count,
+        avg: avg(tData.accs)
+      })).sort((a, b) => b.count - a.count)
     })).sort((a, b) => b.avg - a.avg);
 
     // Trend (last 10, chronological)
@@ -338,17 +351,42 @@ export default function TestDashboard() {
                   {stats.subjectStats.map(s => {
                     const barColor = s.avg >= 70 ? '#4ade80' : s.avg >= 40 ? '#fb923c' : '#f87171';
                     return (
-                      <div key={s.name} className="tdb-subject-row">
-                        <div className="tdb-subject-info">
-                          <span className="tdb-subject-name">{s.name}</span>
-                          <span className="tdb-subject-count">{s.count} test{s.count > 1 ? 's' : ''}</span>
-                        </div>
-                        <div className="tdb-bar-row">
-                          <div className="tdb-bar-track">
-                            <div className="tdb-bar-fill" style={{ width: `${s.avg}%`, background: barColor }} />
+                      <div key={s.name} className={`tdb-subject-row ${expandedSubject === s.name ? 'expanded' : ''}`}>
+                        <div 
+                          className="tdb-subject-main" 
+                          onClick={() => setExpandedSubject(prev => prev === s.name ? null : s.name)}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          <div className="tdb-subject-info">
+                            <span className="tdb-subject-name">
+                              {s.name} <span style={{ fontSize: '0.65rem', color: '#64748b', marginLeft: '6px' }}>{expandedSubject === s.name ? '▲' : '▼'}</span>
+                            </span>
+                            <span className="tdb-subject-count">{s.count} test{s.count > 1 ? 's' : ''}</span>
                           </div>
-                          <span className="tdb-bar-val" style={{ color: barColor }}>{s.avg}%</span>
+                          <div className="tdb-bar-row">
+                            <div className="tdb-bar-track">
+                              <div className="tdb-bar-fill" style={{ width: `${s.avg}%`, background: barColor }} />
+                            </div>
+                            <span className="tdb-bar-val" style={{ color: barColor }}>{s.avg}%</span>
+                          </div>
                         </div>
+
+                        {expandedSubject === s.name && s.topics && (
+                          <div className="tdb-subject-topics">
+                            {s.topics.map(t => {
+                              const tColor = t.avg >= 70 ? '#4ade80' : t.avg >= 40 ? '#fb923c' : '#f87171';
+                              return (
+                                <div key={t.name} className="tdb-topic-row">
+                                  <div className="tdb-topic-info">
+                                    <span className="tdb-topic-name">{t.name === 'Mixed' ? '🔀 Mixed Topics' : `📄 ${t.name}`}</span>
+                                    <span className="tdb-topic-count">{t.count} test{t.count > 1 ? 's' : ''}</span>
+                                  </div>
+                                  <div className="tdb-topic-acc" style={{ color: tColor }}>{t.avg}%</div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
                       </div>
                     );
                   })}
