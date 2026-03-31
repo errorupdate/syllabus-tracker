@@ -959,3 +959,106 @@ textarea.form-control {
   .empty-state { padding: 36px 16px; }
   .empty-state p { font-size: 0.9rem; }
 }
+
+/* ============================================================
+   SUBJECT COMPLETION MODAL & BADGE
+   ============================================================ */
+.completion-badge {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--accent-amber);
+  background: rgba(245, 158, 11, 0.1);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  margin-top: 4px;
+}
+
+.qb-completion-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.qb-completion-modal {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-bright);
+  border-radius: var(--radius);
+  padding: 32px;
+  max-width: 450px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 25px 50px -12px rgba(139, 92, 246, 0.25);
+  animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.confetti-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #f59e0b, #ed8936);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.completion-msg {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+.completion-stats-box {
+  display: flex;
+  justify-content: space-around;
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: var(--radius-sm);
+  padding: 18px 20px;
+  margin-bottom: 24px;
+  border: 1px solid var(--border);
+}
+.c-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.c-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.c-value {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+.accuracy-value { color: var(--accent-green); }
+
+.completion-actions {
+  display: flex;
+  gap: 12px;
+  flex-direction: column;
+}
+.btn-reset-modal {
+  padding: 14px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: rgba(20, 184, 166, 0.1);
+  color: var(--accent-teal);
+  border: 1px solid rgba(20, 184, 166, 0.3);
+}
+.btn-reset-modal:hover {
+  background: rgba(20, 184, 166, 0.2);
+  transform: translateY(-2px);
+}

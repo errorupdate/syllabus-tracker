@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { db } from '../firebase';
-import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, deleteDoc, updateDoc, setDoc } from 'firebase/firestore';
 import { SUBJECTS } from '../data';
 import './QuestionBank.css';
 
@@ -48,6 +48,12 @@ export default function QuestionBank() {
     } catch { return { attempted: 0, correct: 0, wrong: 0 }; }
   });
 
+  // -- Completion Tracking State --
+  const [completions, setCompletions] = useState({});
+  const [completedSubjectsList, setCompletedSubjectsList] = useState([]);
+  const [showCompletionModal, setShowCompletionModal] = useState(false);
+  const [currentCompletionStats, setCurrentCompletionStats] = useState(null);
+
   // -- Add/Edit View State --
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingId, setEditingId] = useState(null); // null = adding, string = editing
@@ -93,6 +99,61 @@ export default function QuestionBank() {
 
     return () => unsubscribe();
   }, [shuffledOptionsMap]); // Only run when map changes or initially
+
+  // Fetch Completions
+  useEffect(() => {
+    const docRef = doc(db, 'appData', 'qb-completions');
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        setCompletions(docSnap.data().data || {});
+      } else {
+        setDoc(docRef, { data: {} });
+      }
+    }, (error) => {
+      console.error("Error fetching completions: ", error);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // Check Subject Completion
+  useEffect(() => {
+    if (filterSubject === 'All' || filterTopic !== 'All' || searchQuery !== '') return;
+    if (filteredQuestions.length === 0) return;
+
+    const allAttempted = filteredQuestions.every(q => attempts[q.id]);
+    
+    if (allAttempted && !completedSubjectsList.includes(filterSubject)) {
+      let correct = 0;
+      filteredQuestions.forEach(q => {
+        if (attempts[q.id] === q.correctAnswerId) correct++;
+      });
+      const accuracy = Math.round((correct / filteredQuestions.length) * 100);
+
+      const currentSubjectObj = SUBJECTS.find(s => s.id === filterSubject);
+      const existingData = completions[filterSubject] || { count: 0, bestAccuracy: 0, lastAccuracy: 0 };
+      const nextData = {
+        ...existingData,
+        count: existingData.count + 1,
+        lastAccuracy: accuracy,
+        bestAccuracy: Math.max(existingData.bestAccuracy || 0, accuracy)
+      };
+
+      const newCompletionsMap = {
+        ...completions,
+        [filterSubject]: nextData
+      };
+
+      setCompletedSubjectsList(prev => [...prev, filterSubject]);
+      setDoc(doc(db, 'appData', 'qb-completions'), { data: newCompletionsMap }, { merge: true });
+
+      setCurrentCompletionStats({
+        subjectName: currentSubjectObj?.name || 'Subject',
+        accuracy,
+        count: nextData.count
+      });
+      setShowCompletionModal(true);
+    }
+  }, [attempts, filterSubject, filterTopic, searchQuery, filteredQuestions, completedSubjectsList, completions]);
 
   // --- Add Question Handlers ---
   const handleAddQuestionChange = (field, value) => {
@@ -258,6 +319,7 @@ export default function QuestionBank() {
   const resetScore = () => {
     setScore({ attempted: 0, correct: 0, wrong: 0 });
     setAttempts({});
+    setCompletedSubjectsList([]); // reset completions flags for this session
     localStorage.setItem('qb-score', JSON.stringify({ attempted: 0, correct: 0, wrong: 0 }));
     setCurrentIndex(0);
     setCardAnim('');
@@ -366,6 +428,37 @@ export default function QuestionBank() {
           </button>
         </div>
       </div>
+
+      {/* Subject Completion Modal */}
+      {showCompletionModal && currentCompletionStats && (
+        <div className="qb-completion-modal-overlay">
+          <div className="qb-completion-modal">
+            <h2 className="confetti-title">🎉 Subject Completed! 🎉</h2>
+            <p className="completion-msg">
+              You have successfully attempted all questions for <strong>{currentCompletionStats.subjectName}</strong>.
+            </p>
+            
+            <div className="completion-stats-box">
+              <div className="c-stat">
+                <span className="c-label">Accuracy</span>
+                <span className="c-value accuracy-value">{currentCompletionStats.accuracy}%</span>
+              </div>
+              <div className="c-stat">
+                <span className="c-label">Total Completions</span>
+                <span className="c-value">{currentCompletionStats.count}</span>
+              </div>
+            </div>
+
+            <div className="completion-actions">
+              <button className="btn-primary" onClick={() => setShowCompletionModal(false)}>Close</button>
+              <button className="btn-reset-modal" onClick={() => {
+                setShowCompletionModal(false);
+                resetScore();
+              }}>🔄 Reset Subject to Retake</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Success Toast - Fixed overlay */}
       {successMsg && (
@@ -543,6 +636,12 @@ export default function QuestionBank() {
                 <option key={t.id} value={t.id}>{t.name.split('-')[1]?.trim() || t.name}</option>
               ))}
             </select>
+            
+            {filterSubject !== 'All' && completions[filterSubject] && completions[filterSubject].count > 0 && (
+              <div className="completion-badge">
+                🏆 Completions: {completions[filterSubject].count} | Record Accuracy: {completions[filterSubject].bestAccuracy}%
+              </div>
+            )}
           </div>
 
           {/* Scoreboard */}
