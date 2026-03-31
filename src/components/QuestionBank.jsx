@@ -115,19 +115,23 @@ export default function QuestionBank() {
     return () => unsubscribe();
   }, []);
 
-  // Check Subject Completion
+  // Check Subject Completion - only when attempts or filterSubject changes
   useEffect(() => {
     if (filterSubject === 'All' || filterTopic !== 'All' || searchQuery !== '') return;
-    if (filteredQuestions.length === 0) return;
+    if (questions.length === 0) return;
 
-    const allAttempted = filteredQuestions.every(q => attempts[q.id]);
+    // Get relevant questions for current subject
+    const subjectQuestions = questions.filter(q => q.subjectId === filterSubject);
+    if (subjectQuestions.length === 0) return;
+
+    const allAttempted = subjectQuestions.every(q => attempts[q.id]);
     
     if (allAttempted && !completedSubjectsList.includes(filterSubject)) {
       let correct = 0;
-      filteredQuestions.forEach(q => {
+      subjectQuestions.forEach(q => {
         if (attempts[q.id] === q.correctAnswerId) correct++;
       });
-      const accuracy = Math.round((correct / filteredQuestions.length) * 100);
+      const accuracy = Math.round((correct / subjectQuestions.length) * 100);
 
       const currentSubjectObj = SUBJECTS.find(s => s.id === filterSubject);
       const existingData = completions[filterSubject] || { count: 0, bestAccuracy: 0, lastAccuracy: 0 };
@@ -153,7 +157,7 @@ export default function QuestionBank() {
       });
       setShowCompletionModal(true);
     }
-  }, [attempts, filterSubject, filterTopic, searchQuery, filteredQuestions, completedSubjectsList, completions]);
+  }, [attempts, filterSubject, filterTopic, searchQuery, completedSubjectsList, completions, questions]);
 
   // --- Add Question Handlers ---
   const handleAddQuestionChange = (field, value) => {
