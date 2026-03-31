@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { db } from '../../firebase';
 import { collection, onSnapshot, query, orderBy, addDoc, serverTimestamp } from 'firebase/firestore';
 import { SUBJECTS } from '../../data';
@@ -209,6 +209,31 @@ function ActiveTest({ config, onEnd }) {
     if (currentIdx < questions.length - 1) goToIndex(currentIdx + 1, 'slide-left');
   }, [currentIdx, questions.length, goToIndex]);
 
+  const goPrev = useCallback(() => {
+    if (currentIdx > 0) goToIndex(currentIdx - 1, 'slide-right');
+  }, [currentIdx, goToIndex]);
+
+  // -- Swipe Handlers --
+  const touchStartX = useRef(null);
+  const touchEndX = useRef(null);
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e) => {
+    touchEndX.current = null;
+    touchStartX.current = e.targetTouches[0].clientX;
+  };
+
+  const onTouchMove = (e) => {
+    touchEndX.current = e.targetTouches[0].clientX;
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStartX.current || !touchEndX.current) return;
+    const distance = touchStartX.current - touchEndX.current;
+    if (distance > minSwipeDistance) goNext(); // Swipe Left -> Next
+    if (distance < -minSwipeDistance) goPrev(); // Swipe Right -> Prev
+  };
+
   const handleAnswer = useCallback((optId) => {
     if (isAttempted) return;
     setAnswers(prev => ({ ...prev, [current.id]: optId }));
@@ -264,7 +289,12 @@ function ActiveTest({ config, onEnd }) {
       </div>
 
       {/* Question card */}
-      <div className="tm-question-area">
+      <div 
+        className="tm-question-area"
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+      >
         <div className={`tm-question-card ${cardAnim}`} key={current.id}>
           {/* Meta badges */}
           <div className="tm-q-meta">
@@ -322,7 +352,7 @@ function ActiveTest({ config, onEnd }) {
 
         {/* Nav buttons */}
         <div className="tm-nav-row">
-          <button className="tm-nav-btn" onClick={() => goToIndex(currentIdx - 1, 'slide-right')} disabled={currentIdx === 0}>
+          <button className="tm-nav-btn" onClick={goPrev} disabled={currentIdx === 0}>
             ◀ Prev
           </button>
           <div className="tm-dot-row">

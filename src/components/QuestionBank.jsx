@@ -40,6 +40,27 @@ export default function QuestionBank() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [cardAnim, setCardAnim] = useState(''); // 'slide-left', 'slide-right', ''
 
+  // -- Swipe Handlers --
+  const touchStartX = useRef(null);
+  const touchEndX = useRef(null);
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e) => {
+    touchEndX.current = null;
+    touchStartX.current = e.targetTouches[0].clientX;
+  };
+
+  const onTouchMove = (e) => {
+    touchEndX.current = e.targetTouches[0].clientX;
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStartX.current || !touchEndX.current) return;
+    const distance = touchStartX.current - touchEndX.current;
+    if (distance > minSwipeDistance) goNext(); // Swipe Left -> Next
+    if (distance < -minSwipeDistance) goPrev(); // Swipe Right -> Prev
+  };
+
   // -- Scoring State (persisted via localStorage) --
   const [score, setScore] = useState(() => {
     try {
@@ -757,7 +778,12 @@ export default function QuestionBank() {
               ];
 
               return (
-                <div className="single-card-wrapper">
+                <div 
+                  className="single-card-wrapper"
+                  onTouchStart={onTouchStart}
+                  onTouchMove={onTouchMove}
+                  onTouchEnd={onTouchEnd}
+                >
                   {/* Navigation header */}
                   <div className="card-nav-header">
                     <button className="btn-nav" onClick={goPrev} disabled={safeIndex === 0}>
