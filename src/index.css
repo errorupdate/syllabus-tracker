@@ -191,6 +191,24 @@ body::before {
 
 .dashboard-btn .nav-icon { font-size: 1.1rem; }
 
+/* Test Mode nav button — amber glow special style */
+.test-mode-btn {
+  background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(251,191,36,0.06)) !important;
+  border-left: 3px solid #f59e0b !important;
+  color: #fbbf24 !important;
+  font-weight: 600;
+  margin: 4px 8px !important;
+  border-radius: 8px;
+  padding-left: 13px !important;
+  transition: all 0.2s ease;
+}
+.test-mode-btn:hover {
+  background: linear-gradient(135deg, rgba(245,158,11,0.18), rgba(251,191,36,0.12)) !important;
+  box-shadow: 0 0 16px rgba(245,158,11,0.15);
+  transform: translateX(2px);
+}
+
+
 .chevron {
   font-size: 1rem;
   font-weight: 600;
@@ -710,6 +728,10 @@ body::before {
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: none; }
+}
 
 /* ============ MOBILE (≤768px) ============ */
 @media (max-width: 768px) {
@@ -813,7 +835,53 @@ body::before {
   .pdf-name { font-size: 0.68rem; }
 }
 
-/* ============ FORCE PORTRAIT ============ */
-@media screen and (max-width: 900px) and (orientation: landscape) {
-  /* Removed CSS rotation hack and fallback message. We rely purely on PWA manifest to lock the orientation. */
+/* ============ LANDSCAPE PHONE (h ≤ 560px) ============ */
+@media (orientation: landscape) and (max-height: 560px) {
+  /* Sidebar */
+  .sidebar { width: 220px; }
+  .sidebar-collapsed .main-content { margin-left: 0; }
+  .main-content { margin-left: 220px; }
+  .sidebar-logo h2 { font-size: 0.9rem; }
+  .nav-item { padding: 7px 12px; font-size: 0.8rem; }
+  .sidebar-progress { padding: 10px 12px; }
+  .sidebar-usage-time { padding: 8px 12px; }
+  .usage-label { font-size: 0.72rem; }
+  .usage-value { font-size: 0.82rem; }
+
+  /* Topbar */
+  .topbar { height: 40px; padding: 0 10px; }
+  .topbar-title { font-size: 0.82rem; }
+
+  /* Content */
+  .content-area { padding: 10px 12px; overflow-y: auto; }
+
+  /* Dashboard — compact */
+  .dashboard { max-width: 100%; }
+  .dashboard-header { margin-bottom: 14px; text-align: left; }
+  .dashboard-header h1 { font-size: 1.1rem; }
+  .dashboard-header .subtitle { font-size: 0.78rem; }
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .stat-card { padding: 10px 8px; }
+  .stat-number { font-size: 1.4rem; }
+  .stat-label { font-size: 0.68rem; }
+  .stats-grid-secondary { margin-bottom: 12px; }
+  .stat-card.fill-card { padding: 10px 14px; }
+  .card-row { margin-bottom: 8px; }
+  .stat-number-sm { font-size: 0.88rem; }
+
+  .dashboard-columns {
+    grid-template-columns: 2fr 1fr;
+    gap: 14px;
+  }
+  .dashboard-section { margin-bottom: 16px; }
+  .dashboard-section h2 { font-size: 0.95rem; margin-bottom: 10px; }
+  .subject-cards { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .subject-card { padding: 12px 14px; }
+  .subject-card-header h3 { font-size: 0.85rem; }
+  .attention-item { padding: 10px 12px; }
+  .attention-name { font-size: 0.78rem; }
 }

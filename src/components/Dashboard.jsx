@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { db } from '../firebase';
-import { collection, onSnapshot } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, limit } from 'firebase/firestore';
 import ProgressBar from './ProgressBar';
 
-export default function Dashboard({ subjects, revisionData }) {
+export default function Dashboard({ subjects, revisionData, onSelectView }) {
   const [qbStats, setQbStats] = useState({ total: 0, cs: 0, gp: 0 });
+  const [testHistory, setTestHistory] = useState([]);
+  const [selectedTest, setSelectedTest] = useState(null); // test to review
 
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, 'questionBank-v2'), (snap) => {
@@ -18,6 +20,14 @@ export default function Dashboard({ subjects, revisionData }) {
       setQbStats({ total, cs, gp });
     });
     return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const q = query(collection(db, 'testResults'), orderBy('timestamp', 'desc'), limit(10));
+    const unsub = onSnapshot(q, snap => {
+      setTestHistory(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    }, err => console.error('testResults fetch:', err));
+    return () => unsub();
   }, []);
   function countPdfs(topic) {
     if (topic.chapters) return topic.chapters.reduce((s, ch) => s + ch.pdfs.length, 0);
@@ -119,6 +129,16 @@ export default function Dashboard({ subjects, revisionData }) {
     .filter(item => item.type === 'yesterday')
     .sort((a, b) => b.ts - a.ts);
 
+  // Compute test analytics for the dashboard
+  const totalTests = testHistory.length;
+  let totalTestAttempted = 0;
+  let totalTestCorrect = 0;
+  testHistory.forEach(t => {
+    totalTestAttempted += t.attempted || 0;
+    totalTestCorrect += t.correct || 0;
+  });
+  const avgTestAccuracy = totalTestAttempted > 0 ? Math.round((totalTestCorrect / totalTestAttempted) * 100) : 0;
+
   return (
     <div className="dashboard">
       <div className="dashboard-header">
@@ -155,8 +175,10 @@ export default function Dashboard({ subjects, revisionData }) {
         </div>
       </div>
 
-      {/* Question Bank Stats Section */}
-      <div className="stats-grid-secondary" style={{ marginTop: '20px' }}>
+      {/* ── Question Bank & Test Stats ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '14px', marginTop: '20px', marginBottom: '20px' }}>
+        
+        {/* Question Bank */}
         <div className="stat-card glass-card fill-card">
           <div className="card-row">
             <span className="stat-label">📝 Question Bank</span>
@@ -175,6 +197,32 @@ export default function Dashboard({ subjects, revisionData }) {
             </div>
           </div>
         </div>
+
+        {/* Test Analytics Summary */}
+        <div className="stat-card glass-card fill-card">
+          <div className="card-row">
+            <span className="stat-label">🧪 Testing Performance</span>
+            <span className="stat-number-sm glow-text-green">
+              {totalTests} Tests Taken
+            </span>
+          </div>
+          <div style={{ display: 'flex', gap: '12px', marginTop: '12px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, minWidth: '100px', background: 'var(--surface)', borderRadius: '10px', padding: '12px 10px' }}>
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>Avg Accuracy</span>
+              <span style={{ fontSize: 'clamp(1.3rem, 4vw, 2rem)', fontWeight: 'bold', color: avgTestAccuracy >= 70 ? '#4ade80' : avgTestAccuracy >= 40 ? '#fb923c' : '#f85149' }}>{avgTestAccuracy}%</span>
+            </div>
+            <div 
+               style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', flex: 1, minWidth: '100px', background: 'linear-gradient(135deg, rgba(139,92,246,0.1), rgba(59,130,246,0.1))', borderRadius: '10px', padding: '12px 10px', cursor: 'pointer', border: '1px solid rgba(139,92,246,0.2)', transition: 'all 0.2s' }}
+               onClick={() => onSelectView('testDashboard')}
+               onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(139,92,246,0.15)'; }}
+               onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; }}
+            >
+              <span style={{ color: '#93c5fd', fontSize: '0.85rem', fontWeight: 600 }}>Full Analytics</span>
+              <span style={{ fontSize: '1.2rem', marginTop: '4px' }}>View 📊</span>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       <div className="dashboard-columns">
@@ -243,6 +291,184 @@ export default function Dashboard({ subjects, revisionData }) {
           </div>
         </div>
       </div>
+
+      {/* ── Test History & Trend ── */}
+      <div className="dashboard-section" style={{ marginTop: '36px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+          <h2 style={{ margin: 0 }}>🧪 Test History</h2>
+          <button 
+            onClick={() => onSelectView('testDashboard')}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 14px', background: 'rgba(139,92,246,0.1)', color: '#c4b5fd', border: '1px solid rgba(139,92,246,0.2)', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', fontFamily: 'inherit' }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(139,92,246,0.18)'; e.currentTarget.style.borderColor = 'rgba(139,92,246,0.4)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(139,92,246,0.1)'; e.currentTarget.style.borderColor = 'rgba(139,92,246,0.2)'; }}
+          >
+             <span>📊</span> Full Analytics
+          </button>
+        </div>
+
+        {testHistory.length === 0 ? (
+          <div style={{ color: '#64748b', fontSize: '0.9rem', background: '#111827', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px', padding: '20px 24px' }}>
+            No tests taken yet. Hit <strong style={{ color: '#fbbf24' }}>Test Mode</strong> from the sidebar to start!
+          </div>
+        ) : (
+          <>
+            {/* Trend message (based on last 3) */}
+            {(() => {
+              const last3 = testHistory.slice(0, 3).map(t => t.accuracy);
+              let msg = '', icon = '', color = '#94a3b8';
+              if (last3.length >= 2) {
+                const improving = last3.every((v, i) => i === 0 || v <= last3[i - 1]);
+                const declining = last3.every((v, i) => i === 0 || v >= last3[i - 1]);
+                if (improving && last3[0] > last3[last3.length - 1]) {
+                  icon = '📈'; msg = 'Your accuracy is improving! Keep it up!'; color = '#3fb950';
+                } else if (declining && last3[0] < last3[last3.length - 1]) {
+                  icon = '📉'; msg = 'Accuracy is dipping — review your weak topics!'; color = '#f85149';
+                } else {
+                  icon = '➡️'; msg = 'Consistent performance across recent tests.'; color = '#fbbf24';
+                }
+              }
+              return msg ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(255,255,255,0.03)', border: `1px solid ${color}33`, borderRadius: '12px', padding: '12px 18px', marginBottom: '16px', color }}>
+                  <span style={{ fontSize: '1.2rem' }}>{icon}</span>
+                  <span style={{ fontSize: '0.92rem', fontWeight: 600 }}>{msg}</span>
+                </div>
+              ) : null;
+            })()}
+
+            {/* History table */}
+            <div style={{ background: '#111827', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '14px', overflow: 'hidden' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr 80px 80px 80px 80px 36px', padding: '10px 16px', background: 'rgba(139,92,246,0.06)', borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: '0.72rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                <span>Date</span><span>Category</span><span style={{textAlign:'center'}}>Total</span><span style={{textAlign:'center'}}>Correct</span><span style={{textAlign:'center'}}>Skipped</span><span style={{textAlign:'center'}}>Accuracy</span><span />
+              </div>
+              {testHistory.slice(0, 8).map((t, i) => {
+                const accColor = t.accuracy >= 70 ? '#3fb950' : t.accuracy >= 40 ? '#f0883e' : '#f85149';
+                return (
+                  <div key={t.id}
+                    style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr 80px 80px 80px 80px 36px', padding: '11px 16px', borderBottom: i < testHistory.slice(0,8).length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none', fontSize: '0.84rem', alignItems: 'center', transition: 'background 0.15s', cursor: t.questionsSnapshot ? 'pointer' : 'default' }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'}
+                    onMouseLeave={e => e.currentTarget.style.background = ''}
+                    onClick={() => t.questionsSnapshot && setSelectedTest(t)}
+                  >
+                    <span style={{ color: '#64748b', fontSize: '0.78rem' }}>{t.date}{t.timeStr ? <><br /><span style={{fontSize:'0.7rem'}}>{t.timeStr}</span></> : ''}</span>
+                    <span style={{ color: '#cbd5e1', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '0.82rem' }}>{t.category}</span>
+                    <span style={{ textAlign: 'center', color: '#94a3b8' }}>{t.totalQuestions}</span>
+                    <span style={{ textAlign: 'center', color: '#3fb950', fontWeight: 600 }}>{t.correct}</span>
+                    <span style={{ textAlign: 'center', color: '#f0883e' }}>{t.totalQuestions - t.attempted}</span>
+                    <span style={{ textAlign: 'center', fontWeight: 700, color: accColor }}>{t.accuracy}%</span>
+                    <span style={{ textAlign: 'center', color: '#475569', fontSize: '0.8rem' }}>{t.questionsSnapshot ? '📋' : ''}</span>
+                  </div>
+                );
+              })}
+            </div>
+            {testHistory.some(t => t.questionsSnapshot) && (
+              <p style={{ color: '#475569', fontSize: '0.75rem', marginTop: '8px', textAlign: 'center' }}>📋 Click any row to review questions from that test</p>
+            )}
+          </>
+        )}
+      </div>
+
+      {/* ── Test Review Modal ── */}
+      {selectedTest && (
+        <TestReviewModal test={selectedTest} onClose={() => setSelectedTest(null)} />
+      )}
     </div>
   );
 }
+
+// ────────────────────────────────────────
+// Helper: get displayed text for an optionId
+// ────────────────────────────────────────
+function getOptionText(q, optId) {
+  if (!optId) return null;
+  if (optId === 'optD') return 'More than one of the above';
+  if (optId === 'optE') return 'None of the above';
+  return q[optId] || optId;
+}
+
+// ────────────────────────────────────────
+// Test Review Modal
+// ────────────────────────────────────────
+function TestReviewModal({ test, onClose }) {
+  const { date, timeStr, category, accuracy, correct, wrong, totalQuestions, attempted,
+          motivationalMessage, questionsSnapshot = [], answersMap = {} } = test;
+
+  const accColor = accuracy >= 70 ? '#3fb950' : accuracy >= 40 ? '#f0883e' : '#f85149';
+  const skipped = totalQuestions - attempted;
+
+  return (
+    <div
+      style={{ position: 'fixed', inset: 0, zIndex: 9998, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', overflowY: 'auto', padding: '24px 12px 48px' }}
+      onClick={e => e.target === e.currentTarget && onClose()}
+    >
+      <div style={{ background: '#0f1629', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px', width: '100%', maxWidth: '680px', animation: 'fadeInUp 0.3s ease' }}>
+        {/* Header */}
+        <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px' }}>
+          <div>
+            <div style={{ fontSize: '0.78rem', color: '#64748b', marginBottom: '4px' }}>{date}{timeStr ? ` · ${timeStr}` : ''}</div>
+            <div style={{ fontSize: '1.05rem', fontWeight: 700, color: '#e2e8f0' }}>{category}</div>
+            {motivationalMessage && (
+              <div style={{ marginTop: '8px', fontSize: '0.88rem', color: accColor, fontWeight: 600 }}>
+                {accuracy >= 80 ? '🏆' : accuracy >= 60 ? '👍' : accuracy >= 40 ? '⚡' : '📖'} {motivationalMessage}
+              </div>
+            )}
+          </div>
+          <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#94a3b8', fontSize: '1rem', width: '32px', height: '32px', cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+        </div>
+
+        {/* Stats row */}
+        <div style={{ display: 'flex', gap: '0', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+          {[['Total', totalQuestions, '#94a3b8'], ['Correct', correct, '#3fb950'], ['Wrong', wrong, '#f85149'], ['Skipped', skipped, '#f0883e'], ['Accuracy', `${accuracy}%`, accColor]].map(([lbl, val, clr]) => (
+            <div key={lbl} style={{ flex: 1, padding: '14px 8px', textAlign: 'center', borderRight: '1px solid rgba(255,255,255,0.05)' }}>
+              <div style={{ fontSize: '1.3rem', fontWeight: 800, color: clr }}>{val}</div>
+              <div style={{ fontSize: '0.68rem', color: '#475569', fontWeight: 600, textTransform: 'uppercase', marginTop: '2px' }}>{lbl}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Question review list */}
+        <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {questionsSnapshot.length === 0 ? (
+            <p style={{ color: '#475569', textAlign: 'center' }}>No question data recorded.</p>
+          ) : questionsSnapshot.map((q, idx) => {
+            const yourOptId = answersMap[q.id];
+            const isSkipped = !yourOptId;
+            const isCorrect = yourOptId === q.correctAnswerId;
+            const yourText = getOptionText(q, yourOptId);
+            const correctText = getOptionText(q, q.correctAnswerId);
+            const borderColor = isSkipped ? '#f0883e' : isCorrect ? '#3fb950' : '#f85149';
+            return (
+              <div key={q.id} style={{ background: '#111827', border: `1px solid rgba(255,255,255,0.05)`, borderLeft: `3px solid ${borderColor}`, borderRadius: '12px', padding: '14px 16px' }}>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '6px' }}>
+                  <span style={{ fontSize: '0.7rem', color: '#8b5cf6', background: 'rgba(139,92,246,0.1)', padding: '2px 7px', borderRadius: '999px' }}>{q.subjectName}</span>
+                  <span style={{ fontSize: '0.7rem', color: '#93c5fd', background: 'rgba(59,130,246,0.1)', padding: '2px 7px', borderRadius: '999px' }}>{q.topicName?.replace(/^T-?\d+\s*[-–]?\s*/, '') || q.topicName}</span>
+                </div>
+                <div style={{ fontSize: '0.75rem', color: '#475569', fontWeight: 600, marginBottom: '4px' }}>Q{idx + 1}.</div>
+                <div style={{ fontSize: '0.9rem', color: '#cbd5e1', lineHeight: 1.55, marginBottom: '10px' }}>{q.text}</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', fontSize: '0.82rem' }}>
+                  {isSkipped ? (
+                    <span style={{ color: '#f0883e', fontWeight: 600 }}>⏭ Skipped — Correct: {correctText}</span>
+                  ) : isCorrect ? (
+                    <span style={{ color: '#3fb950', fontWeight: 600 }}>✅ Correct — {correctText}</span>
+                  ) : (
+                    <>
+                      <span style={{ color: '#f85149' }}>✗ Your answer: {yourText}</span>
+                      <span style={{ color: '#3fb950', fontWeight: 600 }}>✓ Correct: {correctText}</span>
+                    </>
+                  )}
+                  {q.explanation && (
+                    <div style={{ color: '#64748b', fontStyle: 'italic', fontSize: '0.78rem', marginTop: '4px', paddingTop: '6px', borderTop: '1px solid rgba(255,255,255,0.04)' }}>💡 {q.explanation}</div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div style={{ padding: '12px 20px 20px', textAlign: 'center' }}>
+          <button onClick={onClose} style={{ padding: '10px 28px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.1)', background: '#1e293b', color: '#94a3b8', fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'Inter, sans-serif' }}>Close Review</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+

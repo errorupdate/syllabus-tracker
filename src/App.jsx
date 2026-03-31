@@ -7,6 +7,8 @@ import Dashboard from './components/Dashboard';
 import PDFList from './components/PDFList';
 import PYQPage from './PYQPage';
 import QuestionBank from './components/QuestionBank';
+import TestMode from './components/TestMode/TestMode';
+import TestDashboard from './components/TestDashboard';
 
 import './index.css';
 
@@ -22,6 +24,7 @@ function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [totalUsageSeconds, setTotalUsageSeconds] = useState(0);
+  const [testModeOpen, setTestModeOpen] = useState(false);
   const usageRef = useRef(0);
 
   // Usage time tracker
@@ -138,9 +141,11 @@ function App() {
     );
   }
   // Find the current view content
-  let content = null;
+  let content;
   if (activeView === 'dashboard') {
-    content = <Dashboard subjects={SUBJECTS} revisionData={revisionData} />;
+    content = <Dashboard subjects={SUBJECTS} revisionData={revisionData} onSelectView={setActiveView} />;
+  } else if (activeView === 'testDashboard') {
+    content = <TestDashboard />;
   } else if (activeView === 'pyq') {
     content = <PYQPage />;
   } else if (activeView === 'questionBank') {
@@ -187,6 +192,8 @@ function App() {
   return (
     <PasswordLock>
       <InstallPrompt />
+      {/* Full-screen Test Mode overlay — blocks everything else */}
+      {testModeOpen && <TestMode onClose={() => setTestModeOpen(false)} />}
       <div className={`app-layout ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
         <Sidebar
           subjects={SUBJECTS}
@@ -198,6 +205,7 @@ function App() {
           onCloseMobile={() => setMobileOpen(false)}
           collapsed={sidebarCollapsed}
           totalUsageSeconds={totalUsageSeconds}
+          onOpenTestMode={() => { setTestModeOpen(true); setMobileOpen(false); }}
         />
         {mobileOpen && <div className="overlay" onClick={() => setMobileOpen(false)} />}
         <main className="main-content">

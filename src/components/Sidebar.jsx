@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import ProgressBar from './ProgressBar';
 
-export default function Sidebar({ subjects, revisionData, activeView, onSelectView, onSelectDashboard, mobileOpen, onCloseMobile, collapsed, totalUsageSeconds }) {
+export default function Sidebar({ subjects, revisionData, activeView, onSelectView, onSelectDashboard, mobileOpen, onCloseMobile, collapsed, totalUsageSeconds, onOpenTestMode }) {
   const [expanded, setExpanded] = useState({});
 
   const toggle = (id) => setExpanded(prev => ({ ...prev, [id]: !prev[id] }));
@@ -94,7 +94,30 @@ export default function Sidebar({ subjects, revisionData, activeView, onSelectVi
           <span>Question Bank</span>
         </div>
 
+        {/* Test Mode button */}
+        <div
+          className="nav-item dashboard-btn test-mode-btn"
+          onClick={onOpenTestMode}
+          style={{ marginTop: '8px' }}
+        >
+          <span className="nav-icon">🧪</span>
+          <span>Test Mode</span>
+        </div>
 
+        {/* Test Dashboard button */}
+        <div
+          className={`nav-item dashboard-btn test-dash-btn`}
+          onClick={() => { onSelectView('testDashboard'); onCloseMobile(); }}
+          style={{
+            marginTop: '4px',
+            background: activeView === 'testDashboard' ? 'rgba(59,130,246,0.12)' : 'transparent',
+            color: activeView === 'testDashboard' ? '#93c5fd' : 'inherit',
+            borderLeft: activeView === 'testDashboard' ? '3px solid #3b82f6' : '3px solid transparent',
+          }}
+        >
+          <span className="nav-icon">📊</span>
+          <span>Test Analytics</span>
+        </div>
 
         {subjects.map(subject => {
           const sp = getSubjectProgress(subject);
