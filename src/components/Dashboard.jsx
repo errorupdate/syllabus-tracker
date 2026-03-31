@@ -176,7 +176,7 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
       </div>
 
       {/* ── Question Bank & Test Stats ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '14px', marginTop: '20px', marginBottom: '20px' }}>
+      <div className="dashboard-qb-test-grid">
         
         {/* Question Bank */}
         <div className="stat-card glass-card fill-card">
@@ -335,27 +335,26 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
               ) : null;
             })()}
 
-            {/* History table */}
-            <div style={{ background: '#111827', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '14px', overflow: 'hidden' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr 80px 80px 80px 80px 36px', padding: '10px 16px', background: 'rgba(139,92,246,0.06)', borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: '0.72rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                <span>Date</span><span>Category</span><span style={{textAlign:'center'}}>Total</span><span style={{textAlign:'center'}}>Correct</span><span style={{textAlign:'center'}}>Skipped</span><span style={{textAlign:'center'}}>Accuracy</span><span />
+            {/* History — card layout for mobile, table for desktop */}
+            <div className="test-history-table">
+              <div className="test-history-head">
+                <span>Date</span><span>Category</span><span className="text-center">Total</span><span className="text-center">Correct</span><span className="text-center">Skip</span><span className="text-center">Acc</span><span />
               </div>
               {testHistory.slice(0, 8).map((t, i) => {
                 const accColor = t.accuracy >= 70 ? '#3fb950' : t.accuracy >= 40 ? '#f0883e' : '#f85149';
                 return (
                   <div key={t.id}
-                    style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr 80px 80px 80px 80px 36px', padding: '11px 16px', borderBottom: i < testHistory.slice(0,8).length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none', fontSize: '0.84rem', alignItems: 'center', transition: 'background 0.15s', cursor: t.questionsSnapshot ? 'pointer' : 'default' }}
-                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'}
-                    onMouseLeave={e => e.currentTarget.style.background = ''}
+                    className="test-history-row"
+                    style={{ cursor: t.questionsSnapshot ? 'pointer' : 'default' }}
                     onClick={() => t.questionsSnapshot && setSelectedTest(t)}
                   >
-                    <span style={{ color: '#64748b', fontSize: '0.78rem' }}>{t.date}{t.timeStr ? <><br /><span style={{fontSize:'0.7rem'}}>{t.timeStr}</span></> : ''}</span>
-                    <span style={{ color: '#cbd5e1', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '0.82rem' }}>{t.category}</span>
-                    <span style={{ textAlign: 'center', color: '#94a3b8' }}>{t.totalQuestions}</span>
-                    <span style={{ textAlign: 'center', color: '#3fb950', fontWeight: 600 }}>{t.correct}</span>
-                    <span style={{ textAlign: 'center', color: '#f0883e' }}>{t.totalQuestions - t.attempted}</span>
-                    <span style={{ textAlign: 'center', fontWeight: 700, color: accColor }}>{t.accuracy}%</span>
-                    <span style={{ textAlign: 'center', color: '#475569', fontSize: '0.8rem' }}>{t.questionsSnapshot ? '📋' : ''}</span>
+                    <span className="th-date">{t.date}{t.timeStr ? <><br /><span className="th-time">{t.timeStr}</span></> : ''}</span>
+                    <span className="th-category">{t.category}</span>
+                    <span className="text-center th-stat">{t.totalQuestions}</span>
+                    <span className="text-center th-correct">{t.correct}</span>
+                    <span className="text-center th-skip">{t.totalQuestions - t.attempted}</span>
+                    <span className="text-center th-acc" style={{ color: accColor }}>{t.accuracy}%</span>
+                    <span className="text-center th-icon">{t.questionsSnapshot ? '📋' : ''}</span>
                   </div>
                 );
               })}

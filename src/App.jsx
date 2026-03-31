@@ -20,12 +20,64 @@ const DOC_ID = 'user-revisions';
 function App() {
   const [revisionData, setRevisionData] = useState({});
   const [activeView, setActiveView] = useState('dashboard');
+  const [viewHistory, setViewHistory] = useState(['dashboard']);
+  const [historyIndex, setHistoryIndex] = useState(0);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [totalUsageSeconds, setTotalUsageSeconds] = useState(0);
   const [testModeOpen, setTestModeOpen] = useState(false);
   const usageRef = useRef(0);
+  const isNavigatingRef = useRef(false);
+
+  // Navigate to a new view (pushes to history)
+  const navigateTo = useCallback((view) => {
+    // Scroll content area to top smoothly
+    const contentEl = document.querySelector('.content-area');
+    if (contentEl) contentEl.scrollTo({ top: 0, behavior: 'smooth' });
+
+    if (isNavigatingRef.current) {
+      // Coming from back/forward, don't push to history
+      isNavigatingRef.current = false;
+      setActiveView(view);
+      return;
+    }
+    setActiveView(view);
+    setViewHistory(prev => {
+      const newHistory = prev.slice(0, historyIndex + 1);
+      newHistory.push(view);
+      return newHistory;
+    });
+    setHistoryIndex(prev => prev + 1);
+  }, [historyIndex]);
+
+  const canGoBack = historyIndex > 0;
+  const canGoForward = historyIndex < viewHistory.length - 1;
+
+  const goBack = useCallback(() => {
+    if (!canGoBack) return;
+    const newIndex = historyIndex - 1;
+    setHistoryIndex(newIndex);
+    isNavigatingRef.current = true;
+    navigateTo(viewHistory[newIndex]);
+  }, [canGoBack, historyIndex, viewHistory, navigateTo]);
+
+  const goForward = useCallback(() => {
+    if (!canGoForward) return;
+    const newIndex = historyIndex + 1;
+    setHistoryIndex(newIndex);
+    isNavigatingRef.current = true;
+    navigateTo(viewHistory[newIndex]);
+  }, [canGoForward, historyIndex, viewHistory, navigateTo]);
+
+  const handleRefresh = useCallback(() => {
+    // Force re-render by toggling a key
+    setActiveView(prev => {
+      // Trigger re-mount by briefly setting to null then back
+      setTimeout(() => setActiveView(prev), 0);
+      return null;
+    });
+  }, []);
 
   // Usage time tracker
   useEffect(() => {
@@ -143,7 +195,7 @@ function App() {
   // Find the current view content
   let content;
   if (activeView === 'dashboard') {
-    content = <Dashboard subjects={SUBJECTS} revisionData={revisionData} onSelectView={setActiveView} />;
+    content = <Dashboard subjects={SUBJECTS} revisionData={revisionData} onSelectView={navigateTo} />;
   } else if (activeView === 'testDashboard') {
     content = <TestDashboard />;
   } else if (activeView === 'pyq') {
@@ -199,8 +251,8 @@ function App() {
           subjects={SUBJECTS}
           revisionData={revisionData}
           activeView={activeView}
-          onSelectView={setActiveView}
-          onSelectDashboard={() => setActiveView('dashboard')}
+          onSelectView={navigateTo}
+          onSelectDashboard={() => navigateTo('dashboard')}
           mobileOpen={mobileOpen}
           onCloseMobile={() => setMobileOpen(false)}
           collapsed={sidebarCollapsed}
@@ -214,10 +266,23 @@ function App() {
             <button className="sidebar-toggle-btn" onClick={() => setSidebarCollapsed(prev => !prev)} title={sidebarCollapsed ? 'Show Sidebar' : 'Hide Sidebar'}>
               {sidebarCollapsed ? '☰' : '✕'}
             </button>
+            <div className="nav-buttons">
+              <button className={`nav-btn ${!canGoBack ? 'disabled' : ''}`} onClick={goBack} disabled={!canGoBack} title="Go Back" aria-label="Go back">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <button className={`nav-btn ${!canGoForward ? 'disabled' : ''}`} onClick={goForward} disabled={!canGoForward} title="Go Forward" aria-label="Go forward">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+              <button className="nav-btn" onClick={handleRefresh} title="Refresh" aria-label="Refresh page">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+              </button>
+            </div>
             <span className="topbar-title">BPSC TRE 4.0 Revision Tracker</span>
           </header>
           <div className="content-area">
-            {content}
+            <div key={activeView} className="page-transition">
+              {content}
+            </div>
           </div>
         </main>
       </div>
