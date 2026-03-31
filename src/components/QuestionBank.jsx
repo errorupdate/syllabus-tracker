@@ -92,7 +92,7 @@ export default function QuestionBank() {
     });
 
     return () => unsubscribe();
-  }, [shuffledOptionsMap]); // Only run when map changes or initially
+  }, []); // Run once on mount, real-time listener updates data
 
   // --- Add Question Handlers ---
   const handleAddQuestionChange = (field, value) => {
