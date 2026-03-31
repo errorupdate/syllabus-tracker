@@ -25,9 +25,7 @@ function App() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [totalUsageSeconds, setTotalUsageSeconds] = useState(0);
   const [testModeOpen, setTestModeOpen] = useState(false);
-  const usageRef = useRef(0);
   const isNavigatingRef = useRef(false);
 
   // Navigate to a new view (pushes to history)
@@ -79,52 +77,7 @@ function App() {
     });
   }, []);
 
-  // Usage time tracker
-  useEffect(() => {
-    const usageDocRef = doc(db, 'appData', 'usage-time');
-    
-    // Load saved time
-    getDoc(usageDocRef).then((snap) => {
-      if (snap.exists()) {
-        const saved = snap.data().totalSeconds || 0;
-        setTotalUsageSeconds(saved);
-        usageRef.current = saved;
-      } else {
-        setDoc(usageDocRef, { totalSeconds: 0 });
-      }
-    }).catch(console.error);
 
-    // Increment every second
-    const ticker = setInterval(() => {
-      usageRef.current += 1;
-      setTotalUsageSeconds(usageRef.current);
-    }, 1000);
-
-    // Save to Firebase every 30 seconds
-    const saver = setInterval(() => {
-      updateDoc(usageDocRef, { totalSeconds: usageRef.current }).catch(console.error);
-    }, 30000);
-
-    // Save on page unload
-    const handleUnload = () => {
-      navigator.sendBeacon || updateDoc(usageDocRef, { totalSeconds: usageRef.current }).catch(() => {});
-      // Use a sync approach for sendBeacon if available
-      const data = JSON.stringify({ totalSeconds: usageRef.current });
-      try {
-        // fallback: just try updating doc
-        updateDoc(usageDocRef, { totalSeconds: usageRef.current });
-      } catch(e) { /* best effort */ }
-    };
-    window.addEventListener('beforeunload', handleUnload);
-
-    return () => {
-      clearInterval(ticker);
-      clearInterval(saver);
-      window.removeEventListener('beforeunload', handleUnload);
-      // Save on cleanup
-      updateDoc(usageDocRef, { totalSeconds: usageRef.current }).catch(() => {});
-    };
-  }, []);
 
   // Read data from Firebase real-time and lock orientation
   useEffect(() => {
@@ -256,7 +209,6 @@ function App() {
           mobileOpen={mobileOpen}
           onCloseMobile={() => setMobileOpen(false)}
           collapsed={sidebarCollapsed}
-          totalUsageSeconds={totalUsageSeconds}
           onOpenTestMode={() => { setTestModeOpen(true); setMobileOpen(false); }}
         />
         {mobileOpen && <div className="overlay" onClick={() => setMobileOpen(false)} />}

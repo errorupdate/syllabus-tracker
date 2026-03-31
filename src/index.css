@@ -138,35 +138,20 @@ body::before {
 
 .sidebar-progress { padding: 16px; border-bottom: 1px solid var(--border); }
 
-/* Usage Time Tracker */
-.sidebar-usage-time {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border);
-  background: rgba(139, 92, 246, 0.04);
+/* Reusable slide up animations */
+@keyframes stagger-fade-in {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
-.usage-icon {
-  font-size: 1.1rem;
-  flex-shrink: 0;
-}
-.usage-label {
-  font-size: 0.78rem;
-  color: var(--text-muted);
-  font-weight: 500;
-}
-.usage-value {
-  margin-left: auto;
-  font-size: 0.95rem;
-  font-weight: 800;
-  font-family: 'Inter', monospace;
-  letter-spacing: 1px;
-  background: linear-gradient(135deg, var(--accent-purple), var(--accent-teal));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
+.animate-slide-up { animation: stagger-fade-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards; opacity: 0; }
+.delay-1 { animation-delay: 0.05s; }
+.delay-2 { animation-delay: 0.1s; }
+.delay-3 { animation-delay: 0.15s; }
+.delay-4 { animation-delay: 0.2s; }
+.delay-5 { animation-delay: 0.25s; }
+.delay-6 { animation-delay: 0.3s; }
+.delay-7 { animation-delay: 0.35s; }
+.delay-8 { animation-delay: 0.4s; }
 
 .sidebar-nav { padding: 8px 0; flex: 1; }
 

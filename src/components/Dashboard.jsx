@@ -146,29 +146,30 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
         <p className="subtitle">Track your revision progress across all subjects</p>
       </div>
 
-      <div className="stats-grid">
-        <div className="stat-card glow-purple">
+      {/* ── Top Overview Cards ── */}
+      <div className="stats-grid animate-slide-up delay-1">
+        <div className="stat-card glow-purple" onClick={() => onSelectView('questionBank')} style={{ cursor: 'pointer' }}>
+          <div className="stat-number">{qbStats.total}</div>
+          <div className="stat-label">Total Questions</div>
+        </div>
+        <div className="stat-card glow-teal" onClick={() => onSelectView('testDashboard')} style={{ cursor: 'pointer' }}>
+          <div className="stat-number">{totalTests}</div>
+          <div className="stat-label">Tests Taken</div>
+        </div>
+        <div className="stat-card glow-blue">
           <div className="stat-number">{totalPdfs}</div>
           <div className="stat-label">Total PDFs</div>
         </div>
-        <div className="stat-card glow-teal">
-          <div className="stat-number">{totalRevDone}</div>
-          <div className="stat-label">Total Done</div>
-        </div>
-        <div className="stat-card glow-blue">
-          <div className="stat-number">{todayRevisions}</div>
-          <div className="stat-label">Done Today</div>
-        </div>
         <div className="stat-card glow-amber">
-          <div className="stat-number">{yesterdayRevisions}</div>
-          <div className="stat-label">Done Yesterday</div>
+          <div className="stat-number">{totalRevDone}</div>
+          <div className="stat-label">Total Revs Done</div>
         </div>
       </div>
 
-      <div className="stats-grid-secondary">
+      <div className="stats-grid-secondary animate-slide-up delay-2">
         <div className="stat-card glass-card fill-card">
            <div className="card-row">
-             <span className="stat-label">Overall Progress</span>
+             <span className="stat-label">Overall Revision Progress</span>
              <span className="stat-number-sm glow-text-green">{overallPct}% ({totalRevDone}/{totalRevMax})</span>
            </div>
            <ProgressBar value={totalRevDone} max={totalRevMax} size="md" />
@@ -176,22 +177,20 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
       </div>
 
       {/* ── Question Bank & Test Stats ── */}
-      <div className="dashboard-qb-test-grid">
+      <div className="dashboard-qb-test-grid animate-slide-up delay-3">
         
         {/* Question Bank */}
-        <div className="stat-card glass-card fill-card">
+        <div className="stat-card glass-card fill-card interactive" onClick={() => onSelectView('questionBank')} style={{ cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseLeave={e => e.currentTarget.style.transform = 'none'}>
           <div className="card-row">
             <span className="stat-label">📝 Question Bank</span>
-            <span className="stat-number-sm glow-text-green">
-              {qbStats.total} Total Questions
-            </span>
+            <span className="stat-number-sm glow-text-purple">Browse →</span>
           </div>
           <div style={{ display: 'flex', gap: '12px', marginTop: '12px', flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, minWidth: '100px', background: 'var(--surface)', borderRadius: '10px', padding: '12px 10px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, minWidth: '100px', background: 'rgba(0,0,0,0.15)', borderRadius: '10px', padding: '12px 10px' }}>
               <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>Computer Science</span>
               <span style={{ fontSize: 'clamp(1.3rem, 4vw, 2rem)', fontWeight: 'bold', color: 'var(--accent)' }}>{qbStats.cs}</span>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, minWidth: '100px', background: 'var(--surface)', borderRadius: '10px', padding: '12px 10px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, minWidth: '100px', background: 'rgba(0,0,0,0.15)', borderRadius: '10px', padding: '12px 10px' }}>
               <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>General Paper</span>
               <span style={{ fontSize: 'clamp(1.3rem, 4vw, 2rem)', fontWeight: 'bold', color: '#3fb950' }}>{qbStats.gp}</span>
             </div>
@@ -199,33 +198,26 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
         </div>
 
         {/* Test Analytics Summary */}
-        <div className="stat-card glass-card fill-card">
+        <div className="stat-card glass-card fill-card interactive" onClick={() => onSelectView('testDashboard')} style={{ cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseLeave={e => e.currentTarget.style.transform = 'none'}>
           <div className="card-row">
             <span className="stat-label">🧪 Testing Performance</span>
-            <span className="stat-number-sm glow-text-green">
-              {totalTests} Tests Taken
-            </span>
+            <span className="stat-number-sm" style={{ color: '#93c5fd' }}>Full Analytics →</span>
           </div>
           <div style={{ display: 'flex', gap: '12px', marginTop: '12px', flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, minWidth: '100px', background: 'var(--surface)', borderRadius: '10px', padding: '12px 10px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, minWidth: '100px', background: 'rgba(0,0,0,0.15)', borderRadius: '10px', padding: '12px 10px' }}>
               <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>Avg Accuracy</span>
               <span style={{ fontSize: 'clamp(1.3rem, 4vw, 2rem)', fontWeight: 'bold', color: avgTestAccuracy >= 70 ? '#4ade80' : avgTestAccuracy >= 40 ? '#fb923c' : '#f85149' }}>{avgTestAccuracy}%</span>
             </div>
-            <div 
-               style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', flex: 1, minWidth: '100px', background: 'linear-gradient(135deg, rgba(139,92,246,0.1), rgba(59,130,246,0.1))', borderRadius: '10px', padding: '12px 10px', cursor: 'pointer', border: '1px solid rgba(139,92,246,0.2)', transition: 'all 0.2s' }}
-               onClick={() => onSelectView('testDashboard')}
-               onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(139,92,246,0.15)'; }}
-               onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; }}
-            >
-              <span style={{ color: '#93c5fd', fontSize: '0.85rem', fontWeight: 600 }}>Full Analytics</span>
-              <span style={{ fontSize: '1.2rem', marginTop: '4px' }}>View 📊</span>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, minWidth: '100px', background: 'rgba(0,0,0,0.15)', borderRadius: '10px', padding: '12px 10px' }}>
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>Questions Hit</span>
+              <span style={{ fontSize: 'clamp(1.3rem, 4vw, 2rem)', fontWeight: 'bold', color: '#e2e8f0' }}>{totalTestAttempted}</span>
             </div>
           </div>
         </div>
 
       </div>
 
-      <div className="dashboard-columns">
+      <div className="dashboard-columns animate-slide-up delay-4">
         <div className="dashboard-section main-col">
           <h2>📂 Subject Progress</h2>
           <div className="subject-cards">
@@ -246,15 +238,15 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
         </div>
 
         <div className="dashboard-section side-col">
-          {todayList.length > 0 && (
+          {(todayList.length > 0 || yesterdayList.length > 0) && (
             <div className="side-panel-group">
-              <h2>⚡ Done Today</h2>
+              <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>⚡ Recent Activity</h2>
               <div className="attention-list">
-                {todayList.map((item, i) => (
-                  <div key={i} className="attention-item glass-card list-item-compact">
+                {[...todayList, ...yesterdayList].slice(0, 6).map((item, i) => (
+                  <div key={i} className={`attention-item glass-card list-item-compact ${item.type === 'today' ? 'highlight' : ''}`}>
                     <div className="activity-details">
                       <span className="attention-name">{item.pdfName.replace(/\.pdf$/i, '')}</span>
-                      <span className="activity-subtext">{item.topicName.replace(/^T-?\d+\s*[-–]?\s*/, '')} (R{item.rev})</span>
+                      <span className="activity-subtext">{item.topicName.replace(/^T-?\d+\s*[-–]?\s*/, '')} (R{item.rev}) · {item.type === 'today' ? 'Today' : 'Yesterday'}</span>
                     </div>
                   </div>
                 ))}
@@ -262,26 +254,10 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
             </div>
           )}
 
-          {yesterdayList.length > 0 && (
-            <div className={`side-panel-group ${todayList.length > 0 ? 'mt-6' : ''}`}>
-              <h2>📅 Done Yesterday</h2>
-              <div className="attention-list">
-                {yesterdayList.map((item, i) => (
-                  <div key={i} className="attention-item glass-card list-item-compact">
-                    <div className="activity-details">
-                      <span className="attention-name">{item.pdfName.replace(/\.pdf$/i, '')}</span>
-                      <span className="activity-subtext">{item.topicName.replace(/^T-?\d+\s*[-–]?\s*/, '')} (R{item.rev})</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <div className="side-panel-group mt-6">
+          <div className={`side-panel-group ${(todayList.length > 0 || yesterdayList.length > 0) ? 'mt-6' : ''}`}>
             <h2>🎯 Needs Attention</h2>
             <div className="attention-list">
-              {topicProgress.slice(0, 6).map((t, i) => (
+              {topicProgress.slice(0, 5).map((t, i) => (
                 <div key={i} className="attention-item glass-card">
                   <span className="attention-name">{t.name.replace(/^T-?\d+\s*[-–]?\s*/, '')}</span>
                   <ProgressBar value={t.done} max={t.max} size="sm" />
@@ -293,7 +269,7 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
       </div>
 
       {/* ── Test History & Trend ── */}
-      <div className="dashboard-section" style={{ marginTop: '36px' }}>
+      <div className="dashboard-section animate-slide-up delay-5" style={{ marginTop: '36px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
           <h2 style={{ margin: 0 }}>🧪 Test History</h2>
           <button 

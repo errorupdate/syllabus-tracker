@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import ProgressBar from './ProgressBar';
 
-export default function Sidebar({ subjects, revisionData, activeView, onSelectView, onSelectDashboard, mobileOpen, onCloseMobile, collapsed, totalUsageSeconds, onOpenTestMode }) {
+export default function Sidebar({ subjects, revisionData, activeView, onSelectView, onSelectDashboard, mobileOpen, onCloseMobile, collapsed, onOpenTestMode }) {
   const [expanded, setExpanded] = useState({});
 
   const toggle = (id) => setExpanded(prev => ({ ...prev, [id]: !prev[id] }));
@@ -57,15 +57,7 @@ export default function Sidebar({ subjects, revisionData, activeView, onSelectVi
         <ProgressBar value={overall.done} max={overall.total} label="Overall Progress" size="sm" />
       </div>
 
-      <div className="sidebar-usage-time">
-        <span className="usage-icon">⏱️</span>
-        <span className="usage-label">Time Spent</span>
-        <span className="usage-value">
-          {String(Math.floor(totalUsageSeconds / 3600)).padStart(2, '0')}:
-          {String(Math.floor((totalUsageSeconds % 3600) / 60)).padStart(2, '0')}:
-          {String(totalUsageSeconds % 60).padStart(2, '0')}
-        </span>
-      </div>
+
 
       <nav className="sidebar-nav">
         <div
