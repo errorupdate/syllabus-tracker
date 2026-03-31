@@ -9,6 +9,7 @@ import PYQPage from './PYQPage';
 import QuestionBank from './components/QuestionBank';
 import TestMode from './components/TestMode/TestMode';
 import TestDashboard from './components/TestDashboard';
+import SubjectView from './components/SubjectView';
 
 import './index.css';
 
@@ -157,8 +158,18 @@ function App() {
     content = <QuestionBank />;
 
   } else {
-    // Look for matching topic or chapter
+    // Look for matching subject, topic or chapter
     for (const subject of SUBJECTS) {
+      if (subject.id === activeView) {
+        content = (
+          <SubjectView
+            subject={subject}
+            revisionData={revisionData}
+            onSelectView={navigateTo}
+          />
+        );
+        break;
+      }
       for (const topic of subject.topics) {
         if (topic.id === activeView) {
           content = (

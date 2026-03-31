@@ -73,12 +73,12 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
         if (ts >= todayStart) {
           todayRevisions++;
           if (!recentPdfs.has(key) || recentPdfs.get(key).ts < ts) {
-            recentPdfs.set(key, { topicName: topic.name, pdfName, ts, type: 'today', rev: r + 1 });
+            recentPdfs.set(key, { topicName: topic.name, pdfName, ts, type: 'today', rev: r + 1, targetId: chId });
           }
         } else if (ts >= yesterdayStart && ts < todayStart) {
           yesterdayRevisions++;
           if (!recentPdfs.has(key) || recentPdfs.get(key).ts < ts) {
-            recentPdfs.set(key, { topicName: topic.name, pdfName, ts, type: 'yesterday', rev: r + 1 });
+            recentPdfs.set(key, { topicName: topic.name, pdfName, ts, type: 'yesterday', rev: r + 1, targetId: chId });
           }
         }
       }
@@ -104,7 +104,7 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
     });
     totalPdfs += sPdfs; 
     totalRevMax += sPdfs * 5;
-    return { ...s, pdfCount: sPdfs, revDone: sDone, revMax: sPdfs * 5 };
+    return { ...s, pdfCount: sPdfs, revDone: sDone, revMax: sPdfs * 5, targetId: s.id };
   });
 
   const overallPct = totalRevMax > 0 ? Math.round((totalRevDone / totalRevMax) * 100) : 0;
@@ -116,7 +116,8 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
       const pdfCount = countPdfs(t);
       const done = getRevDone(t);
       const max = pdfCount * 5;
-      topicProgress.push({ name: t.name, pct: max > 0 ? Math.round((done / max) * 100) : 0, done, max });
+      const targetId = t.chapters && t.chapters.length > 0 ? t.chapters[0].id : t.id;
+      topicProgress.push({ name: t.name, pct: max > 0 ? Math.round((done / max) * 100) : 0, done, max, targetId });
     });
   });
   topicProgress.sort((a, b) => a.pct - b.pct);
@@ -222,7 +223,14 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
           <h2>📂 Subject Progress</h2>
           <div className="subject-cards">
             {subjectStats.map(s => (
-              <div key={s.id} className="subject-card glass-card">
+              <div 
+                key={s.id} 
+                className="subject-card glass-card interactive"
+                onClick={() => s.targetId && onSelectView(s.targetId)}
+                style={{ cursor: s.targetId ? 'pointer' : 'default', transition: 'transform 0.2s' }}
+                onMouseEnter={e => s.targetId && (e.currentTarget.style.transform = 'translateY(-2px)')}
+                onMouseLeave={e => s.targetId && (e.currentTarget.style.transform = 'none')}
+              >
                 <div className="subject-card-header">
                   <h3>{s.name}</h3>
                   <span className="topic-count">{s.topics.length} topics</span>
@@ -243,7 +251,14 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
               <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>⚡ Recent Activity</h2>
               <div className="attention-list">
                 {[...todayList, ...yesterdayList].slice(0, 6).map((item, i) => (
-                  <div key={i} className={`attention-item glass-card list-item-compact ${item.type === 'today' ? 'highlight' : ''}`}>
+                  <div 
+                    key={i} 
+                    className={`attention-item glass-card list-item-compact interactive ${item.type === 'today' ? 'highlight' : ''}`}
+                    onClick={() => item.targetId && onSelectView(item.targetId)}
+                    style={{ cursor: item.targetId ? 'pointer' : 'default', transition: 'transform 0.2s', padding: '10px 14px' }}
+                    onMouseEnter={e => item.targetId && (e.currentTarget.style.transform = 'translateY(-2px)')}
+                    onMouseLeave={e => item.targetId && (e.currentTarget.style.transform = 'none')}
+                  >
                     <div className="activity-details">
                       <span className="attention-name">{item.pdfName.replace(/\.pdf$/i, '')}</span>
                       <span className="activity-subtext">{item.topicName.replace(/^T-?\d+\s*[-–]?\s*/, '')} (R{item.rev}) · {item.type === 'today' ? 'Today' : 'Yesterday'}</span>
@@ -258,7 +273,14 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
             <h2>🎯 Needs Attention</h2>
             <div className="attention-list">
               {topicProgress.slice(0, 5).map((t, i) => (
-                <div key={i} className="attention-item glass-card">
+                <div 
+                  key={i} 
+                  className="attention-item glass-card interactive"
+                  onClick={() => t.targetId && onSelectView(t.targetId)}
+                  style={{ cursor: t.targetId ? 'pointer' : 'default', transition: 'transform 0.2s', padding: '12px 16px' }}
+                  onMouseEnter={e => t.targetId && (e.currentTarget.style.transform = 'translateY(-2px)')}
+                  onMouseLeave={e => t.targetId && (e.currentTarget.style.transform = 'none')}
+                >
                   <span className="attention-name">{t.name.replace(/^T-?\d+\s*[-–]?\s*/, '')}</span>
                   <ProgressBar value={t.done} max={t.max} size="sm" />
                 </div>
