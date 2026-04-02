@@ -510,6 +510,260 @@ body::before {
 .mt-6 { margin-top: 24px; }
 .text-center { text-align: center; }
 
+/* ============ MOTIVATIONAL BANNER ============ */
+.motivational-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  border-radius: 14px;
+  border: 1px solid;
+  margin-bottom: 20px;
+  animation: bannerSlide 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes bannerSlide {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.banner-icon { font-size: 1.4rem; flex-shrink: 0; }
+.banner-msg { font-size: 0.9rem; font-weight: 600; line-height: 1.4; }
+
+/* ============ INSIGHT ROW (Goal + Streak + Chart) ============ */
+.insight-row {
+  display: grid;
+  grid-template-columns: 160px 140px 1fr;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.insight-card {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+.insight-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.insight-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+.chart-total {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: rgba(139,92,246,0.1);
+  padding: 2px 8px;
+  border-radius: 8px;
+}
+
+/* ── Daily Goal Ring ── */
+.daily-goal-card {
+  align-items: center;
+}
+.goal-edit-btn {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: var(--text-muted);
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.goal-edit-btn:hover {
+  background: rgba(139,92,246,0.12);
+  color: var(--accent-purple);
+  border-color: rgba(139,92,246,0.3);
+}
+.goal-editor {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+  width: 100%;
+}
+.goal-input {
+  width: 56px;
+  padding: 5px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(0,0,0,0.3);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-family: 'Inter', sans-serif;
+  text-align: center;
+}
+.goal-input:focus {
+  outline: none;
+  border-color: var(--accent-purple);
+}
+.goal-save-btn {
+  flex: 1;
+  padding: 5px 10px;
+  border-radius: 8px;
+  border: none;
+  background: var(--accent-purple);
+  color: white;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: background 0.2s;
+}
+.goal-save-btn:hover { background: var(--primary-hover); }
+.goal-ring-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.goal-ring-svg { width: 96px; height: 96px; }
+.goal-achieved-badge {
+  margin-top: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #22c55e;
+  background: rgba(34,197,94,0.1);
+  padding: 2px 10px;
+  border-radius: 8px;
+  animation: popIn 0.4s ease;
+}
+
+/* ── Study Streak ── */
+.streak-card {
+  align-items: center;
+  justify-content: center;
+}
+.streak-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin-top: 4px;
+}
+.streak-flames {
+  display: flex;
+  gap: 2px;
+  font-size: 1.3rem;
+  min-height: 28px;
+  align-items: center;
+}
+.streak-number {
+  font-size: 2.4rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+}
+.streak-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.streak-best {
+  margin-top: auto;
+  padding-top: 8px;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+/* ── 7-Day Activity Chart ── */
+.activity-chart-card {
+  min-height: 0;
+}
+.activity-bars {
+  display: flex;
+  gap: 6px;
+  flex: 1;
+  align-items: flex-end;
+  min-height: 100px;
+}
+.activity-bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.bar-value {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  min-height: 14px;
+}
+.bar-track {
+  width: 100%;
+  height: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+}
+.bar-fill {
+  width: 100%;
+  max-width: 28px;
+  border-radius: 6px 6px 2px 2px;
+  background: linear-gradient(180deg, var(--accent-purple), rgba(139,92,246,0.4));
+  transition: height 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+}
+.bar-fill.today {
+  background: linear-gradient(180deg, var(--accent-teal), rgba(20,184,166,0.4));
+  box-shadow: 0 0 10px rgba(20,184,166,0.3);
+}
+.bar-fill.empty {
+  background: rgba(255,255,255,0.04);
+  border-radius: 6px;
+}
+.bar-label {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.bar-label.today {
+  color: var(--accent-teal);
+  font-weight: 700;
+}
+
+/* ============ WEAK TOPICS ============ */
+.weak-topic-item {
+  gap: 6px !important;
+}
+.weak-topic-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+.weak-accuracy {
+  font-size: 0.9rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+.weak-bar-track {
+  width: 100%;
+  height: 5px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.weak-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
 /* Dashboard QB & Test Stats grid */
 .dashboard-qb-test-grid {
   display: grid;
@@ -868,6 +1122,23 @@ body::before {
     margin-bottom: 14px;
   }
 
+  /* Motivational banner */
+  .motivational-banner { padding: 12px 16px; }
+  .banner-icon { font-size: 1.2rem; }
+  .banner-msg { font-size: 0.82rem; }
+
+  /* Insight row */
+  .insight-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .activity-chart-card {
+    grid-column: 1 / -1;
+  }
+  .goal-ring-svg { width: 80px; height: 80px; }
+  .streak-number { font-size: 2rem; }
+  .bar-track { height: 60px; }
+
   /* Test history table — mobile card layout */
   .test-history-head { display: none; }
   .test-history-row {
@@ -938,6 +1209,18 @@ body::before {
 
   .attention-list { grid-template-columns: 1fr; gap: 8px; }
   .attention-item { padding: 10px 12px; }
+
+  /* Insight row: stack fully on small phones */
+  .insight-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .insight-card { padding: 12px; }
+  .goal-ring-svg { width: 72px; height: 72px; }
+  .streak-number { font-size: 1.7rem; }
+  .streak-flames { font-size: 1rem; }
+  .bar-track { height: 50px; }
+  .bar-fill { max-width: 20px; }
 
   /* PDF List extra-small */
   .pdf-list-header { margin-bottom: 16px; }

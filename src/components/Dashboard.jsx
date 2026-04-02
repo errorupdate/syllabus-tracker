@@ -8,6 +8,13 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
   const [testHistory, setTestHistory] = useState([]);
   const [selectedTest, setSelectedTest] = useState(null); // test to review
 
+  // Daily Goal state (localStorage)
+  const [dailyGoal, setDailyGoal] = useState(() => {
+    try { return parseInt(localStorage.getItem('daily-goal')) || 5; } catch { return 5; }
+  });
+  const [showGoalEditor, setShowGoalEditor] = useState(false);
+  const [goalInput, setGoalInput] = useState(dailyGoal);
+
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, 'questionBank-v2'), (snap) => {
       let total = 0, cs = 0, gp = 0;
@@ -62,6 +69,27 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
   // Track recently revised PDFs for a 'Recent Activity' section
   const recentPdfs = new Map();
 
+  // ─── 7-Day activity chart data ───
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const weekDays = [];
+  for (let d = 6; d >= 0; d--) {
+    const dayStart = todayStart - d * DAY_MS;
+    const dayEnd = dayStart + DAY_MS;
+    const dt = new Date(dayStart);
+    weekDays.push({
+      label: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][dt.getDay()],
+      date: `${dt.getDate()}/${dt.getMonth()+1}`,
+      start: dayStart,
+      end: dayEnd,
+      count: 0,
+      isToday: d === 0,
+    });
+  }
+
+  // ─── Streak calculation ───
+  // Collect all unique days with revisions
+  const revisionDays = new Set();
+
   const countActivity = (topic, chId, idx, pdfName) => {
     let tDone = 0;
     for (let r = 0; r < 5; r++) {
@@ -70,6 +98,16 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
         tDone++;
         totalRevDone++;
         const key = `${chId}-${idx}`;
+
+        // Track day for streak
+        const dayKey = new Date(ts).toDateString();
+        revisionDays.add(dayKey);
+
+        // Count for 7-day chart
+        for (const wd of weekDays) {
+          if (ts >= wd.start && ts < wd.end) { wd.count++; break; }
+        }
+
         if (ts >= todayStart) {
           todayRevisions++;
           if (!recentPdfs.has(key) || recentPdfs.get(key).ts < ts) {
@@ -120,6 +158,36 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
 
   const overallPct = totalRevMax > 0 ? Math.round((totalRevDone / totalRevMax) * 100) : 0;
 
+  // ─── Compute streak ───
+  let currentStreak = 0;
+  {
+    const todayStr = new Date(todayStart).toDateString();
+    let checkDate = todayStart;
+    // If no revision today, start from yesterday
+    if (!revisionDays.has(todayStr)) {
+      checkDate = todayStart - DAY_MS;
+    }
+    while (true) {
+      const ds = new Date(checkDate).toDateString();
+      if (revisionDays.has(ds)) {
+        currentStreak++;
+        checkDate -= DAY_MS;
+      } else {
+        break;
+      }
+    }
+  }
+
+  // Best streak (from localStorage)
+  const storedBest = parseInt(localStorage.getItem('best-streak') || '0');
+  const bestStreak = Math.max(storedBest, currentStreak);
+  if (bestStreak > storedBest) {
+    localStorage.setItem('best-streak', String(bestStreak));
+  }
+
+  // 7-day chart max
+  const weekMax = Math.max(...weekDays.map(d => d.count), 1);
+
   // Find least-revised topics
   const topicProgress = [];
   subjects.forEach(s => {
@@ -151,12 +219,65 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
   });
   const avgTestAccuracy = totalTestAttempted > 0 ? Math.round((totalTestCorrect / totalTestAttempted) * 100) : 0;
 
+  // ─── Weakest topics from test data ───
+  const topicAccMap = {}; // { topicName: { correct, total } }
+  testHistory.forEach(t => {
+    if (!t.questionsSnapshot || !t.answersMap) return;
+    t.questionsSnapshot.forEach(q => {
+      const name = q.topicName?.replace(/^T-?\d+\s*[-–]?\s*/, '') || q.topicName || 'Unknown';
+      if (!topicAccMap[name]) topicAccMap[name] = { correct: 0, total: 0, topicId: q.topicId };
+      topicAccMap[name].total++;
+      if (t.answersMap[q.id] === q.correctAnswerId) topicAccMap[name].correct++;
+    });
+  });
+  const weakTopics = Object.entries(topicAccMap)
+    .map(([name, d]) => ({ name, accuracy: d.total > 0 ? Math.round((d.correct / d.total) * 100) : 0, total: d.total, correct: d.correct, topicId: d.topicId }))
+    .filter(t => t.total >= 3) // only topics with enough data
+    .sort((a, b) => a.accuracy - b.accuracy)
+    .slice(0, 4);
+
+  // ─── Smart Motivational Banner ───
+  const dailyGoalMet = todayRevisions >= dailyGoal;
+  let bannerMsg = '', bannerIcon = '', bannerColor = '#94a3b8', bannerBg = 'rgba(148,163,184,0.06)';
+  if (totalRevDone === 0) {
+    bannerIcon = '🚀'; bannerMsg = 'Welcome! Start your first revision to begin tracking progress.'; bannerColor = '#8b5cf6'; bannerBg = 'rgba(139,92,246,0.08)';
+  } else if (dailyGoalMet) {
+    bannerIcon = '🎉'; bannerMsg = `Daily goal smashed! You've done ${todayRevisions} revisions today. Keep the momentum!`; bannerColor = '#22c55e'; bannerBg = 'rgba(34,197,94,0.08)';
+  } else if (todayRevisions === 0) {
+    bannerIcon = '⏰'; bannerMsg = `You haven't revised anything today. Your streak is ${currentStreak} day${currentStreak !== 1 ? 's' : ''} — don't let it break!`; bannerColor = '#f59e0b'; bannerBg = 'rgba(245,158,11,0.08)';
+  } else if (todayRevisions > 0 && !dailyGoalMet) {
+    const remaining = dailyGoal - todayRevisions;
+    bannerIcon = '💪'; bannerMsg = `${remaining} more revision${remaining !== 1 ? 's' : ''} to hit your daily goal. You got this!`; bannerColor = '#3b82f6'; bannerBg = 'rgba(59,130,246,0.08)';
+  }
+
+  // ─── Daily Goal handlers ───
+  const saveGoal = () => {
+    const val = Math.max(1, Math.min(50, parseInt(goalInput) || 5));
+    setDailyGoal(val);
+    localStorage.setItem('daily-goal', String(val));
+    setShowGoalEditor(false);
+  };
+
+  // Daily goal ring SVG params
+  const goalPct = Math.min(100, dailyGoal > 0 ? Math.round((todayRevisions / dailyGoal) * 100) : 0);
+  const ringRadius = 38;
+  const ringCirc = 2 * Math.PI * ringRadius;
+  const ringOffset = ringCirc - (goalPct / 100) * ringCirc;
+
   return (
     <div className="dashboard">
       <div className="dashboard-header">
         <h1>📖 BPSC Revision Tracker</h1>
         <p className="subtitle">Track your revision progress across all subjects</p>
       </div>
+
+      {/* ── Smart Motivational Banner ── */}
+      {bannerMsg && (
+        <div className="motivational-banner animate-slide-up" style={{ borderColor: `${bannerColor}33`, background: bannerBg }}>
+          <span className="banner-icon">{bannerIcon}</span>
+          <span className="banner-msg" style={{ color: bannerColor }}>{bannerMsg}</span>
+        </div>
+      )}
 
       {/* ── Top Overview Cards ── */}
       <div className="stats-grid animate-slide-up delay-1">
@@ -191,8 +312,87 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
         </div>
       </div>
 
+      {/* ── Daily Goal + Streak + 7-Day Chart Row ── */}
+      <div className="insight-row animate-slide-up delay-3">
+
+        {/* Daily Goal Ring */}
+        <div className="insight-card glass-card daily-goal-card">
+          <div className="insight-card-header">
+            <span className="insight-title">🎯 Daily Goal</span>
+            <button className="goal-edit-btn" onClick={() => { setGoalInput(dailyGoal); setShowGoalEditor(!showGoalEditor); }}>
+              {showGoalEditor ? '✕' : '✎'}
+            </button>
+          </div>
+          {showGoalEditor && (
+            <div className="goal-editor">
+              <input type="number" min="1" max="50" value={goalInput} onChange={e => setGoalInput(e.target.value)} className="goal-input" />
+              <button onClick={saveGoal} className="goal-save-btn">Save</button>
+            </div>
+          )}
+          <div className="goal-ring-wrapper">
+            <svg className="goal-ring-svg" viewBox="0 0 96 96">
+              <circle cx="48" cy="48" r={ringRadius} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="7" />
+              <circle cx="48" cy="48" r={ringRadius} fill="none"
+                stroke={dailyGoalMet ? '#22c55e' : '#8b5cf6'}
+                strokeWidth="7" strokeLinecap="round"
+                strokeDasharray={ringCirc} strokeDashoffset={ringOffset}
+                style={{ transform: 'rotate(-90deg)', transformOrigin: '48px 48px', transition: 'stroke-dashoffset 0.8s cubic-bezier(0.34,1.56,0.64,1)' }}
+              />
+              <text x="48" y="44" textAnchor="middle" fill={dailyGoalMet ? '#22c55e' : '#e2e8f0'} fontSize="18" fontWeight="800" fontFamily="Inter, sans-serif">
+                {todayRevisions}
+              </text>
+              <text x="48" y="60" textAnchor="middle" fill="#64748b" fontSize="9" fontWeight="600" fontFamily="Inter, sans-serif">
+                / {dailyGoal} goal
+              </text>
+            </svg>
+            {dailyGoalMet && <div className="goal-achieved-badge">✓ Done!</div>}
+          </div>
+        </div>
+
+        {/* Study Streak */}
+        <div className="insight-card glass-card streak-card">
+          <div className="insight-card-header">
+            <span className="insight-title">🔥 Streak</span>
+          </div>
+          <div className="streak-display">
+            <div className="streak-flames">
+              {currentStreak >= 1 && '🔥'}
+              {currentStreak >= 3 && '🔥'}
+              {currentStreak >= 7 && '🔥'}
+            </div>
+            <div className="streak-number">{currentStreak}</div>
+            <div className="streak-label">day{currentStreak !== 1 ? 's' : ''}</div>
+          </div>
+          <div className="streak-best">
+            <span>🏆 Best: {bestStreak} day{bestStreak !== 1 ? 's' : ''}</span>
+          </div>
+        </div>
+
+        {/* 7-Day Activity Chart */}
+        <div className="insight-card glass-card activity-chart-card">
+          <div className="insight-card-header">
+            <span className="insight-title">📅 7-Day Activity</span>
+            <span className="chart-total">{weekDays.reduce((s, d) => s + d.count, 0)} total</span>
+          </div>
+          <div className="activity-bars">
+            {weekDays.map((d, i) => (
+              <div key={i} className="activity-bar-col">
+                <div className="bar-value">{d.count > 0 ? d.count : ''}</div>
+                <div className="bar-track">
+                  <div
+                    className={`bar-fill ${d.isToday ? 'today' : ''} ${d.count === 0 ? 'empty' : ''}`}
+                    style={{ height: `${d.count > 0 ? Math.max(12, (d.count / weekMax) * 100) : 4}%` }}
+                  />
+                </div>
+                <div className={`bar-label ${d.isToday ? 'today' : ''}`}>{d.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
       {/* ── Question Bank & Test Stats ── */}
-      <div className="dashboard-qb-test-grid animate-slide-up delay-3">
+      <div className="dashboard-qb-test-grid animate-slide-up delay-4">
         
         {/* Question Bank */}
         <div className="stat-card glass-card fill-card interactive" onClick={() => onSelectView('questionBank')} style={{ cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseLeave={e => e.currentTarget.style.transform = 'none'}>
@@ -232,7 +432,7 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
 
       </div>
 
-      <div className="dashboard-columns animate-slide-up delay-4">
+      <div className="dashboard-columns animate-slide-up delay-5">
         <div className="dashboard-section main-col">
           <h2>📂 Subject Progress</h2>
           <div className="subject-cards">
@@ -260,8 +460,42 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
         </div>
 
         <div className="dashboard-section side-col">
-          {(todayList.length > 0 || yesterdayList.length > 0) && (
+          {/* Weakest Topics from Tests */}
+          {weakTopics.length > 0 && (
             <div className="side-panel-group">
+              <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>📉 Weak Topics</h2>
+              <p style={{ color: '#64748b', fontSize: '0.75rem', marginTop: '-10px', marginBottom: '12px' }}>Topics where test accuracy is lowest</p>
+              <div className="attention-list">
+                {weakTopics.map((t, i) => (
+                  <div
+                    key={i}
+                    className="attention-item glass-card weak-topic-item interactive"
+                    onClick={() => t.topicId && onSelectView(t.topicId)}
+                    style={{ cursor: t.topicId ? 'pointer' : 'default', transition: 'transform 0.2s', padding: '12px 16px' }}
+                    onMouseEnter={e => t.topicId && (e.currentTarget.style.transform = 'translateY(-2px)')}
+                    onMouseLeave={e => t.topicId && (e.currentTarget.style.transform = 'none')}
+                  >
+                    <div className="weak-topic-row">
+                      <span className="attention-name">{t.name}</span>
+                      <span className="weak-accuracy" style={{ color: t.accuracy < 50 ? '#f85149' : t.accuracy < 70 ? '#f0883e' : '#fbbf24' }}>
+                        {t.accuracy}%
+                      </span>
+                    </div>
+                    <div className="weak-bar-track">
+                      <div className="weak-bar-fill" style={{
+                        width: `${t.accuracy}%`,
+                        background: t.accuracy < 50 ? 'linear-gradient(90deg, #f85149, #fb7185)' : t.accuracy < 70 ? 'linear-gradient(90deg, #f0883e, #fbbf24)' : 'linear-gradient(90deg, #fbbf24, #a3e635)'
+                      }} />
+                    </div>
+                    <span style={{ fontSize: '0.68rem', color: '#475569' }}>{t.correct}/{t.total} correct</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {(todayList.length > 0 || yesterdayList.length > 0) && (
+            <div className={`side-panel-group ${weakTopics.length > 0 ? 'mt-6' : ''}`}>
               <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>⚡ Recent Activity</h2>
               <div className="attention-list">
                 {[...todayList, ...yesterdayList].slice(0, 6).map((item, i) => (
@@ -283,7 +517,7 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
             </div>
           )}
 
-          <div className={`side-panel-group ${(todayList.length > 0 || yesterdayList.length > 0) ? 'mt-6' : ''}`}>
+          <div className={`side-panel-group ${(todayList.length > 0 || yesterdayList.length > 0 || weakTopics.length > 0) ? 'mt-6' : ''}`}>
             <h2>🎯 Needs Attention</h2>
             <div className="attention-list">
               {topicProgress.slice(0, 5).map((t, i) => (
@@ -305,7 +539,7 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
       </div>
 
       {/* ── Test History & Trend ── */}
-      <div className="dashboard-section animate-slide-up delay-5" style={{ marginTop: '36px' }}>
+      <div className="dashboard-section animate-slide-up delay-6" style={{ marginTop: '36px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
           <h2 style={{ margin: 0 }}>🧪 Test History</h2>
           <button 
@@ -482,4 +716,3 @@ function TestReviewModal({ test, onClose }) {
     </div>
   );
 }
-
