@@ -57,7 +57,7 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
 
   let todayRevisions = 0;
   let yesterdayRevisions = 0;
-  let totalPdfs = 0, totalRevDone = 0, totalRevMax = 0;
+  let totalPdfs = 0, totalRevDone = 0, totalRevMax = 0, totalCovered = 0;
   
   // Track recently revised PDFs for a 'Recent Activity' section
   const recentPdfs = new Map();
@@ -87,24 +87,35 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
   };
 
   const subjectStats = subjects.map(s => {
-    let sPdfs = 0, sDone = 0;
+    let sPdfs = 0, sDone = 0, sCovered = 0;
     s.topics.forEach(t => { 
       let tPdfs = countPdfs(t);
       sPdfs += tPdfs; 
       
       let tDone = 0;
+      let tCovered = 0;
       if (t.chapters) {
         for (const ch of t.chapters) {
-          ch.pdfs.forEach((pdf, i) => { tDone += countActivity(t, ch.id, i, pdf); });
+          ch.pdfs.forEach((pdf, i) => { 
+            let pDone = countActivity(t, ch.id, i, pdf); 
+            tDone += pDone; 
+            if (pDone > 0) tCovered++;
+          });
         }
       } else if (t.pdfs) {
-        t.pdfs.forEach((pdf, i) => { tDone += countActivity(t, t.id, i, pdf); });
+        t.pdfs.forEach((pdf, i) => { 
+            let pDone = countActivity(t, t.id, i, pdf);
+            tDone += pDone;
+            if (pDone > 0) tCovered++;
+        });
       }
       sDone += tDone;
+      sCovered += tCovered;
     });
     totalPdfs += sPdfs; 
     totalRevMax += sPdfs * 5;
-    return { ...s, pdfCount: sPdfs, revDone: sDone, revMax: sPdfs * 5, targetId: s.id };
+    totalCovered += sCovered;
+    return { ...s, pdfCount: sPdfs, revDone: sDone, revMax: sPdfs * 5, coveredPdfs: sCovered, targetId: s.id };
   });
 
   const overallPct = totalRevMax > 0 ? Math.round((totalRevDone / totalRevMax) * 100) : 0;
@@ -158,8 +169,8 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
           <div className="stat-label">Tests Taken</div>
         </div>
         <div className="stat-card glow-blue">
-          <div className="stat-number">{totalPdfs}</div>
-          <div className="stat-label">Total PDFs</div>
+          <div className="stat-number">{totalCovered} <span style={{ fontSize: '1.2rem', color: 'rgba(255,255,255,0.5)', fontWeight: 600 }}>/ {totalPdfs}</span></div>
+          <div className="stat-label">PDFs Covered</div>
         </div>
         <div className="stat-card glow-amber">
           <div className="stat-number">{totalRevDone}</div>
@@ -171,7 +182,10 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
         <div className="stat-card glass-card fill-card">
            <div className="card-row">
              <span className="stat-label">Overall Revision Progress</span>
-             <span className="stat-number-sm glow-text-green">{overallPct}% ({totalRevDone}/{totalRevMax})</span>
+             <div style={{ textAlign: 'right' }}>
+               <div className="stat-number-sm glow-text-green">{overallPct}% ({totalRevDone}/{totalRevMax})</div>
+               <div style={{ fontSize: '0.85rem', color: '#93c5fd', marginTop: '4px' }}>{totalCovered}/{totalPdfs} PDFs started (≥1 rev)</div>
+             </div>
            </div>
            <ProgressBar value={totalRevDone} max={totalRevMax} size="md" />
         </div>
@@ -236,7 +250,7 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
                   <span className="topic-count">{s.topics.length} topics</span>
                 </div>
                 <div className="subject-card-stats">
-                  <span>{s.pdfCount} PDFs</span>
+                  <span>{s.coveredPdfs} / {s.pdfCount} PDFs</span>
                   <span>{s.revDone} / {s.revMax} revs</span>
                 </div>
                 <ProgressBar value={s.revDone} max={s.revMax} size="md" />

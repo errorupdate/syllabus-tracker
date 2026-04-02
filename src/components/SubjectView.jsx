@@ -23,8 +23,30 @@ export default function SubjectView({ subject, revisionData, onSelectView }) {
     return done;
   }
 
+  function getPdfsCovered(topic) {
+    let covered = 0;
+    if (topic.chapters) {
+      for (const ch of topic.chapters) {
+        ch.pdfs.forEach((_, i) => {
+          let hasRev = false;
+          for (let r = 0; r < 5; r++) if (revisionData[`${ch.id}-${i}-r${r}`]) hasRev = true;
+          if (hasRev) covered++;
+        });
+      }
+    } else if (topic.pdfs) {
+      topic.pdfs.forEach((_, i) => {
+        let hasRev = false;
+        for (let r = 0; r < 5; r++) if (revisionData[`${topic.id}-${i}-r${r}`]) hasRev = true;
+        if (hasRev) covered++;
+      });
+    }
+    return covered;
+  }
+
   const overallMax = subject.topics.reduce((acc, t) => acc + countPdfs(t) * 5, 0);
   const overallDone = subject.topics.reduce((acc, t) => acc + getRevDone(t), 0);
+  const overallPdfs = subject.topics.reduce((acc, t) => acc + countPdfs(t), 0);
+  const overallCovered = subject.topics.reduce((acc, t) => acc + getPdfsCovered(t), 0);
 
   return (
     <div className="dashboard animate-fade" style={{ maxWidth: '1000px', margin: '0 auto', paddingBottom: '40px' }}>
@@ -41,10 +63,13 @@ export default function SubjectView({ subject, revisionData, onSelectView }) {
       <div className="stat-card glass-card fill-card" style={{ marginBottom: '32px', padding: '20px 24px' }}>
         <div className="card-row" style={{ marginBottom: '16px' }}>
            <span className="stat-label" style={{ fontSize: '1.05rem', fontWeight: 600 }}>Overall Subject Progress</span>
-           <span className="stat-number-sm glow-text-green" style={{ fontSize: '1.2rem' }}>
-             {overallMax > 0 ? Math.round((overallDone / overallMax) * 100) : 0}% 
-             <span style={{ fontSize: '0.9rem', color: '#64748b', marginLeft: '6px', fontWeight: 500 }}>({overallDone}/{overallMax} revs)</span>
-           </span>
+           <div style={{ textAlign: 'right' }}>
+             <span className="stat-number-sm glow-text-green" style={{ fontSize: '1.2rem' }}>
+               {overallMax > 0 ? Math.round((overallDone / overallMax) * 100) : 0}% 
+               <span style={{ fontSize: '0.9rem', color: '#64748b', marginLeft: '6px', fontWeight: 500 }}>({overallDone}/{overallMax} revs)</span>
+             </span>
+             <div style={{ fontSize: '0.85rem', color: '#93c5fd', marginTop: '4px' }}>{overallCovered}/{overallPdfs} PDFs started (≥1 rev)</div>
+           </div>
         </div>
         <ProgressBar value={overallDone} max={overallMax} size="md" />
       </div>
@@ -54,6 +79,7 @@ export default function SubjectView({ subject, revisionData, onSelectView }) {
           const isChaptered = t.chapters && t.chapters.length > 0;
           const pdfs = countPdfs(t);
           const done = getRevDone(t);
+          const covered = getPdfsCovered(t);
           const max = pdfs * 5;
 
           return (
@@ -86,8 +112,9 @@ export default function SubjectView({ subject, revisionData, onSelectView }) {
                    {!isChaptered && (
                      <div style={{ marginTop: '12px' }}>
                        <ProgressBar value={done} max={max} size="sm" />
-                       <p style={{ margin: '8px 0 0', fontSize: '0.85rem', color: '#94a3b8' }}>
-                         {pdfs} PDFs • {done} / {max} revs done
+                       <p style={{ margin: '8px 0 0', fontSize: '0.85rem', color: '#94a3b8', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                         <span>📚 {covered} / {pdfs} PDFs covered</span>
+                         <span>✅ {done} / {max} revs done</span>
                        </p>
                      </div>
                    )}
@@ -99,7 +126,14 @@ export default function SubjectView({ subject, revisionData, onSelectView }) {
                  <div className="chapters-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '14px' }}>
                    {t.chapters.map(ch => {
                       let chDone = 0;
-                      ch.pdfs.forEach((_, i) => { for (let r = 0; r < 5; r++) if (revisionData[`${ch.id}-${i}-r${r}`]) chDone++; });
+                      let chCovered = 0;
+                      ch.pdfs.forEach((_, i) => { 
+                        let hasRev = false;
+                        for (let r = 0; r < 5; r++) {
+                          if (revisionData[`${ch.id}-${i}-r${r}`]) { chDone++; hasRev = true; }
+                        }
+                        if (hasRev) chCovered++;
+                      });
                       const chMax = ch.pdfs.length * 5;
                       return (
                         <div 
@@ -131,8 +165,8 @@ export default function SubjectView({ subject, revisionData, onSelectView }) {
                           <h4 style={{ margin: 0, fontSize: '1rem', color: '#cbd5e1', fontWeight: 600 }}>{ch.name}</h4>
                           <ProgressBar value={chDone} max={chMax} size="sm" />
                           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', color: '#94a3b8' }}>
-                             <span>{ch.pdfs.length} PDFs</span>
-                             <span>{chDone}/{chMax} revs</span>
+                             <span>📚 {chCovered}/{ch.pdfs.length} PDFs</span>
+                             <span>✅ {chDone}/{chMax} revs</span>
                           </div>
                         </div>
                       )
