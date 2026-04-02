@@ -238,7 +238,7 @@ function ActiveTest({ config, onEnd }) {
     if (isAttempted) return;
     setAnswers(prev => ({ ...prev, [current.id]: optId }));
     if (currentIdx < questions.length - 1) {
-      setTimeout(() => goNext(), 1400);
+      setTimeout(() => goNext(), 500);
     }
   }, [isAttempted, current, currentIdx, questions.length, goNext]);
 
@@ -312,8 +312,7 @@ function ActiveTest({ config, onEnd }) {
             {current.displayOptions.map(opt => {
               let cls = 'tm-option';
               if (isAttempted) {
-                if (opt.id === current.correctAnswerId) cls += ' correct';
-                else if (opt.id === attemptedId && !isCorrect) cls += ' incorrect';
+                if (opt.id === attemptedId) cls += ' selected';
                 else cls += ' dimmed';
               } else {
                 cls += ' interactive';
@@ -326,28 +325,13 @@ function ActiveTest({ config, onEnd }) {
                 >
                   <span className="tm-opt-letter">{opt.letter}.</span>
                   <span className="tm-opt-text">{opt.text}</span>
-                  {isAttempted && opt.id === current.correctAnswerId && (
-                    <span className="tm-opt-icon">✓</span>
-                  )}
-                  {isAttempted && opt.id === attemptedId && !isCorrect && (
-                    <span className="tm-opt-icon">✗</span>
+                  {isAttempted && opt.id === attemptedId && (
+                    <span className="tm-opt-icon">●</span>
                   )}
                 </div>
               );
             })}
           </div>
-
-          {isAttempted && (
-            <div className={`tm-feedback ${isCorrect ? 'correct' : 'incorrect'}`}>
-              {isCorrect ? '✅ Correct!' : `❌ Wrong! Correct: Option ${current.displayOptions.find(o => o.id === current.correctAnswerId)?.letter}`}
-              {current.explanation && (
-                <div className="tm-explanation">💡 {current.explanation}</div>
-              )}
-              {currentIdx < questions.length - 1 && (
-                <div className="tm-autonext">Moving to next…</div>
-              )}
-            </div>
-          )}
         </div>
 
         {/* Nav buttons */}
@@ -359,7 +343,7 @@ function ActiveTest({ config, onEnd }) {
             {questions.map((_, i) => (
               <span
                 key={i}
-                className={`tm-dot ${i === currentIdx ? 'active' : ''} ${answers[questions[i]?.id] ? (answers[questions[i].id] === questions[i].correctAnswerId ? 'correct' : 'wrong') : ''}`}
+                className={`tm-dot ${i === currentIdx ? 'active' : ''} ${answers[questions[i]?.id] ? 'answered' : ''}`}
                 onClick={() => goToIndex(i, i > currentIdx ? 'slide-left' : 'slide-right')}
               />
             ))}

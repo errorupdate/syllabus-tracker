@@ -181,6 +181,7 @@ export default function TestDashboard() {
   const stats = useMemo(() => {
     if (!history.length) return null;
     const accuracies = history.map(t => t.accuracy);
+    const limitAccuracies = history.slice(0, 5).map(t => t.accuracy);
     const totalQ = history.reduce((s, t) => s + (t.totalQuestions || 0), 0);
     const totalCorrect = history.reduce((s, t) => s + (t.correct || 0), 0);
     const totalAttempted = history.reduce((s, t) => s + (t.attempted || 0), 0);
@@ -233,7 +234,7 @@ export default function TestDashboard() {
 
     return {
       total: history.length,
-      avgAcc: avg(accuracies),
+      avgAcc: avg(limitAccuracies),
       bestAcc: Math.max(...accuracies),
       worstAcc: Math.min(...accuracies),
       overallAcc: totalAttempted > 0 ? Math.round((totalCorrect / totalAttempted) * 100) : 0,
@@ -282,7 +283,7 @@ export default function TestDashboard() {
               <span className="tdb-card-val" style={{ color: stats.avgAcc >= 70 ? '#4ade80' : stats.avgAcc >= 40 ? '#fb923c' : '#f87171' }}>
                 {stats.avgAcc}%
               </span>
-              <span className="tdb-card-lbl">Average Accuracy</span>
+              <span className="tdb-card-lbl">Avg Accuracy (Last 5)</span>
             </div>
             <div className="tdb-card glow-green">
               <span className="tdb-card-val" style={{ color: '#4ade80' }}>{stats.bestAcc}%</span>
