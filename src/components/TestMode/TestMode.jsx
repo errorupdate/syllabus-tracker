@@ -235,9 +235,9 @@ function ActiveTest({ config, onEnd }) {
   };
 
   const handleAnswer = useCallback((optId) => {
-    if (isAttempted) return;
+    const wasAttempted = isAttempted;
     setAnswers(prev => ({ ...prev, [current.id]: optId }));
-    if (currentIdx < questions.length - 1) {
+    if (currentIdx < questions.length - 1 && !wasAttempted) {
       setTimeout(() => goNext(), 500);
     }
   }, [isAttempted, current, currentIdx, questions.length, goNext]);
@@ -310,13 +310,8 @@ function ActiveTest({ config, onEnd }) {
 
           <div className="tm-options">
             {current.displayOptions.map(opt => {
-              let cls = 'tm-option';
-              if (isAttempted) {
-                if (opt.id === attemptedId) cls += ' selected';
-                else cls += ' dimmed';
-              } else {
-                cls += ' interactive';
-              }
+              let cls = 'tm-option interactive';
+              if (opt.id === attemptedId) cls += ' selected';
               return (
                 <div
                   key={opt.id}
