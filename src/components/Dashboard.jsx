@@ -540,7 +540,7 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
         <div className="db-body-main">
 
           {/* 7-Day Activity */}
-          <div className="db-panel glass-card">
+          <div className="db-panel glass-card activity-chart-panel" style={{ overflow: 'visible' }}>
             <div className="db-panel-header">
               <span className="db-panel-title">📅 7-Day Activity</span>
               <span className="chart-total">{weekDays.reduce((s, d) => s + d.count, 0)} revisions</span>
@@ -551,13 +551,14 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
                   <div className="bar-value">{d.count > 0 ? d.count : ''}</div>
                   <div className="bar-track">
                     <div className={`bar-fill ${d.isToday ? 'today' : ''} ${d.count === 0 ? 'empty' : ''}`}
-                      style={{ height: `${d.count > 0 ? Math.max(12, (d.count / weekMax) * 100) : 4}%` }} />
+                      style={{ height: d.count > 0 ? `${Math.max(8, Math.round((d.count / Math.max(weekMax, 1)) * 70))}px` : '4px' }} />
                   </div>
                   <div className={`bar-label ${d.isToday ? 'today' : ''}`}>{d.label}</div>
                 </div>
               ))}
             </div>
           </div>
+
 
           {/* Subject Progress */}
           <div className="db-panel">

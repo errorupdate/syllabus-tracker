@@ -346,7 +346,9 @@ body::before {
   flex: 1;
   padding: 24px;
   overflow-y: auto;
+  overflow-x: hidden;
   scroll-behavior: smooth;
+  min-width: 0;
 }
 
 /* Page transition animation */
@@ -410,7 +412,7 @@ body::before {
 }
 
 /* ============ DASHBOARD ============ */
-.dashboard { max-width: 1100px; margin: 0 auto; }
+.dashboard { max-width: 1100px; margin: 0 auto; overflow-x: hidden; }
 .dashboard-header {
   text-align: center;
   margin-bottom: 32px;
@@ -681,20 +683,26 @@ body::before {
 /* ── 7-Day Activity Chart ── */
 .activity-chart-card {
   min-height: 0;
+  overflow: visible !important;
 }
 .activity-bars {
   display: flex;
-  gap: 6px;
-  flex: 1;
+  gap: 4px;
   align-items: flex-end;
-  min-height: 100px;
+  min-height: 110px;
+  height: 110px;
+  overflow: visible;
+  padding-top: 20px;
+  width: 100%;
 }
 .activity-bar-col {
-  flex: 1;
+  flex: 1 1 0;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 4px;
+  overflow: visible;
 }
 .bar-value {
   font-size: 0.68rem;
@@ -705,18 +713,19 @@ body::before {
 .bar-track {
   width: 100%;
   height: 80px;
+  min-height: 80px;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   align-items: center;
+  overflow: visible;
 }
 .bar-fill {
-  width: 100%;
-  max-width: 28px;
+  width: 70%;
+  min-width: 4px;
   border-radius: 6px 6px 2px 2px;
   background: linear-gradient(180deg, var(--accent-purple), rgba(139,92,246,0.4));
   transition: height 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-  position: relative;
 }
 .bar-fill.today {
   background: linear-gradient(180deg, var(--accent-teal), rgba(20,184,166,0.4));
@@ -739,12 +748,24 @@ body::before {
 /* ============ WEAK TOPICS ============ */
 .weak-topic-item {
   gap: 6px !important;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
 }
 .weak-topic-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
   width: 100%;
+  min-width: 0;
+  gap: 8px;
+}
+.weak-topic-row .attention-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .weak-accuracy {
   font-size: 0.9rem;
@@ -753,6 +774,7 @@ body::before {
 }
 .weak-bar-track {
   width: 100%;
+  max-width: 100%;
   height: 5px;
   background: rgba(255,255,255,0.05);
   border-radius: 4px;
@@ -818,7 +840,11 @@ body::before {
   border-radius: var(--radius);
   backdrop-filter: blur(12px);
   transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  min-width: 0;
+  max-width: 100%;
 }
+/* Use .glass-clip where you need overflow:hidden on glass cards */
+.glass-clip { overflow: hidden; }
 .glass-card:hover {
   transform: translateY(-2px);
   border-color: var(--border-bright);
@@ -827,7 +853,7 @@ body::before {
 
 .subject-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
   gap: 16px;
 }
 .subject-card { padding: 24px; }
@@ -1096,25 +1122,76 @@ body::before {
   .topbar-title { font-size: 0.85rem; }
 
   /* Content */
-  .content-area { padding: 12px; }
+  .content-area { padding: 12px; overflow-x: hidden; }
 
-  /* Dashboard */
+  /* Dashboard base - prevent overflow */
+  .dashboard { overflow-x: hidden; max-width: 100%; }
+
+  /* Dashboard legacy sections */
   .dashboard-header h1 { font-size: 1.4rem; }
   .dashboard-header .subtitle { font-size: 0.82rem; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-  .stat-card { padding: 16px 12px; }
+  .stat-card { padding: 16px 12px; min-width: 0; }
   .stat-number { font-size: 1.8rem; }
   .stat-label { font-size: 0.75rem; }
   .stat-number-sm { font-size: 0.95rem; }
   .dashboard-columns { grid-template-columns: 1fr; gap: 16px; }
   .dashboard-section h2 { font-size: 1.05rem; }
   .subject-cards { grid-template-columns: 1fr; }
-  .subject-card { padding: 16px; }
+  .subject-card { padding: 16px; min-width: 0; overflow: hidden; }
   .subject-card-header h3 { font-size: 0.95rem; }
-  .attention-item { padding: 12px 14px; }
-  .attention-name { font-size: 0.8rem; }
+  .attention-item { padding: 12px 14px; min-width: 0; overflow: hidden; }
+  .attention-name { font-size: 0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-  /* Dashboard QB/Test grid */
+  /* Dashboard new sections - mobile fixes */
+  .db-hero { padding: 16px; gap: 12px; margin-bottom: 12px; }
+  .db-hero-title { font-size: 1.3rem; }
+  .db-hero-right { width: 100%; gap: 8px; flex-wrap: wrap; }
+  .db-hero-pill { flex: 1; min-width: 140px; padding: 10px 12px; gap: 8px; }
+  .pill-val { font-size: 1.05rem; }
+
+  /* Quick stats: 2x2 grid on mobile */
+  .db-quick-stats { grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 10px; }
+  .qs-card { padding: 14px 12px; min-width: 0; overflow: hidden; }
+  .qs-val { font-size: 1.4rem; }
+  .qs-lbl { font-size: 0.65rem; }
+
+  /* Progress bar row */
+  .db-progress-bar-row { padding: 10px 14px; margin-bottom: 12px; }
+  .db-progress-labels { flex-direction: column; align-items: flex-start; gap: 4px; }
+
+  /* Daily plan horizontal scroll cards */
+  .daily-plan-section { margin-bottom: 14px; }
+  .daily-plan-section .daily-plan-section { padding: 14px 16px; }
+  .daily-plan-card { flex: 0 0 200px; }
+  .daily-plan-header { margin-bottom: 10px; }
+
+  /* Body grid: single column */
+  .db-body-grid { grid-template-columns: 1fr; gap: 12px; }
+  .db-body-side { order: -1; }
+  .db-body-main { gap: 12px; }
+  .db-body-side { gap: 10px; }
+
+  /* Panels */
+  .db-panel { padding: 14px 14px; min-width: 0; overflow: hidden; }
+  .db-panel-title { font-size: 0.85rem; }
+
+  /* Mini stats panel */
+  .db-mini-stats-panel { padding: 12px 14px; }
+  .db-mini-val { font-size: 0.95rem; }
+  .db-mini-icon { font-size: 1.2rem; }
+
+  /* 7-Day Activity chart */
+  .activity-bars { min-height: 90px; height: 90px; gap: 4px; overflow: visible !important; }
+  .bar-track { height: 60px; min-height: 60px; overflow: visible !important; }
+  .activity-chart-panel, .activity-chart-panel.glass-card { overflow: visible !important; padding: 12px 10px; }
+  .activity-chart-panel .activity-bars { gap: 2px; }
+  .activity-chart-panel .bar-label { font-size: 0.52rem; }
+  .activity-chart-panel .bar-value { font-size: 0.55rem; }
+  .bar-label { font-size: 0.58rem; }
+  .bar-value { font-size: 0.6rem; }
+
+  /* Dashboard QB/Test grid (legacy) */
   .dashboard-qb-test-grid {
     grid-template-columns: 1fr;
     gap: 12px;
@@ -1127,17 +1204,11 @@ body::before {
   .banner-icon { font-size: 1.2rem; }
   .banner-msg { font-size: 0.82rem; }
 
-  /* Insight row */
-  .insight-row {
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-  .activity-chart-card {
-    grid-column: 1 / -1;
-  }
+  /* Insight row (legacy) */
+  .insight-row { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .activity-chart-card { grid-column: 1 / -1; }
   .goal-ring-svg { width: 80px; height: 80px; }
   .streak-number { font-size: 2rem; }
-  .bar-track { height: 60px; }
 
   /* Test history table — mobile card layout */
   .test-history-head { display: none; }
@@ -1306,6 +1377,9 @@ body::before {
   padding: 20px 24px;
   position: relative;
   overflow: hidden;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 .daily-plan-section::before {
   content: '';
@@ -1551,9 +1625,14 @@ body::before {
 /* ── Quick Stats Row ── */
 .db-quick-stats {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(min(140px, 100%), 1fr));
   gap: 10px;
   margin-bottom: 12px;
+  width: 100%;
+  max-width: 100%;
+}
+@media (min-width: 600px) {
+  .db-quick-stats { grid-template-columns: repeat(4, 1fr); gap: 10px; }
 }
 .qs-card {
   border-radius: 14px;
@@ -1604,14 +1683,20 @@ body::before {
 /* ── Daily Plan: horizontal scroll (new) ── */
 .daily-plan-section {
   margin-bottom: 16px;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
 }
 .daily-plan-scroll {
   display: flex;
   gap: 12px;
   overflow-x: auto;
-  padding-bottom: 6px;
+  overflow-y: visible;
+  padding-bottom: 8px;
   scrollbar-width: thin;
   scrollbar-color: rgba(139,92,246,0.3) transparent;
+  width: 100%;
+  -webkit-overflow-scrolling: touch;
 }
 .daily-plan-scroll::-webkit-scrollbar { height: 4px; }
 .daily-plan-scroll::-webkit-scrollbar-track { background: transparent; }
@@ -1695,13 +1780,21 @@ body::before {
 
 /* ── Mobile overrides ── */
 @media (max-width: 600px) {
-  .db-hero { flex-direction: column; padding: 18px 16px; gap: 14px; }
-  .db-hero-title { font-size: 1.35rem; }
-  .db-hero-right { width: 100%; justify-content: flex-start; }
-  .db-hero-pill { padding: 8px 12px; }
-  .pill-val { font-size: 1rem; }
-  .db-quick-stats { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-  .qs-val { font-size: 1.3rem; }
-  .db-panel { padding: 12px 14px; }
-  .daily-plan-card { flex: 0 0 188px; }
+  .db-hero { flex-direction: column; padding: 16px; gap: 12px; }
+  .db-hero-title { font-size: 1.25rem; }
+  .db-hero-right { width: 100%; justify-content: flex-start; flex-wrap: nowrap; }
+  .db-hero-pill { flex: 1; padding: 8px 10px; gap: 6px; }
+  .pill-icon { font-size: 1.1rem; }
+  .pill-val { font-size: 0.95rem; }
+  .pill-lbl { font-size: 0.55rem; }
+  .db-quick-stats { gap: 8px; }
+  .qs-val { font-size: 1.2rem; }
+  .qs-lbl { font-size: 0.62rem; }
+  .db-panel { padding: 12px 12px; }
+  .daily-plan-card { flex: 0 0 180px; }
+}
+
+/* ── Activity chart panel: never clip bars ── */
+.db-body-main .db-panel:first-child {
+  overflow: visible !important;
 }
