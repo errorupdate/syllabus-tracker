@@ -248,6 +248,14 @@ textarea.form-control {
   box-sizing: border-box;
 }
 
+/* Chapter filter – 3rd-level drill-down */
+.filter-select-chapter {
+  border-color: rgba(163, 113, 247, 0.45);
+  border-left: 4px solid #a371f7;
+  background: linear-gradient(135deg, var(--surface) 0%, rgba(163, 113, 247, 0.06) 100%);
+  padding-left: 12px;
+}
+
 /* ============================================================
    SCOREBOARD
    ============================================================ */

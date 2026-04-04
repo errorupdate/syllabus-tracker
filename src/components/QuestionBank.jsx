@@ -28,6 +28,7 @@ export default function QuestionBank() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterSubject, setFilterSubject] = useState('All');
   const [filterTopic, setFilterTopic] = useState('All');
+  const [filterChapter, setFilterChapter] = useState('All');
   const [attempts, setAttempts] = useState({}); // { qId: selectedOptionId }
   const [shuffledOptionsMap, setShuffledOptionsMap] = useState({}); // { qId: [shuffled custom options] }
   const [selectionMode, setSelectionMode] = useState(false);
@@ -371,7 +372,7 @@ export default function QuestionBank() {
   useEffect(() => {
     setCurrentIndex(0);
     setCardAnim('');
-  }, [filterSubject, filterTopic, searchQuery]);
+  }, [filterSubject, filterTopic, filterChapter, searchQuery]);
 
   const resetScore = () => {
     setScore({ attempted: 0, correct: 0, wrong: 0 });
@@ -451,7 +452,8 @@ export default function QuestionBank() {
         const matchesText = (q.text || '').toLowerCase().includes(queryLower);
         const matchesTopic = (q.topicName || q.topicId || '').toLowerCase().includes(queryLower);
         const matchesSub = (q.subjectName || q.subjectId || '').toLowerCase().includes(queryLower);
-        if (!matchesText && !matchesTopic && !matchesSub) return false;
+        const matchesChapter = (q.chapterName || q.chapterId || '').toLowerCase().includes(queryLower);
+        if (!matchesText && !matchesTopic && !matchesSub && !matchesChapter) return false;
       }
       
       // 2. Subject Filter
@@ -460,11 +462,16 @@ export default function QuestionBank() {
       // 3. Topic Filter
       if (filterTopic !== 'All' && q.topicId !== filterTopic) return false;
 
+      // 4. Chapter Filter
+      if (filterChapter !== 'All' && q.chapterId !== filterChapter) return false;
+
       return true;
     });
-  }, [shuffledQuestions, searchQuery, filterSubject, filterTopic]);
+  }, [shuffledQuestions, searchQuery, filterSubject, filterTopic, filterChapter]);
 
   const currentFilterSubjectObj = SUBJECTS.find(s => s.id === filterSubject);
+  const currentFilterTopicObj = currentFilterSubjectObj?.topics?.find(t => t.id === filterTopic);
+  const currentFilterTopicHasChapters = currentFilterTopicObj?.chapters && currentFilterTopicObj.chapters.length > 0;
 
   return (
     <div className="qb-container">
@@ -676,6 +683,7 @@ export default function QuestionBank() {
               onChange={e => {
                 setFilterSubject(e.target.value);
                 setFilterTopic('All'); // Reset topic when subject changes
+                setFilterChapter('All'); // Reset chapter too
               }}
             >
               <option value="All">All Subjects</option>
@@ -685,7 +693,10 @@ export default function QuestionBank() {
             <select 
               className="filter-select"
               value={filterTopic}
-              onChange={e => setFilterTopic(e.target.value)}
+              onChange={e => {
+                setFilterTopic(e.target.value);
+                setFilterChapter('All'); // Reset chapter when topic changes
+              }}
               disabled={filterSubject === 'All'}
             >
               <option value="All">All Topics</option>
@@ -693,6 +704,22 @@ export default function QuestionBank() {
                 <option key={t.id} value={t.id}>{t.name.split('-')[1]?.trim() || t.name}</option>
               ))}
             </select>
+
+            {/* Chapter filter — only shown when selected topic has chapters */}
+            {currentFilterTopicHasChapters && (
+              <select
+                className="filter-select filter-select-chapter"
+                value={filterChapter}
+                onChange={e => setFilterChapter(e.target.value)}
+              >
+                <option value="All">All Chapters</option>
+                {currentFilterTopicObj.chapters.map(c => (
+                  <option key={c.id} value={c.id}>
+                    {c.name.split('-')[1]?.trim() || c.name}
+                  </option>
+                ))}
+              </select>
+            )}
             
             {filterSubject !== 'All' && completions[filterSubject] && completions[filterSubject].count > 0 && (
               <div className="completion-badge">
