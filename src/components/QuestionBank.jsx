@@ -98,12 +98,44 @@ export default function QuestionBank() {
       const newShuffledMap = {};
       
       snapshot.forEach((doc) => {
-        const data = doc.data();
+        const raw = doc.data();
         const id = doc.id;
-        qList.push({ id, ...data });
+
+        // --- Normalize field names ---
+        // Bulk-inserted questions use optA/optB/optC + correctAnswer (e.g. "optB")
+        // The component expects opt1/opt2/opt3 + correctAnswerId (e.g. "opt1")
+        // Also ensure subjectName / topicName always exist (fall back to IDs)
+        const legacyMap = { optA: 'opt1', optB: 'opt2', optC: 'opt3' };
+        const normalized = { ...raw };
+        if (raw.optA !== undefined && raw.opt1 === undefined) {
+          normalized.opt1 = raw.optA;
+          normalized.opt2 = raw.optB;
+          normalized.opt3 = raw.optC;
+        }
+        if (raw.correctAnswer !== undefined && raw.correctAnswerId === undefined) {
+          // correctAnswer is like "optA", "optB", "optC", map to opt1/opt2/opt3
+          normalized.correctAnswerId = legacyMap[raw.correctAnswer] || raw.correctAnswer;
+        }
+        // Ensure subjectName / topicName always present
+        if (!normalized.subjectName) {
+          const subObj = SUBJECTS.find(s => s.id === normalized.subjectId);
+          normalized.subjectName = subObj?.name || normalized.subjectId || '';
+        }
+        if (!normalized.topicName) {
+          const subObj = SUBJECTS.find(s => s.id === normalized.subjectId);
+          const topObj = subObj?.topics?.find(t => t.id === normalized.topicId);
+          normalized.topicName = topObj?.name || normalized.topicId || '';
+        }
+        if (!normalized.chapterName && normalized.chapterId) {
+          const subObj = SUBJECTS.find(s => s.id === normalized.subjectId);
+          const topObj = subObj?.topics?.find(t => t.id === normalized.topicId);
+          const chObj = topObj?.chapters?.find(c => c.id === normalized.chapterId);
+          normalized.chapterName = chObj?.name || '';
+        }
+
+        qList.push({ id, ...normalized });
         
         // Ensure every question getting rendered has a shuffled state for its 3 custom options
-        // We shuffle the *IDs* of the custom options (opt1, opt2, opt3) so we map correctly to A, B, C
         if (!shuffledOptionsMap[id]) {
           newShuffledMap[id] = shuffle(['opt1', 'opt2', 'opt3']);
         } else {
@@ -413,12 +445,12 @@ export default function QuestionBank() {
   // Complex Filtering (applied on shuffled questions)
   const filteredQuestions = useMemo(() => {
     return shuffledQuestions.filter(q => {
-      // 1. Search Query
+      // 1. Search Query — guard against missing name fields
       if (searchQuery) {
         const queryLower = searchQuery.toLowerCase();
-        const matchesText = q.text.toLowerCase().includes(queryLower);
-        const matchesTopic = q.topicName.toLowerCase().includes(queryLower);
-        const matchesSub = q.subjectName.toLowerCase().includes(queryLower);
+        const matchesText = (q.text || '').toLowerCase().includes(queryLower);
+        const matchesTopic = (q.topicName || q.topicId || '').toLowerCase().includes(queryLower);
+        const matchesSub = (q.subjectName || q.subjectId || '').toLowerCase().includes(queryLower);
         if (!matchesText && !matchesTopic && !matchesSub) return false;
       }
       
