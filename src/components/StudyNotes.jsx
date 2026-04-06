@@ -12,7 +12,8 @@ export default function StudyNotes({ filter, onClose }) {
   const [dynamicQuestions, setDynamicQuestions] = useState([]);
   const [loadingQs, setLoadingQs] = useState(true);
 
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
+  const [configKey, setConfigKey] = useState(() => localStorage.getItem('gemini_api_key_override') || '');
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY || configKey;
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedNotes, setGeneratedNotes] = useState(() => localStorage.getItem(`ai_notes_${filter?.title}`) || '');
 
@@ -102,7 +103,15 @@ export default function StudyNotes({ filter, onClose }) {
   }, [dynamicQuestions, filter, cleanTitle]);
 
   const generateAINotes = async () => {
-    if (!apiKey) return alert("API Key not found in .env. Please configure VITE_GEMINI_API_KEY.");
+    if (!apiKey) {
+      const userKey = prompt("API Key not found inside .env!\n\nSince you are testing across devices, please paste your Gemini API Key here to save it securely to this device's memory:");
+      if (userKey) {
+        localStorage.setItem('gemini_api_key_override', userKey.trim());
+        setConfigKey(userKey.trim());
+        alert("Key saved securely to this device! You can now generate notes.");
+      }
+      return;
+    }
     if (mergedNotes.length === 0) return alert("No questions found to generate notes from.");
 
     setIsGenerating(true);

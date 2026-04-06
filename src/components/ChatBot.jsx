@@ -16,7 +16,8 @@ export default function ChatBot({ revisionData }) {
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
 
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
+  const [configKey, setConfigKey] = useState(() => localStorage.getItem('gemini_api_key_override') || '');
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY || configKey;
 
   // Fetch contextual data from Firebase
   useEffect(() => {
@@ -67,8 +68,14 @@ export default function ChatBot({ revisionData }) {
   const sendMessage = async () => {
     const text = inputVal.trim();
     if (!text) return;
+    
     if (!apiKey) {
-      alert("API Key not configured. Please check your .env file.");
+      const userKey = prompt("API Key not found inside .env!\n\nSince you are testing across devices, please paste your Gemini API Key here to save it securely to this device's memory:");
+      if (userKey) {
+        localStorage.setItem('gemini_api_key_override', userKey.trim());
+        setConfigKey(userKey.trim());
+        alert("Key saved securely to this device! You can now send your message.");
+      }
       return;
     }
 
