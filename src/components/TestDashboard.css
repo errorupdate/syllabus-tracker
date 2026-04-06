@@ -412,16 +412,51 @@
   .tdb-bottom-row { grid-template-columns: 1fr; }
 }
 @media (max-width: 640px) {
+  .tdb-wrap { padding-bottom: 24px; }
   .tdb-overview-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
   .tdb-card { padding: 14px 10px; }
   .tdb-card-val { font-size: 1.6rem; }
   .tdb-mid-row { grid-template-columns: 1fr; }
   .tdb-bottom-row { grid-template-columns: 1fr; }
   .tdb-title { font-size: 1.3rem; }
-  .tdb-history-head,
-  .tdb-history-row { grid-template-columns: 86px 1fr 56px 44px 20px; padding: 9px 12px; font-size: 0.75rem; }
+  .tdb-page-header { flex-direction: column; gap: 4px; margin-bottom: 16px; }
+
+  /* History table — card style on mobile */
+  .tdb-history-head { display: none; }
+  .tdb-history-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+    padding: 12px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .tdb-hist-date { font-size: 0.72rem; }
+  .tdb-hist-cat {
+    white-space: normal;
+    overflow: visible;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #e2e8f0;
+    padding-right: 0;
+  }
+  .tdb-hist-score::before { content: 'Score: '; color: #64748b; font-weight: 400; }
+  .tdb-hist-acc { text-align: left; font-size: 0.88rem; }
+  .tdb-hist-acc::before { content: 'Accuracy: '; color: #64748b; font-weight: 400; }
+  .tdb-hist-icon { display: none; }
+
+  /* Modal */
+  .tdb-modal-overlay { padding: 12px 8px 32px; }
   .tdb-modal-header { padding: 14px 16px; }
-  .tdb-modal-questions { padding: 12px 14px; }
+  .tdb-modal-questions { padding: 12px 14px; max-height: 50vh; }
+  .tdb-modal-stat { padding: 12px 4px; }
+}
+
+@media (max-width: 400px) {
+  .tdb-overview-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+  .tdb-card { padding: 12px 8px; }
+  .tdb-card-val { font-size: 1.4rem; }
+  .tdb-card-lbl { font-size: 0.62rem; }
+  .tdb-streak-big { font-size: 2rem; }
+  .tdb-title { font-size: 1.15rem; }
 }
 
 /* Landscape phone */

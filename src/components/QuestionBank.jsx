@@ -453,7 +453,14 @@ export default function QuestionBank() {
         const matchesTopic = (q.topicName || q.topicId || '').toLowerCase().includes(queryLower);
         const matchesSub = (q.subjectName || q.subjectId || '').toLowerCase().includes(queryLower);
         const matchesChapter = (q.chapterName || q.chapterId || '').toLowerCase().includes(queryLower);
-        if (!matchesText && !matchesTopic && !matchesSub && !matchesChapter) return false;
+        
+        // Advanced searching: include options and explanation
+        const matchesOpt1 = (q.opt1 || '').toLowerCase().includes(queryLower);
+        const matchesOpt2 = (q.opt2 || '').toLowerCase().includes(queryLower);
+        const matchesOpt3 = (q.opt3 || '').toLowerCase().includes(queryLower);
+        const matchesExp = (q.explanation || '').toLowerCase().includes(queryLower);
+
+        if (!matchesText && !matchesTopic && !matchesSub && !matchesChapter && !matchesOpt1 && !matchesOpt2 && !matchesOpt3 && !matchesExp) return false;
       }
       
       // 2. Subject Filter
