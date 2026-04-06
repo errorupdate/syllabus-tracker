@@ -10,6 +10,7 @@ import QuestionBank from './components/QuestionBank';
 import TestMode from './components/TestMode/TestMode';
 import TestDashboard from './components/TestDashboard';
 import SubjectView from './components/SubjectView';
+import StudyNotes from './components/StudyNotes';
 
 import './index.css';
 
@@ -27,6 +28,7 @@ function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [testModeOpen, setTestModeOpen] = useState(false);
+  const [activeNotesFilter, setActiveNotesFilter] = useState(null);
   const isNavigatingRef = useRef(false);
 
   // Navigate to a new view (pushes to history)
@@ -49,6 +51,11 @@ function App() {
     });
     setHistoryIndex(prev => prev + 1);
   }, [historyIndex]);
+
+  const openNotes = useCallback((filter) => {
+    setActiveNotesFilter(filter);
+    navigateTo('notes');
+  }, [navigateTo]);
 
   const canGoBack = historyIndex > 0;
   const canGoForward = historyIndex < viewHistory.length - 1;
@@ -156,7 +163,8 @@ function App() {
     content = <PYQPage />;
   } else if (activeView === 'questionBank') {
     content = <QuestionBank />;
-
+  } else if (activeView === 'notes') {
+    content = <StudyNotes filter={activeNotesFilter} onClose={goBack} />;
   } else {
     // Look for matching subject, topic or chapter
     for (const subject of SUBJECTS) {
@@ -166,6 +174,7 @@ function App() {
             subject={subject}
             revisionData={revisionData}
             onSelectView={navigateTo}
+            onOpenNotes={openNotes}
           />
         );
         break;
@@ -179,6 +188,11 @@ function App() {
               idPrefix={topic.id}
               revisionData={revisionData}
               onToggle={toggleRevision}
+              onOpenNotes={() => openNotes({
+                subjectId: subject.id,
+                topicId: topic.id,
+                title: topic.name
+              })}
             />
           );
           break;
@@ -193,6 +207,12 @@ function App() {
                   idPrefix={ch.id}
                   revisionData={revisionData}
                   onToggle={toggleRevision}
+                  onOpenNotes={() => openNotes({
+                    subjectId: subject.id,
+                    topicId: topic.id,
+                    chapterId: ch.id,
+                    title: ch.name
+                  })}
                 />
               );
               break;

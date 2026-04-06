@@ -1,9 +1,20 @@
-export default function PDFList({ title, pdfs, idPrefix, revisionData, onToggle }) {
+export default function PDFList({ title, pdfs, idPrefix, revisionData, onToggle, onOpenNotes }) {
   return (
     <div className="pdf-list">
-      <div className="pdf-list-header">
-        <h1>{title}</h1>
-        <span className="pdf-count">{pdfs.length} PDFs</span>
+      <div className="pdf-list-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+        <div>
+          <h1 style={{ margin: 0 }}>{title}</h1>
+          <span className="pdf-count" style={{ display: 'block', marginTop: '6px' }}>{pdfs.length} PDFs</span>
+        </div>
+        {onOpenNotes && (
+          <button 
+            className="btn-inline-notes" 
+            style={{ padding: '8px 16px', fontSize: '0.95rem' }} 
+            onClick={onOpenNotes}
+          >
+            📝 View Notes
+          </button>
+        )}
       </div>
 
       <div className="pdf-table">

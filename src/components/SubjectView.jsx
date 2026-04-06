@@ -1,7 +1,7 @@
 import React from 'react';
 import ProgressBar from './ProgressBar';
 
-export default function SubjectView({ subject, revisionData, onSelectView }) {
+export default function SubjectView({ subject, revisionData, onSelectView, onOpenNotes }) {
   function countPdfs(topic) {
     if (topic.chapters) return topic.chapters.reduce((s, ch) => s + ch.pdfs.length, 0);
     return (topic.pdfs || []).length;
@@ -50,14 +50,22 @@ export default function SubjectView({ subject, revisionData, onSelectView }) {
 
   return (
     <div className="dashboard animate-fade" style={{ maxWidth: '1000px', margin: '0 auto', paddingBottom: '40px' }}>
-      <div className="dashboard-header" style={{ marginBottom: '24px' }}>
-        <h1 style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: 0 }}>
-          <span style={{ fontSize: '1.8rem' }}>📘</span> 
-          {subject.name}
-        </h1>
-        <p className="subtitle" style={{ fontSize: '1.05rem', marginTop: '8px' }}>
-          Select a topic below to dive into the revision checklist.
-        </p>
+      <div className="dashboard-header" style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+        <div>
+          <h1 style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: 0 }}>
+            <span style={{ fontSize: '1.8rem' }}>📘</span> 
+            {subject.name}
+          </h1>
+          <p className="subtitle" style={{ fontSize: '1.05rem', marginTop: '8px', marginBottom: 0 }}>
+            Select a topic below to dive into the revision checklist.
+          </p>
+        </div>
+        <button 
+          className="btn-inline-notes" 
+          onClick={() => onOpenNotes({ subjectId: subject.id, title: subject.name })}
+        >
+          📝 Subject Notes
+        </button>
       </div>
 
       <div className="stat-card glass-card fill-card" style={{ marginBottom: '32px', padding: '20px 24px' }}>
@@ -108,7 +116,15 @@ export default function SubjectView({ subject, revisionData, onSelectView }) {
                  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isChaptered ? '20px' : '0' }}
               >
                  <div style={{ flex: 1 }}>
-                   <h2 style={{ margin: 0, fontSize: '1.3rem', color: '#e2e8f0', letterSpacing: '-0.3px' }}>{t.name}</h2>
+                   <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+                     <h2 style={{ margin: 0, fontSize: '1.3rem', color: '#e2e8f0', letterSpacing: '-0.3px', flex: '1 1 auto' }}>{t.name}</h2>
+                     <button 
+                       className="btn-inline-notes" 
+                       onClick={(e) => { e.stopPropagation(); onOpenNotes({ subjectId: subject.id, topicId: t.id, title: t.name }); }}
+                     >
+                       📝 Notes
+                     </button>
+                   </div>
                    {!isChaptered && (
                      <div style={{ marginTop: '12px' }}>
                        <ProgressBar value={done} max={max} size="sm" />
@@ -162,7 +178,16 @@ export default function SubjectView({ subject, revisionData, onSelectView }) {
                             e.currentTarget.style.transform = 'none';
                           }}
                         >
-                          <h4 style={{ margin: 0, fontSize: '1rem', color: '#cbd5e1', fontWeight: 600 }}>{ch.name}</h4>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '8px', marginBottom: '8px' }}>
+                            <h4 style={{ margin: 0, fontSize: '1rem', color: '#cbd5e1', fontWeight: 600, flex: '1 1 auto' }}>{ch.name}</h4>
+                            <button 
+                              className="btn-inline-notes" 
+                              style={{ padding: '4px 8px', fontSize: '0.75rem' }}
+                              onClick={(e) => { e.stopPropagation(); onOpenNotes({ subjectId: subject.id, topicId: t.id, chapterId: ch.id, title: ch.name }); }}
+                            >
+                              📝 Notes
+                            </button>
+                          </div>
                           <ProgressBar value={chDone} max={chMax} size="sm" />
                           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', color: '#94a3b8' }}>
                              <span>📚 {chCovered}/{ch.pdfs.length} PDFs</span>
