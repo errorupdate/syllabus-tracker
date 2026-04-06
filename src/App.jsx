@@ -11,6 +11,7 @@ import TestMode from './components/TestMode/TestMode';
 import TestDashboard from './components/TestDashboard';
 import SubjectView from './components/SubjectView';
 import StudyNotes from './components/StudyNotes';
+import ChatBot from './components/ChatBot';
 
 import './index.css';
 
@@ -267,6 +268,7 @@ function App() {
               {content}
             </div>
           </div>
+          <ChatBot revisionData={revisionData} />
         </main>
       </div>
     </PasswordLock>
