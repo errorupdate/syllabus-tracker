@@ -336,3 +336,61 @@
     display: none;
   }
 }
+
+/* ── Config Pane ── */
+.chatbot-header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.chatbot-action-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: color 0.2s;
+  padding: 4px;
+}
+
+.chatbot-action-btn:hover {
+  color: #c4b5fd;
+}
+
+.chatbot-config-pane {
+  background: rgba(0, 0, 0, 0.3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.chatbot-config-pane .settings-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.chatbot-config-pane .settings-group label {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.chatbot-config-pane .settings-group select,
+.chatbot-config-pane .settings-group textarea {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+
+.chatbot-config-pane .settings-group select:focus,
+.chatbot-config-pane .settings-group textarea:focus {
+  outline: none;
+  border-color: var(--accent-purple);
+}

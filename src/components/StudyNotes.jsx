@@ -12,10 +12,19 @@ export default function StudyNotes({ filter, onClose }) {
   const [dynamicQuestions, setDynamicQuestions] = useState([]);
   const [loadingQs, setLoadingQs] = useState(true);
 
-  const [configKey, setConfigKey] = useState(() => localStorage.getItem('gemini_api_key_override') || '');
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY || configKey;
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedNotes, setGeneratedNotes] = useState(() => localStorage.getItem(`ai_notes_${filter?.title}`) || '');
+
+  const [showConfig, setShowConfig] = useState(false);
+  const [selectedModel, setSelectedModel] = useState(() => localStorage.getItem('study_notes_model') || 'gemini-1.5-flash');
+  const [customPrompt, setCustomPrompt] = useState(() => localStorage.getItem('study_notes_prompt') || '');
+
+  const availableModels = [
+    { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash (Fast & Free)' },
+    { id: 'gemini-1.5-pro-latest', name: 'Gemini 1.5 Pro (Advanced)' },
+    { id: 'gemini-1.5-flash-8b', name: 'Gemini 1.5 Flash-8B (Efficient)' },
+    { id: 'gemini-pro', name: 'Gemini 1.0 Pro' },
+  ];
 
   const readingTime = useMemo(() => {
     if (!generatedNotes) return 0;
@@ -103,15 +112,6 @@ export default function StudyNotes({ filter, onClose }) {
   }, [dynamicQuestions, filter, cleanTitle]);
 
   const generateAINotes = async () => {
-    if (!apiKey) {
-      const userKey = prompt("API Key not found inside .env!\n\nSince you are testing across devices, please paste your Gemini API Key here to save it securely to this device's memory:");
-      if (userKey) {
-        localStorage.setItem('gemini_api_key_override', userKey.trim());
-        setConfigKey(userKey.trim());
-        alert("Key saved securely to this device! You can now generate notes.");
-      }
-      return;
-    }
     if (mergedNotes.length === 0) return alert("No questions found to generate notes from.");
 
     setIsGenerating(true);
@@ -133,23 +133,26 @@ export default function StudyNotes({ filter, onClose }) {
         4. Make it highly readable and strictly formatted in Markdown.
         5. The topic is: "${filter.title}".
 
+        ${customPrompt ? `Here are additional instructions from the user to follow strictly:\n"${customPrompt}"\n\n` : ''}
+
         Here is the source material to analyze and synthesize into a study guide:
         
         ${sourceMaterial}
       `;
 
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+      const response = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: promptText }] }]
+          model: selectedModel,
+          contents: promptText
         })
       });
 
       const data = await response.json();
-      if (data.error) throw new Error(data.error.message || "API Error");
+      if (data.error) throw new Error(data.error);
 
-      const generatedText = data.candidates[0].content.parts[0].text;
+      const generatedText = data.text;
       
       setGeneratedNotes(generatedText);
       localStorage.setItem(`ai_notes_${filter.title}`, generatedText);
@@ -188,14 +191,50 @@ export default function StudyNotes({ filter, onClose }) {
           </div>
         ) : (
           <div className="ai-generation-box">
-            <div className="ai-generation-controls">
+            <div className="ai-generation-controls" style={{ flexDirection: 'column' }}>
               <button 
+                style={{ width: '100%', justifyContent: 'center' }}
                 className={`btn-generate-ai ${isGenerating ? 'generating' : ''}`}
                 onClick={generateAINotes}
-                disabled={isGenerating || !apiKey}
+                disabled={isGenerating}
               >
                 {isGenerating ? '✨ Synthesizing Notes...' : (generatedNotes ? '✨ Regenerate Notes' : '✨ Generate Study Notes')}
               </button>
+              
+              <button className="ai-settings-toggle" onClick={() => setShowConfig(!showConfig)}>
+                ⚙️ {showConfig ? 'Hide AI Settings' : 'AI Settings & Overrides'}
+              </button>
+
+              {showConfig && (
+                <div className="ai-settings-panel animate-fade">
+                  <div className="settings-group">
+                    <label>Select AI Model</label>
+                    <select 
+                      value={selectedModel} 
+                      onChange={(e) => {
+                        setSelectedModel(e.target.value);
+                        localStorage.setItem('study_notes_model', e.target.value);
+                      }}
+                    >
+                      {availableModels.map(m => (
+                        <option key={m.id} value={m.id}>{m.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="settings-group">
+                    <label>Custom Instructions (Optional)</label>
+                    <textarea 
+                      rows={2}
+                      placeholder="e.g., 'Keep it under 3 paragraphs' or 'Summarize simply'"
+                      value={customPrompt}
+                      onChange={(e) => {
+                        setCustomPrompt(e.target.value);
+                        localStorage.setItem('study_notes_prompt', e.target.value);
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             {generatedNotes && (

@@ -16,8 +16,16 @@ export default function ChatBot({ revisionData }) {
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
 
-  const [configKey, setConfigKey] = useState(() => localStorage.getItem('gemini_api_key_override') || '');
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY || configKey;
+  const [showConfig, setShowConfig] = useState(false);
+  const [selectedModel, setSelectedModel] = useState(() => localStorage.getItem('chatbot_model') || 'gemini-1.5-flash');
+  const [customPrompt, setCustomPrompt] = useState(() => localStorage.getItem('chatbot_prompt') || '');
+
+  const availableModels = [
+    { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash (Fast)' },
+    { id: 'gemini-1.5-pro-latest', name: 'Gemini 1.5 Pro (Advanced)' },
+    { id: 'gemini-1.5-flash-8b', name: 'Gemini 1.5 Flash-8B' },
+    { id: 'gemini-pro', name: 'Gemini 1.0 Pro' },
+  ];
 
   // Fetch contextual data from Firebase
   useEffect(() => {
@@ -68,16 +76,6 @@ export default function ChatBot({ revisionData }) {
   const sendMessage = async () => {
     const text = inputVal.trim();
     if (!text) return;
-    
-    if (!apiKey) {
-      const userKey = prompt("API Key not found inside .env!\n\nSince you are testing across devices, please paste your Gemini API Key here to save it securely to this device's memory:");
-      if (userKey) {
-        localStorage.setItem('gemini_api_key_override', userKey.trim());
-        setConfigKey(userKey.trim());
-        alert("Key saved securely to this device! You can now send your message.");
-      }
-      return;
-    }
 
     // Reset input
     setInputVal('');
@@ -137,6 +135,8 @@ Rules:
 2. Answer anything about the syllabus, their progress, their tests, or specific questions they've stored.
 3. If their question asks for general study help (outside the project), provide a great internet-based response.
 4. Use clear Markdown!
+
+${customPrompt ? `Here are additional overriding instructions from the user:\n"${customPrompt}"` : ''}
       `;
 
       // Convert local state messages to Gemini API format
@@ -151,19 +151,20 @@ Rules:
         { role: 'user', parts: [{ text: text }] }
       ];
 
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+      const response = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          system_instruction: { parts: [{ text: systemPrompt }] },
+          model: selectedModel,
+          systemInstruction: systemPrompt,
           contents: latestQuery
         })
       });
 
       const data = await response.json();
-      if (data.error) throw new Error(data.error.message || "API Error");
+      if (data.error) throw new Error(data.error);
 
-      const botReply = data.candidates[0].content.parts[0].text;
+      const botReply = data.text;
       setMessages(prev => [...prev, { role: 'bot', content: botReply }]);
     } catch (err) {
       console.error('Chat error:', err);
@@ -179,9 +180,41 @@ Rules:
       <div className={`chatbot-window ${isOpen ? 'open' : ''}`}>
         <div className="chatbot-header">
           <h3>🤖 Syllabus AI Tracker <span className="chatbot-status">Online</span></h3>
-          <button className="chatbot-close-btn" onClick={toggleChat} title="Close Chat">✕</button>
+          <div className="chatbot-header-actions">
+            <button className="chatbot-action-btn" onClick={() => setShowConfig(!showConfig)} title="AI Settings">⚙️</button>
+            <button className="chatbot-close-btn" onClick={toggleChat} title="Close Chat">✕</button>
+          </div>
         </div>
         
+        {showConfig && (
+          <div className="chatbot-config-pane animate-fade">
+            <div className="settings-group">
+              <label>AI Model</label>
+              <select 
+                value={selectedModel} 
+                onChange={(e) => {
+                  setSelectedModel(e.target.value);
+                  localStorage.setItem('chatbot_model', e.target.value);
+                }}
+              >
+                {availableModels.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+              </select>
+            </div>
+            <div className="settings-group">
+              <label>Custom Chatbot Persona / Prompt</label>
+              <textarea 
+                rows={2}
+                placeholder="e.g. 'Always answer in hindi' or 'Be extremely concise'"
+                value={customPrompt}
+                onChange={(e) => {
+                  setCustomPrompt(e.target.value);
+                  localStorage.setItem('chatbot_prompt', e.target.value);
+                }}
+              />
+            </div>
+          </div>
+        )}
+
         <div className="chatbot-messages">
           {messages.length === 0 ? (
             <div className="chatbot-empty">
