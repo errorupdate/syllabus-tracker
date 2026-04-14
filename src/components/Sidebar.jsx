@@ -167,6 +167,12 @@ export default function Sidebar({ subjects, revisionData, activeView, onSelectVi
           );
         })}
       </nav>
+      
+      <div style={{ padding: '20px', marginTop: 'auto' }}>
+        <button className="nav-item db-logout-btn" onClick={() => localStorage.clear() || window.location.reload()} style={{ width: '100%' }}>
+          Reset Local Data
+        </button>
+      </div>
     </aside>
   );
 }

@@ -5,13 +5,16 @@ import { doc, getDoc, setDoc, onSnapshot, updateDoc } from 'firebase/firestore';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
 import PDFList from './components/PDFList';
+import PDFViewer from './components/PDFViewer';
 import PYQPage from './PYQPage';
 import QuestionBank from './components/QuestionBank';
+import SyncStorage from './components/SyncStorage';
 import TestMode from './components/TestMode/TestMode';
 import TestDashboard from './components/TestDashboard';
 import SubjectView from './components/SubjectView';
 import StudyNotes from './components/StudyNotes';
-import ChatBot from './components/ChatBot';
+// ChatBot removed — was API-dependent
+// import ChatBot from './components/ChatBot';
 
 import './index.css';
 
@@ -30,6 +33,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [testModeOpen, setTestModeOpen] = useState(false);
   const [activeNotesFilter, setActiveNotesFilter] = useState(null);
+  const [viewingPdf, setViewingPdf] = useState(null);
   const isNavigatingRef = useRef(false);
 
   // Navigate to a new view (pushes to history)
@@ -157,13 +161,15 @@ function App() {
   // Find the current view content
   let content;
   if (activeView === 'dashboard') {
-    content = <Dashboard subjects={SUBJECTS} revisionData={revisionData} onSelectView={navigateTo} />;
+    content = <Dashboard subjects={SUBJECTS} revisionData={revisionData} onSelectView={navigateTo} onOpenPdf={setViewingPdf} />;
   } else if (activeView === 'testDashboard') {
     content = <TestDashboard />;
   } else if (activeView === 'pyq') {
     content = <PYQPage />;
   } else if (activeView === 'questionBank') {
     content = <QuestionBank />;
+  } else if (activeView === 'syncStorage') {
+    content = <SyncStorage onClose={() => navigateTo('dashboard')} />;
   } else if (activeView === 'notes') {
     content = <StudyNotes filter={activeNotesFilter} onClose={goBack} />;
   } else {
@@ -176,6 +182,7 @@ function App() {
             revisionData={revisionData}
             onSelectView={navigateTo}
             onOpenNotes={openNotes}
+            onOpenPdf={setViewingPdf}
           />
         );
         break;
@@ -189,6 +196,7 @@ function App() {
               idPrefix={topic.id}
               revisionData={revisionData}
               onToggle={toggleRevision}
+              onOpenPdf={setViewingPdf}
               onOpenNotes={() => openNotes({
                 subjectId: subject.id,
                 topicId: topic.id,
@@ -208,6 +216,7 @@ function App() {
                   idPrefix={ch.id}
                   revisionData={revisionData}
                   onToggle={toggleRevision}
+                  onOpenPdf={setViewingPdf}
                   onOpenNotes={() => openNotes({
                     subjectId: subject.id,
                     topicId: topic.id,
@@ -231,6 +240,7 @@ function App() {
       <InstallPrompt />
       {/* Full-screen Test Mode overlay — blocks everything else */}
       {testModeOpen && <TestMode onClose={() => setTestModeOpen(false)} />}
+      {viewingPdf && <PDFViewer pdfName={viewingPdf} onClose={() => setViewingPdf(null)} />}
       <div className={`app-layout ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
         <Sidebar
           subjects={SUBJECTS}
@@ -268,7 +278,7 @@ function App() {
               {content}
             </div>
           </div>
-          <ChatBot revisionData={revisionData} />
+
         </main>
       </div>
     </PasswordLock>
