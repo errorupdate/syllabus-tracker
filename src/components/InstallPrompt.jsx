@@ -51,7 +51,7 @@ export default function InstallPrompt() {
       <div className="install-banner-content">
         <div className="install-banner-icon">📲</div>
         <div className="install-banner-text">
-          <strong>Install BPSC Tracker</strong>
+          <strong>Install BPSC TRE 4.0</strong>
           <span>Get the app on your device for quick access</span>
         </div>
       </div>

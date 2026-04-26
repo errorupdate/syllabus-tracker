@@ -440,7 +440,7 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
           <div className="db-hero-greeting">
             {todayRevisions === 0 ? '👋 Hey, ready to study?' : dailyGoalMet ? '🎉 Goal crushed today!' : `💪 ${dailyGoal - todayRevisions} more to go`}
           </div>
-          <h1 className="db-hero-title">BPSC Revision Tracker</h1>
+          <h1 className="db-hero-title">BPSC TRE 4.0</h1>
           <p className="db-hero-sub">{planDate}</p>
         </div>
         <div className="db-hero-right">

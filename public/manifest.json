@@ -1,6 +1,6 @@
 {
-  "name": "BPSC TRE 4.0 — Revision Tracker",
-  "short_name": "BPSC Tracker",
+  "name": "BPSC TRE 4.0",
+  "short_name": "BPSC TRE 4.0",
   "description": "Track your BPSC TRE 4.0 syllabus progress, practice PYQs, and build your question bank.",
   "start_url": "/",
   "scope": "/",

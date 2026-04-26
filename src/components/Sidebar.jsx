@@ -60,7 +60,7 @@ export default function Sidebar({ subjects, revisionData, activeView, onSelectVi
       <div className="sidebar-header">
         <div className="sidebar-logo" onClick={onSelectDashboard}>
           <span className="logo-icon">📚</span>
-          <h2>BPSC Tracker</h2>
+          <h2>BPSC TRE 4.0</h2>
         </div>
         <button className="mobile-close" onClick={onCloseMobile}>✕</button>
       </div>
@@ -201,7 +201,7 @@ export default function Sidebar({ subjects, revisionData, activeView, onSelectVi
           Reset Local Data
         </button>
         <div style={{ textAlign: 'center', marginTop: '10px', fontSize: '0.6rem', color: 'var(--text-muted)', opacity: 0.5 }}>
-          BPSC Tracker v2.0
+          BPSC TRE 4.0 v2.0
         </div>
       </div>
     </aside>
