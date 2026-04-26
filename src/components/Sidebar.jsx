@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import ProgressBar from './ProgressBar';
 
-export default function Sidebar({ subjects, revisionData, activeView, onSelectView, onSelectDashboard, mobileOpen, onCloseMobile, collapsed, onOpenTestMode }) {
+export default function Sidebar({ subjects, revisionData, activeView, onSelectView, onSelectDashboard, mobileOpen, onCloseMobile, collapsed, onOpenTestMode, onMouseEnter, onMouseLeave }) {
   const [expanded, setExpanded] = useState({});
 
   const toggle = (id) => setExpanded(prev => ({ ...prev, [id]: !prev[id] }));
@@ -44,7 +44,11 @@ export default function Sidebar({ subjects, revisionData, activeView, onSelectVi
   const overall = getOverallProgress();
 
   return (
-    <aside className={`sidebar ${mobileOpen ? 'open' : ''} ${collapsed ? 'collapsed' : ''}`}>
+    <aside
+      className={`sidebar ${mobileOpen ? 'open' : ''} ${collapsed ? 'collapsed' : ''}`}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
       <div className="sidebar-header">
         <div className="sidebar-logo" onClick={onSelectDashboard}>
           <span className="logo-icon">📚</span>

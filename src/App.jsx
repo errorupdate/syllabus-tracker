@@ -29,7 +29,10 @@ function App() {
   const [viewHistory, setViewHistory] = useState(['dashboard']);
   const [historyIndex, setHistoryIndex] = useState(0);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  // sidebarPinned = user locked sidebar open; sidebarHovered = auto-show on hover
+  const [sidebarPinned, setSidebarPinned] = useState(false);
+  const [sidebarHovered, setSidebarHovered] = useState(false);
+  const sidebarVisible = sidebarPinned || sidebarHovered;
   const [isLoading, setIsLoading] = useState(true);
   const [testModeOpen, setTestModeOpen] = useState(false);
   const [activeNotesFilter, setActiveNotesFilter] = useState(null);
@@ -241,7 +244,16 @@ function App() {
       {/* Full-screen Test Mode overlay — blocks everything else */}
       {testModeOpen && <TestMode onClose={() => setTestModeOpen(false)} />}
       {viewingPdf && <PDFViewer pdfName={viewingPdf} onClose={() => setViewingPdf(null)} />}
-      <div className={`app-layout ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
+      <div className={`app-layout ${sidebarVisible ? '' : 'sidebar-collapsed'}`}>
+
+        {/* Invisible hover trigger zone on the left edge */}
+        {!sidebarVisible && (
+          <div
+            className="sidebar-hover-trigger"
+            onMouseEnter={() => setSidebarHovered(true)}
+          />
+        )}
+
         <Sidebar
           subjects={SUBJECTS}
           revisionData={revisionData}
@@ -250,15 +262,29 @@ function App() {
           onSelectDashboard={() => navigateTo('dashboard')}
           mobileOpen={mobileOpen}
           onCloseMobile={() => setMobileOpen(false)}
-          collapsed={sidebarCollapsed}
+          collapsed={!sidebarVisible}
           onOpenTestMode={() => { setTestModeOpen(true); setMobileOpen(false); }}
+          onMouseEnter={() => setSidebarHovered(true)}
+          onMouseLeave={() => setSidebarHovered(false)}
         />
+
+        {/* Dim overlay behind sidebar when it's hovered (not pinned) */}
+        {sidebarHovered && !sidebarPinned && (
+          <div className="sidebar-dim-overlay" onMouseEnter={() => setSidebarHovered(false)} />
+        )}
+
         {mobileOpen && <div className="overlay" onClick={() => setMobileOpen(false)} />}
+
         <main className="main-content">
           <header className="topbar">
             <button className="hamburger" onClick={() => setMobileOpen(true)}>☰</button>
-            <button className="sidebar-toggle-btn" onClick={() => setSidebarCollapsed(prev => !prev)} title={sidebarCollapsed ? 'Show Sidebar' : 'Hide Sidebar'}>
-              {sidebarCollapsed ? '☰' : '✕'}
+            {/* Pin button — locks sidebar open */}
+            <button
+              className={`sidebar-toggle-btn ${sidebarPinned ? 'pinned' : ''}`}
+              onClick={() => { setSidebarPinned(prev => !prev); setSidebarHovered(false); }}
+              title={sidebarPinned ? 'Unpin Sidebar (auto-hide)' : 'Pin Sidebar open'}
+            >
+              {sidebarPinned ? '📌' : '☰'}
             </button>
             <div className="nav-buttons">
               <button className={`nav-btn ${!canGoBack ? 'disabled' : ''}`} onClick={goBack} disabled={!canGoBack} title="Go Back" aria-label="Go back">
@@ -278,7 +304,6 @@ function App() {
               {content}
             </div>
           </div>
-
         </main>
       </div>
     </PasswordLock>
