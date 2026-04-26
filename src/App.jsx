@@ -13,6 +13,12 @@ import TestMode from './components/TestMode/TestMode';
 import TestDashboard from './components/TestDashboard';
 import SubjectView from './components/SubjectView';
 import BiharNotes from './components/notes/BiharNotes';
+import AdventOfEuropean from './components/notes/AdventOfEuropen';
+import LandRevenueSystem from './components/notes/LandRevenueSytem';
+import DevelopmentOfEducationInIndia from './components/notes/DevelopmentofEducationinIndia';
+import TribalMovements from './components/notes/TribalMovements';
+import EmergingTrends from './components/notes/EmergingTrends';
+import NotesHub from './components/NotesHub';
 // ChatBot removed — was API-dependent
 // import ChatBot from './components/ChatBot';
 
@@ -31,6 +37,12 @@ function getBreadcrumbs(activeView, subjects) {
   if (activeView === 'testDashboard') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'Test Analytics', icon: '📊' }];
   if (activeView === 'syncStorage') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'Sync Storage', icon: '☁️' }];
   if (activeView === 'bihar-notes') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'General Paper', view: 'gp' }, { label: 'History', view: 'gp-t7' }, { label: 'CH-1 बिहार स्पेशल', view: 'gp-t7-ch1' }, { label: '📖 Study Notes', icon: '📖' }];
+  if (activeView === 'advent-of-european') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'General Paper', view: 'gp' }, { label: 'History', view: 'gp-t7' }, { label: 'CH-2 यूरोपियों का आगमन', view: 'gp-t7-ch2' }, { label: '📖 Study Notes', icon: '📖' }];
+  if (activeView === 'land-revenue') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'General Paper', view: 'gp' }, { label: 'History', view: 'gp-t7' }, { label: 'CH-3 भारत में भूमि बंदोबस्त', view: 'gp-t7-ch3' }, { label: '📖 Study Notes', icon: '📖' }];
+  if (activeView === 'education-india') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'General Paper', view: 'gp' }, { label: 'History', view: 'gp-t7' }, { label: 'CH-4 शिक्षा का विकास', view: 'gp-t7-ch4' }, { label: '📖 Study Notes', icon: '📖' }];
+  if (activeView === 'tribal-movements') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'General Paper', view: 'gp' }, { label: 'History', view: 'gp-t7' }, { label: 'CH-5 जनजातीय और किसान आंदोलन', view: 'gp-t7-ch5' }, { label: '📖 Study Notes', icon: '📖' }];
+  if (activeView === 'emerging-trends') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'Computer Science', view: 'cs' }, { label: 'T-9 Emerging Trends', view: 'cs-t9' }, { label: '📖 Study Notes', icon: '📖' }];
+  if (activeView === 'notesHub') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'Notes Hub', icon: '📖' }];
 
   for (const subject of subjects) {
     if (subject.id === activeView) {
@@ -233,8 +245,175 @@ function App() {
         />
       </>
     );
+  } else if (activeView === 'gp-t7-ch2') {
+    const ch = SUBJECTS.find(s => s.id === 'gp').topics.find(t => t.id === 'gp-t7').chapters.find(c => c.id === 'gp-t7-ch2');
+    content = (
+      <>
+        <div style={{ marginBottom: '16px' }}>
+          <button
+            onClick={() => navigateTo('advent-of-european')}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: '8px',
+              background: 'linear-gradient(135deg, #ec4899, #f43f5e)',
+              color: '#fff', border: 'none', borderRadius: '12px',
+              padding: '12px 20px', fontSize: '0.95rem', fontWeight: 700,
+              cursor: 'pointer', boxShadow: '0 4px 12px rgba(236,72,153,0.35)',
+              transition: 'transform 0.15s, box-shadow 0.15s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(236,72,153,0.45)'; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(236,72,153,0.35)'; }}
+          >
+            📖 View Advent of Europeans Study Notes →
+          </button>
+        </div>
+        <PDFList
+          title="CH-2 यूरोपियों का आगमन"
+          pdfs={ch.pdfs}
+          idPrefix="gp-t7-ch2"
+          revisionData={revisionData}
+          onToggle={toggleRevision}
+          onOpenPdf={setViewingPdf}
+        />
+      </>
+    );
+  } else if (activeView === 'gp-t7-ch3') {
+    const ch = SUBJECTS.find(s => s.id === 'gp').topics.find(t => t.id === 'gp-t7').chapters.find(c => c.id === 'gp-t7-ch3');
+    content = (
+      <>
+        <div style={{ marginBottom: '16px' }}>
+          <button
+            onClick={() => navigateTo('land-revenue')}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: '8px',
+              background: 'linear-gradient(135deg, #10b981, #059669)',
+              color: '#fff', border: 'none', borderRadius: '12px',
+              padding: '12px 20px', fontSize: '0.95rem', fontWeight: 700,
+              cursor: 'pointer', boxShadow: '0 4px 12px rgba(16,185,129,0.35)',
+              transition: 'transform 0.15s, box-shadow 0.15s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(16,185,129,0.45)'; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(16,185,129,0.35)'; }}
+          >
+            📖 View Land Revenue Systems Notes →
+          </button>
+        </div>
+        <PDFList
+          title="CH-3 भारत में भूमि बंदोबस्त"
+          pdfs={ch.pdfs}
+          idPrefix="gp-t7-ch3"
+          revisionData={revisionData}
+          onToggle={toggleRevision}
+          onOpenPdf={setViewingPdf}
+        />
+      </>
+    );
+  } else if (activeView === 'gp-t7-ch4') {
+    const ch = SUBJECTS.find(s => s.id === 'gp').topics.find(t => t.id === 'gp-t7').chapters.find(c => c.id === 'gp-t7-ch4');
+    content = (
+      <>
+        <div style={{ marginBottom: '16px' }}>
+          <button
+            onClick={() => navigateTo('education-india')}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: '8px',
+              background: 'linear-gradient(135deg, #0ea5e9, #0284c7)',
+              color: '#fff', border: 'none', borderRadius: '12px',
+              padding: '12px 20px', fontSize: '0.95rem', fontWeight: 700,
+              cursor: 'pointer', boxShadow: '0 4px 12px rgba(14,165,233,0.35)',
+              transition: 'transform 0.15s, box-shadow 0.15s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(14,165,233,0.45)'; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(14,165,233,0.35)'; }}
+          >
+            📖 View Education in India Notes →
+          </button>
+        </div>
+        <PDFList
+          title="CH-4 शिक्षा का विकास"
+          pdfs={ch?.pdfs || []}
+          idPrefix="gp-t7-ch4"
+          revisionData={revisionData}
+          onToggle={toggleRevision}
+          onOpenPdf={setViewingPdf}
+        />
+      </>
+    );
+  } else if (activeView === 'gp-t7-ch5') {
+    const ch = SUBJECTS.find(s => s.id === 'gp').topics.find(t => t.id === 'gp-t7').chapters.find(c => c.id === 'gp-t7-ch5');
+    content = (
+      <>
+        <div style={{ marginBottom: '16px' }}>
+          <button
+            onClick={() => navigateTo('tribal-movements')}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: '8px',
+              background: 'linear-gradient(135deg, #0ea5e9, #0284c7)',
+              color: '#fff', border: 'none', borderRadius: '12px',
+              padding: '12px 20px', fontSize: '0.95rem', fontWeight: 700,
+              cursor: 'pointer', boxShadow: '0 4px 12px rgba(14,165,233,0.35)',
+              transition: 'transform 0.15s, box-shadow 0.15s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(14,165,233,0.45)'; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(14,165,233,0.35)'; }}
+          >
+            📖 View Tribal Movements Notes →
+          </button>
+        </div>
+        <PDFList
+          title="CH-5 जनजातीय और किसान आंदोलन"
+          pdfs={ch?.pdfs || []}
+          idPrefix="gp-t7-ch5"
+          revisionData={revisionData}
+          onToggle={toggleRevision}
+          onOpenPdf={setViewingPdf}
+        />
+      </>
+    );
+  } else if (activeView === 'cs-t9') {
+    const topic = SUBJECTS.find(s => s.id === 'cs').topics.find(t => t.id === 'cs-t9');
+    content = (
+      <>
+        <div style={{ marginBottom: '16px' }}>
+          <button
+            onClick={() => navigateTo('emerging-trends')}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: '8px',
+              background: 'linear-gradient(135deg, #0ea5e9, #0284c7)',
+              color: '#fff', border: 'none', borderRadius: '12px',
+              padding: '12px 20px', fontSize: '0.95rem', fontWeight: 700,
+              cursor: 'pointer', boxShadow: '0 4px 12px rgba(14,165,233,0.35)',
+              transition: 'transform 0.15s, box-shadow 0.15s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(14,165,233,0.45)'; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(14,165,233,0.35)'; }}
+          >
+            📖 View Emerging Trends Notes →
+          </button>
+        </div>
+        <PDFList
+          title="T-9 Emerging Trends"
+          pdfs={topic?.pdfs || []}
+          idPrefix="cs-t9"
+          revisionData={revisionData}
+          onToggle={toggleRevision}
+          onOpenPdf={setViewingPdf}
+        />
+      </>
+    );
   } else if (activeView === 'bihar-notes') {
     content = <BiharNotes embedded />;
+  } else if (activeView === 'advent-of-european') {
+    content = <AdventOfEuropean />;
+  } else if (activeView === 'land-revenue') {
+    content = <LandRevenueSystem />;
+  } else if (activeView === 'education-india') {
+    content = <DevelopmentOfEducationInIndia />;
+  } else if (activeView === 'tribal-movements') {
+    content = <TribalMovements />;
+  } else if (activeView === 'emerging-trends') {
+    content = <EmergingTrends />;
+  } else if (activeView === 'notesHub') {
+    content = <NotesHub onSelectView={navigateTo} />;
   } else if (activeView === 'pyq') {
     content = <PYQPage />;
   } else if (activeView === 'questionBank') {

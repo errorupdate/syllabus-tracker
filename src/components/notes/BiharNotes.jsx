@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
     BookOpen, MapPin, Users, History, HelpCircle,
     Menu, X, CheckCircle2, XCircle, Clock,
@@ -49,6 +49,42 @@ const FOLK_ARTS = [
     { name: 'Madhubani (Mithila) Painting', region: 'Mithila Region', details: 'Features geometric patterns, no empty spaces, primarily mythological themes. GI Tag 2010. Traditionally painted by women on mud walls.' },
     { name: 'Manjusha Art', region: 'Anga (Bhagalpur)', details: 'Sequential scroll/box painting known as Snake Paintings (Bihula-Bishahari folklore). Uniquely uses three colors: Pink, Green, and Yellow.' },
     { name: 'Tikuli Art', region: 'Patna', details: '800-year-old tradition. Vibrant, glossy glass/MDF craft inspired by "Bindi". Historically involved melting glass and gold foil embellishments.' }
+];
+
+const CENSUS_2011 = [
+    { label: 'Highest Literacy', value: 'Rohtas (73.37%)', sub: 'Rohtas also has highest Male & Female literacy.', icon: <BookOpen className="text-emerald-500" /> },
+    { label: 'Lowest Literacy', value: 'Purnia (51.08%)', sub: 'Saharsa has lowest female literacy.', icon: <BookOpen className="text-rose-500" /> },
+    { label: 'Highest Sex Ratio', value: 'Gopalganj (1021)', sub: 'Females per 1000 males.', icon: <Users className="text-indigo-500" /> },
+    { label: 'Lowest Sex Ratio', value: 'Munger (876)', sub: 'Females per 1000 males.', icon: <Users className="text-rose-500" /> },
+    { label: 'Highest Density', value: 'Sheohar (1882)', sub: 'Persons per sq. km.', icon: <MapPin className="text-purple-500" /> },
+    { label: 'Lowest Density', value: 'Kaimur (488)', sub: 'Persons per sq. km.', icon: <MapPin className="text-amber-500" /> },
+    { label: 'Highest Population', value: 'Patna', sub: 'Most populous district.', icon: <Activity className="text-blue-500" /> },
+    { label: 'Highest Growth Rate', value: 'Madhepura', sub: 'Decadal growth (2001-2011).', icon: <Activity className="text-teal-500" /> }
+];
+
+const MINERALS_INDUSTRIES = [
+    { name: 'Mica (Abhrak)', region: 'Nawada, Jamui, Gaya', details: 'Used in electrical industries.' },
+    { name: 'Gold (Swarna)', region: 'Karmatiya (Jamui)', details: 'Largest gold reserve in India (as per recent GSI survey).' },
+    { name: 'Limestone (Chuna Patthar)', region: 'Rohtas, Kaimur', details: 'Found in Vindhyan rocks. Crucial for the cement industry (Dalmia Nagar).' },
+    { name: 'Pyrites (Mools)', region: 'Amjhore (Rohtas)', details: 'Bihar holds 95% of India’s pyrite reserves. Used for sulfuric acid.' },
+    { name: 'Oil Refinery', region: 'Barauni (Begusarai)', details: 'Established with Soviet Union collaboration in 1964.' },
+];
+
+const AGRICULTURE_GI_TAGS = [
+    { name: 'Zardalu Mango', region: 'Bhagalpur', type: 'Fruit (GI Tag)' },
+    { name: 'Shahi Litchi', region: 'Muzaffarpur', type: 'Fruit (GI Tag)' },
+    { name: 'Magahi Paan', region: 'Magadh Region (Nawada, Gaya)', type: 'Betel Leaf (GI Tag)' },
+    { name: 'Katarni Rice', region: 'Bhagalpur, Banka', type: 'Grain (GI Tag)' },
+    { name: 'Makhana (Fox Nut)', region: 'Mithilanchal (Darbhanga, Madhubani)', type: 'Aquatic Crop (GI Tag - Mithila Makhana)' },
+    { name: 'Major Soil Types', region: 'North/South Bihar', type: 'Soil', details: 'Bhangar (Old Alluvium), Khadar (New Alluvium), Balsundari (North Bihar), Tal (South of Ganga).' }
+];
+
+const WILDLIFE_SANCTUARIES = [
+    { name: 'Valmiki National Park', region: 'West Champaran', type: 'National Park / Tiger Reserve' },
+    { name: 'Kanwar Lake Bird Sanctuary', region: 'Begusarai', type: 'Ramsar Site (Oxbow lake)' },
+    { name: 'Bhimbandh Wildlife Sanctuary', region: 'Munger', type: 'Sanctuary (known for hot springs)' },
+    { name: 'Nagi-Nakti Dam', region: 'Jamui', type: 'Bird Sanctuary' },
+    { name: 'Gautam Buddha Sanctuary', region: 'Gaya', type: 'Sanctuary' }
 ];
 
 const TIMELINE = [
@@ -137,6 +173,11 @@ const QUIZ_QUESTIONS = [
     { q: "The Tikuli Art of Patna is inspired by which everyday item?", options: ["Bangles", "Bindi", "Sari", "Earthen Pots"], ans: 1 },
     { q: "Which of these is a South Bihar river?", options: ["Burhi Gandak", "Kosi", "Mahananda", "Punpun"], ans: 3 },
     { q: "During whose reign was the 'Golden Age of India' centered around Pataliputra?", options: ["Haryanka Dynasty", "Maurya Empire", "Gupta Empire", "Nanda Dynasty"], ans: 2 },
+    { q: "According to Census 2011, which district of Bihar has the highest literacy rate?", options: ["Patna", "Rohtas", "Munger", "Aurangabad"], ans: 1 },
+    { q: "Where is the Valmiki National Park located?", options: ["East Champaran", "West Champaran", "Kaimur", "Rohtas"], ans: 1 },
+    { q: "Which district holds 95% of India's Pyrite reserves (Amjhore)?", options: ["Gaya", "Jamui", "Rohtas", "Banka"], ans: 2 },
+    { q: "Katarni Rice and Zardalu Mango, which received GI Tags, are primarily associated with:", options: ["Muzaffarpur", "Bhagalpur", "Darbhanga", "Patna"], ans: 1 },
+    { q: "Which district has the highest population density in Bihar as per Census 2011?", options: ["Patna", "Darbhanga", "Sheohar", "Begusarai"], ans: 2 },
 ];
 
 // --- Profile Card Component ---
@@ -221,11 +262,34 @@ const QuizQuestion = ({ questionNumber, question, options, correctIndex }) => {
 export default function BiharNotes({ embedded = false }) {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [activeSection, setActiveSection] = useState('overview');
+    const timelineRef = useRef(null);
+    const [timelineProgress, setTimelineProgress] = useState(0);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            if (!timelineRef.current) return;
+            const rect = timelineRef.current.getBoundingClientRect();
+            const windowHeight = window.innerHeight;
+            const top = rect.top;
+            const height = rect.height;
+            // trigger point: how far down the screen the "fill" happens (55% down the viewport)
+            const triggerPoint = windowHeight * 0.55;
+            let progress = ((triggerPoint - top) / height) * 100;
+            progress = Math.max(0, Math.min(100, progress));
+            setTimelineProgress(progress);
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        setTimeout(handleScroll, 100);
+
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     const navLinks = [
         { id: 'overview', title: 'Overview', icon: <BookOpen size={16} /> },
         { id: 'bpsc-tre', title: 'TRE Focus', icon: <Target size={16} /> },
         { id: 'geo-admin', title: 'Geo & Admin', icon: <MapPin size={16} /> },
+        { id: 'economy-flora', title: 'Econ & Flora', icon: <Leaf size={16} /> },
         { id: 'ancient-heritage', title: 'Heritage', icon: <Scroll size={16} /> },
         { id: 'timeline', title: 'Timeline', icon: <Clock size={16} /> },
         { id: 'movements', title: 'Movements', icon: <History size={16} /> },
@@ -510,6 +574,87 @@ export default function BiharNotes({ embedded = false }) {
                     </div>
                 </section>
 
+                {/* 1.2 Economy, Census & Geography Deep Dive */}
+                <section id="economy-flora" className="scroll-mt-28 md:scroll-mt-32">
+                    <div className="flex items-center gap-3 mb-8 border-b border-slate-200 pb-4">
+                        <div className="bg-emerald-100 p-2.5 rounded-xl text-emerald-600 shadow-sm">
+                            <Leaf size={24} />
+                        </div>
+                        <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Economy, Census 2011 & Flora/Fauna</h2>
+                    </div>
+
+                    {/* Census 2011 Grid */}
+                    <div className="mb-10">
+                        <h3 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                            <Users className="text-emerald-500" size={20} /> Census 2011 Highlights (BPSC High-Yield)
+                        </h3>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            {CENSUS_2011.map((stat, i) => (
+                                <div key={i} className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+                                    <div className="mb-3">{stat.icon}</div>
+                                    <p className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">{stat.label}</p>
+                                    <p className="text-lg font-bold text-slate-800">{stat.value}</p>
+                                    {stat.sub && <p className="text-xs text-slate-500 mt-2 font-medium leading-snug">{stat.sub}</p>}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Minerals & GI Tags */}
+                    <div className="grid md:grid-cols-2 gap-6 mb-10">
+                        <div className="bg-emerald-50 rounded-3xl p-8 border border-emerald-100 shadow-sm">
+                            <h3 className="text-xl font-bold text-emerald-900 mb-5 flex items-center gap-2 border-b border-emerald-200 pb-3">
+                                <Activity className="text-emerald-600" size={20} /> Minerals & Industries
+                            </h3>
+                            <ul className="space-y-4">
+                                {MINERALS_INDUSTRIES.map((min, i) => (
+                                    <li key={i} className="bg-white p-4 rounded-xl shadow-sm border border-emerald-50">
+                                        <div className="flex justify-between items-start mb-1">
+                                            <p className="font-bold text-slate-800">{min.name}</p>
+                                            <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold uppercase">{min.region}</span>
+                                        </div>
+                                        <p className="text-sm text-slate-600">{min.details}</p>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+
+                        <div className="bg-yellow-50 rounded-3xl p-8 border border-yellow-100 shadow-sm">
+                            <h3 className="text-xl font-bold text-yellow-900 mb-5 flex items-center gap-2 border-b border-yellow-200 pb-3">
+                                <Leaf className="text-yellow-600" size={20} /> Agriculture & GI Tags
+                            </h3>
+                            <ul className="space-y-4">
+                                {AGRICULTURE_GI_TAGS.map((agri, i) => (
+                                    <li key={i} className="bg-white p-4 rounded-xl shadow-sm border border-yellow-50">
+                                        <div className="flex justify-between items-start mb-1">
+                                            <p className="font-bold text-slate-800">{agri.name}</p>
+                                            <span className="text-[10px] bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded font-bold uppercase">{agri.type}</span>
+                                        </div>
+                                        {agri.details ? <p className="text-sm text-slate-600 mt-1">{agri.details}</p> : <p className="text-sm text-slate-600 mt-1">Region: {agri.region}</p>}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+
+                    {/* Wildlife */}
+                    <div className="bg-slate-900 rounded-3xl p-8 shadow-lg border border-slate-800 text-white relative overflow-hidden mb-12">
+                        <Globe className="absolute -top-10 -right-10 text-emerald-500/20 w-64 h-64" />
+                        <h3 className="text-xl font-bold text-emerald-400 mb-6 flex items-center gap-2 relative z-10">
+                            <MapPin className="text-emerald-500" size={20} /> Wildlife Sanctuaries & National Parks
+                        </h3>
+                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 relative z-10">
+                            {WILDLIFE_SANCTUARIES.map((park, i) => (
+                                <div key={i} className="bg-slate-800/80 p-5 rounded-2xl border border-emerald-900/50 hover:border-emerald-500/50 transition-colors backdrop-blur-sm">
+                                    <p className="font-bold text-white mb-1">{park.name}</p>
+                                    <p className="text-xs text-emerald-300 font-bold uppercase tracking-wider mb-2">{park.type}</p>
+                                    <p className="text-sm text-slate-400">📍 {park.region}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
                 {/* 1.5 Ancient & Religious Heritage */}
                 <section id="ancient-heritage" className="scroll-mt-28 md:scroll-mt-32">
                     <div className="flex items-center gap-3 mb-8 border-b border-slate-200 pb-4">
@@ -625,17 +770,33 @@ export default function BiharNotes({ embedded = false }) {
                     </div>
 
                     <div className="bg-white rounded-3xl p-6 md:p-10 shadow-sm border border-slate-200 overflow-hidden">
-                        <div className="relative border-l-2 border-purple-200 ml-4 md:ml-6 space-y-10">
-                            {TIMELINE.map((item, i) => (
+                        <div ref={timelineRef} className="relative ml-4 md:ml-6 space-y-10 pb-4">
+                            {/* Background Line */}
+                            <div className="absolute left-0 top-2 bottom-0 w-1 bg-slate-200 rounded-full -translate-x-1/2"></div>
+                            
+                            {/* Animated Progress Line */}
+                            <div 
+                                className="absolute left-0 top-2 w-1 bg-purple-600 rounded-full -translate-x-1/2 transition-all duration-300 ease-out shadow-sm shadow-purple-500/50"
+                                style={{ height: `calc(${timelineProgress}% - 0.5rem)` }}
+                            ></div>
+
+                            {TIMELINE.map((item, i) => {
+                                const isActive = timelineProgress > (i / (TIMELINE.length - 1)) * 100 - 5;
+                                
+                                return (
                                 <div key={i} className="relative pl-8 md:pl-12 group">
-                                    <div className="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-purple-500 ring-4 ring-white group-hover:scale-125 group-hover:bg-purple-600 transition-all duration-300 shadow-sm"></div>
-                                    <div className="flex flex-col md:flex-row md:items-baseline gap-1 md:gap-4 mb-2">
-                                        <span className="text-purple-700 font-bold font-mono text-sm md:text-lg bg-purple-50 px-2 py-0.5 rounded-md inline-block w-max">{item.year}</span>
-                                        <h3 className="text-xl font-bold text-slate-800">{item.title}</h3>
+                                    {/* The Connecting Dot */}
+                                    <div className={`absolute left-0 top-1.5 w-4 h-4 rounded-full ring-4 ring-white transition-all duration-500 shadow-sm -translate-x-1/2
+                                        ${isActive ? 'bg-purple-600 scale-110' : 'bg-slate-300'} 
+                                        group-hover:scale-125 group-hover:bg-purple-600`}></div>
+                                    
+                                    <div className={`flex flex-col md:flex-row md:items-baseline gap-1 md:gap-4 mb-2 transition-all duration-500 ${isActive ? 'opacity-100 translate-x-0' : 'opacity-60 translate-x-2'}`}>
+                                        <span className={`font-bold font-mono text-sm md:text-lg px-2 py-0.5 rounded-md inline-block w-max transition-colors duration-500 ${isActive ? 'text-purple-700 bg-purple-50' : 'text-slate-500 bg-slate-100'}`}>{item.year}</span>
+                                        <h3 className={`text-xl font-bold transition-colors duration-500 ${isActive ? 'text-slate-800' : 'text-slate-600'}`}>{item.title}</h3>
                                     </div>
-                                    <p className="text-slate-600 text-base leading-relaxed max-w-3xl">{item.desc}</p>
+                                    <p className={`text-base leading-relaxed max-w-3xl transition-all duration-500 ${isActive ? 'text-slate-600 opacity-100' : 'text-slate-400 opacity-60'}`}>{item.desc}</p>
                                 </div>
-                            ))}
+                            )})}
                         </div>
                     </div>
                 </section>

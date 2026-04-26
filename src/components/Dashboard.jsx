@@ -614,7 +614,7 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
               <button onClick={() => onSelectView('testDashboard')} className="db-panel-action-btn">Full Analytics →</button>
             </div>
             {testHistory.length === 0 ? (
-              <div style={{ color: '#64748b', fontSize: '0.9rem', background: '#111827', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px', padding: '20px 24px' }}>
+              <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '12px', padding: '20px 24px' }}>
                 No tests yet. Use <strong style={{ color: '#fbbf24' }}>Test Mode</strong> from the sidebar!
               </div>
             ) : (
@@ -628,7 +628,7 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
                     else { icon = '➡️'; msg = 'Consistent performance lately.'; color = '#fbbf24'; }
                   }
                   return msg ? (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(255,255,255,0.03)', border: `1px solid ${color}33`, borderRadius: '12px', padding: '10px 16px', marginBottom: '12px', color }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'var(--bg-primary)', border: `1px solid ${color}33`, borderRadius: '12px', padding: '10px 16px', marginBottom: '12px', color }}>
                       <span style={{ fontSize: '1.1rem' }}>{icon}</span>
                       <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{msg}</span>
                     </div>
@@ -783,28 +783,28 @@ function TestReviewModal({ test, onClose }) {
 
   return (
     <div
-      style={{ position: 'fixed', inset: 0, zIndex: 9998, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', overflowY: 'auto', padding: '24px 12px 48px' }}
+      style={{ position: 'fixed', inset: 0, zIndex: 9998, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', overflowY: 'auto', padding: '24px 12px 48px' }}
       onClick={e => e.target === e.currentTarget && onClose()}
     >
-      <div style={{ background: '#0f1629', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px', width: '100%', maxWidth: '680px', animation: 'fadeInUp 0.3s ease' }}>
+      <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', boxShadow: '0 10px 40px rgba(0,0,0,0.1)', borderRadius: '20px', width: '100%', maxWidth: '680px', animation: 'fadeInUp 0.3s ease' }}>
         {/* Header */}
-        <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px' }}>
+        <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px' }}>
           <div>
             <div style={{ fontSize: '0.78rem', color: '#64748b', marginBottom: '4px' }}>{date}{timeStr ? ` · ${timeStr}` : ''}</div>
-            <div style={{ fontSize: '1.05rem', fontWeight: 700, color: '#e2e8f0' }}>{category}</div>
+            <div style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-primary)' }}>{category}</div>
             {motivationalMessage && (
               <div style={{ marginTop: '8px', fontSize: '0.88rem', color: accColor, fontWeight: 600 }}>
                 {accuracy >= 80 ? '🏆' : accuracy >= 60 ? '👍' : accuracy >= 40 ? '⚡' : '📖'} {motivationalMessage}
               </div>
             )}
           </div>
-          <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#94a3b8', fontSize: '1rem', width: '32px', height: '32px', cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+          <button onClick={onClose} style={{ background: 'var(--bg-primary)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text-muted)', fontSize: '1rem', width: '32px', height: '32px', cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
         </div>
 
         {/* Stats row */}
-        <div style={{ display: 'flex', gap: '0', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ display: 'flex', gap: '0', borderBottom: '1px solid var(--border)' }}>
           {[['Total', totalQuestions, '#94a3b8'], ['Correct', correct, '#3fb950'], ['Wrong', wrong, '#f85149'], ['Skipped', skipped, '#f0883e'], ['Accuracy', `${accuracy}%`, accColor]].map(([lbl, val, clr]) => (
-            <div key={lbl} style={{ flex: 1, padding: '14px 8px', textAlign: 'center', borderRight: '1px solid rgba(255,255,255,0.05)' }}>
+            <div key={lbl} style={{ flex: 1, padding: '14px 8px', textAlign: 'center', borderRight: '1px solid var(--border)' }}>
               <div style={{ fontSize: '1.3rem', fontWeight: 800, color: clr }}>{val}</div>
               <div style={{ fontSize: '0.68rem', color: '#475569', fontWeight: 600, textTransform: 'uppercase', marginTop: '2px' }}>{lbl}</div>
             </div>
@@ -823,13 +823,13 @@ function TestReviewModal({ test, onClose }) {
             const correctText = getOptionText(q, q.correctAnswerId);
             const borderColor = isSkipped ? '#f0883e' : isCorrect ? '#3fb950' : '#f85149';
             return (
-              <div key={q.id} style={{ background: '#111827', border: `1px solid rgba(255,255,255,0.05)`, borderLeft: `3px solid ${borderColor}`, borderRadius: '12px', padding: '14px 16px' }}>
+              <div key={q.id} style={{ background: 'var(--surface)', border: `1px solid var(--border)`, borderLeft: `3px solid ${borderColor}`, borderRadius: '12px', padding: '14px 16px' }}>
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '6px' }}>
                   <span style={{ fontSize: '0.7rem', color: '#8b5cf6', background: 'rgba(139,92,246,0.1)', padding: '2px 7px', borderRadius: '999px' }}>{q.subjectName}</span>
                   <span style={{ fontSize: '0.7rem', color: '#93c5fd', background: 'rgba(59,130,246,0.1)', padding: '2px 7px', borderRadius: '999px' }}>{q.topicName?.replace(/^T-?\d+\s*[-–]?\s*/, '') || q.topicName}</span>
                 </div>
                 <div style={{ fontSize: '0.75rem', color: '#475569', fontWeight: 600, marginBottom: '4px' }}>Q{idx + 1}.</div>
-                <div style={{ fontSize: '0.9rem', color: '#cbd5e1', lineHeight: 1.55, marginBottom: '10px' }}>{q.text}</div>
+                <div style={{ fontSize: '0.9rem', color: 'var(--text-primary)', lineHeight: 1.55, marginBottom: '10px' }}>{q.text}</div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', fontSize: '0.82rem' }}>
                   {isSkipped ? (
                     <span style={{ color: '#f0883e', fontWeight: 600 }}>⏭ Skipped — Correct: {correctText}</span>
@@ -842,7 +842,7 @@ function TestReviewModal({ test, onClose }) {
                     </>
                   )}
                   {q.explanation && (
-                    <div style={{ color: '#64748b', fontStyle: 'italic', fontSize: '0.78rem', marginTop: '4px', paddingTop: '6px', borderTop: '1px solid rgba(255,255,255,0.04)' }}>💡 {q.explanation}</div>
+                    <div style={{ color: '#64748b', fontStyle: 'italic', fontSize: '0.78rem', marginTop: '4px', paddingTop: '6px', borderTop: '1px solid var(--border)' }}>💡 {q.explanation}</div>
                   )}
                 </div>
               </div>
@@ -851,7 +851,7 @@ function TestReviewModal({ test, onClose }) {
         </div>
 
         <div style={{ padding: '12px 20px 20px', textAlign: 'center' }}>
-          <button onClick={onClose} style={{ padding: '10px 28px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.1)', background: '#1e293b', color: '#94a3b8', fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'Inter, sans-serif' }}>Close Review</button>
+          <button onClick={onClose} style={{ padding: '10px 28px', borderRadius: '10px', border: '1px solid var(--border)', background: 'var(--bg-primary)', color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'Inter, sans-serif' }}>Close Review</button>
         </div>
       </div>
     </div>

@@ -443,6 +443,38 @@ export default function QuestionBank() {
     return arr;
   }, [questions, shuffleSeed]);
 
+  // Topic Coverage Statistics
+  const topicStats = useMemo(() => {
+    const csCounts = {};
+    const gpCounts = {};
+    let csTotal = 0;
+    let gpTotal = 0;
+    
+    questions.forEach(q => {
+      const isCS = q.subjectId === 'cs';
+      const map = isCS ? csCounts : gpCounts;
+      const topicName = (q.topicName || q.topicId || 'Unknown').replace(/^T-?\d+\s*[-–]?\s*/, '');
+      
+      if (!map[topicName]) map[topicName] = 0;
+      map[topicName]++;
+      
+      if (isCS) csTotal++; else gpTotal++;
+    });
+
+    const formatCounts = (map) => Object.entries(map)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count);
+
+    return {
+      csTopics: formatCounts(csCounts),
+      gpTopics: formatCounts(gpCounts),
+      csTotal,
+      gpTotal
+    };
+  }, [questions]);
+  
+  const [showStats, setShowStats] = useState(false);
+
   // Complex Filtering (applied on shuffled questions)
   const filteredQuestions = useMemo(() => {
     return shuffledQuestions.filter(q => {
@@ -733,7 +765,54 @@ export default function QuestionBank() {
                 🏆 Completions: {completions[filterSubject].count} | Record Accuracy: {completions[filterSubject].bestAccuracy}%
               </div>
             )}
+            
+            <button className="btn-toggle-stats" onClick={() => setShowStats(!showStats)} style={{ marginLeft: 'auto', padding: '8px 14px', background: showStats ? 'var(--accent-bg)' : 'var(--bg-primary)', border: showStats ? '1px solid var(--accent-purple)' : '1px solid var(--border)', borderRadius: '8px', color: showStats ? 'var(--accent-purple)' : 'var(--text-primary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600, transition: 'all 0.2s', whiteSpace: 'nowrap' }}>
+              📊 {showStats ? 'Hide Topic Coverage' : 'Topic Coverage'}
+            </button>
           </div>
+
+          {showStats && (
+            <div className="qb-stats-panel animate-fade" style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '16px', padding: '24px', marginBottom: '24px', boxShadow: 'var(--shadow-lg)' }}>
+              <h3 style={{ marginTop: 0, marginBottom: '20px', color: 'var(--text-primary)', fontSize: '1.2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+                <span>Question Bank Coverage Breakdown</span>
+                <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: 600, background: 'var(--bg-primary)', padding: '6px 14px', borderRadius: '20px' }}>Total Questions: {questions.length}</span>
+              </h3>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '32px' }}>
+                {/* CS Column */}
+                <div style={{ background: 'var(--bg-primary)', padding: '16px', borderRadius: '12px', border: '1px solid var(--border)' }}>
+                  <h4 style={{ color: 'var(--accent-purple)', margin: '0 0 16px 0', borderBottom: '1px solid var(--border)', paddingBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>💻 Computer Science <span style={{ fontSize: '0.8rem', opacity: 0.7, marginLeft: '6px', fontWeight: 'normal' }}>({topicStats.csTopics.length} Topics)</span></span>
+                    <span style={{ background: 'var(--accent-bg)', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem' }}>{topicStats.csTotal} Qs</span>
+                  </h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '350px', overflowY: 'auto', paddingRight: '8px' }} className="custom-scrollbar">
+                    {topicStats.csTopics.length > 0 ? topicStats.csTopics.map(t => (
+                      <div key={t.name} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.95rem', background: 'var(--surface-hover)', padding: '10px 14px', borderRadius: '8px', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-card-hover)'} onMouseLeave={e => e.currentTarget.style.background = 'var(--surface-hover)'}>
+                        <span style={{ color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', paddingRight: '10px' }}>{t.name}</span>
+                        <span style={{ color: 'var(--accent-purple)', fontWeight: 'bold' }}>{t.count}</span>
+                      </div>
+                    )) : <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', textAlign: 'center', padding: '20px 0' }}>No questions added yet.</div>}
+                  </div>
+                </div>
+
+                {/* GP Column */}
+                <div style={{ background: 'var(--bg-primary)', padding: '16px', borderRadius: '12px', border: '1px solid var(--border)' }}>
+                  <h4 style={{ color: 'var(--accent-green)', margin: '0 0 16px 0', borderBottom: '1px solid var(--border)', paddingBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>🌍 General Paper <span style={{ fontSize: '0.8rem', opacity: 0.7, marginLeft: '6px', fontWeight: 'normal' }}>({topicStats.gpTopics.length} Topics)</span></span>
+                    <span style={{ background: 'rgba(63,185,80,0.2)', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem', color: 'var(--accent-green)' }}>{topicStats.gpTotal} Qs</span>
+                  </h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '350px', overflowY: 'auto', paddingRight: '8px' }} className="custom-scrollbar">
+                    {topicStats.gpTopics.length > 0 ? topicStats.gpTopics.map(t => (
+                      <div key={t.name} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.95rem', background: 'var(--surface-hover)', padding: '10px 14px', borderRadius: '8px', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-card-hover)'} onMouseLeave={e => e.currentTarget.style.background = 'var(--surface-hover)'}>
+                        <span style={{ color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', paddingRight: '10px' }}>{t.name}</span>
+                        <span style={{ color: 'var(--accent-green)', fontWeight: 'bold' }}>{t.count}</span>
+                      </div>
+                    )) : <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', textAlign: 'center', padding: '20px 0' }}>No questions added yet.</div>}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Scoreboard */}
           <div className="qb-scoreboard">

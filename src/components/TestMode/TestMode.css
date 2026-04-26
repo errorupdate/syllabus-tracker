@@ -7,7 +7,7 @@
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: #080c17;
+  background: var(--bg-primary);
   background-image:
     radial-gradient(ellipse 80vw 60vh at 10% 5%, rgba(139,92,246,0.12) 0%, transparent 60%),
     radial-gradient(ellipse 60vw 50vh at 90% 90%, rgba(59,130,246,0.08) 0%, transparent 60%);
@@ -18,7 +18,7 @@
   overflow-y: auto;
   overflow-x: hidden;
   font-family: 'Inter', sans-serif;
-  color: #e2e8f0;
+  color: var(--text-primary);
 }
 
 /* ─── Loading ─── */
@@ -82,14 +82,14 @@
 
 .tm-setup-card {
   width: 100%;
-  background: rgba(17,24,39,0.85);
+  background: var(--surface);
   border: 1px solid rgba(139,92,246,0.18);
   border-radius: 22px;
   padding: 28px 24px;
   display: flex;
   flex-direction: column;
   gap: 20px;
-  box-shadow: 0 0 0 1px rgba(255,255,255,0.03), 0 24px 48px rgba(0,0,0,0.4), 0 0 60px rgba(139,92,246,0.04);
+  box-shadow: var(--shadow-lg);
   backdrop-filter: blur(12px);
 }
 
@@ -97,16 +97,16 @@
 .tm-label {
   font-size: 0.75rem;
   font-weight: 700;
-  color: #64748b;
+  color: var(--text-secondary);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 .tm-select {
   width: 100%;
-  background: rgba(30,41,59,0.8);
-  border: 1px solid rgba(255,255,255,0.07);
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
   border-radius: 11px;
-  color: #e2e8f0;
+  color: var(--text-primary);
   padding: 10px 14px;
   font-size: 0.93rem;
   font-family: inherit;
@@ -125,9 +125,9 @@
 .tm-chip {
   padding: 6px 16px;
   border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.08);
-  background: rgba(30,41,59,0.7);
-  color: #64748b;
+  border: 1px solid var(--border);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
   font-size: 0.88rem;
   font-weight: 700;
   cursor: pointer;
@@ -224,8 +224,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px 20px;
-  background: rgba(8,12,23,0.95);
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
   flex-shrink: 0;
   backdrop-filter: blur(10px);
   position: sticky;
@@ -254,11 +254,11 @@
 .tm-qcounter {
   font-size: 0.9rem;
   font-weight: 700;
-  color: #e2e8f0;
-  background: rgba(255,255,255,0.05);
+  color: var(--text-primary);
+  background: var(--bg-primary);
   padding: 4px 12px;
   border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.07);
+  border: 1px solid var(--border);
 }
 .tm-end-btn {
   padding: 6px 14px;
@@ -308,15 +308,15 @@
 
 .tm-question-card {
   width: 100%;
-  background: rgba(17,24,39,0.9);
-  border: 1px solid rgba(255,255,255,0.07);
-  border-top: 2px solid rgba(139,92,246,0.35);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--accent-purple);
   border-radius: 18px;
   padding: 22px 20px;
   display: flex;
   flex-direction: column;
   gap: 14px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+  box-shadow: var(--shadow-lg);
 }
 
 /* Card slide animations */
@@ -358,8 +358,8 @@
   gap: 10px;
   padding: 11px 14px;
   border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.06);
-  background: rgba(30,41,59,0.6);
+  border: 1px solid var(--border);
+  background: var(--bg-primary);
   transition: all 0.2s ease;
   cursor: default;
   position: relative;
@@ -432,9 +432,9 @@
 .tm-nav-btn {
   padding: 8px 18px;
   border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.07);
-  background: rgba(30,41,59,0.7);
-  color: #64748b;
+  border: 1px solid var(--border);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
   font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
@@ -460,8 +460,8 @@
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: rgba(30,41,59,0.9);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
   cursor: pointer;
   transition: all 0.18s;
   flex-shrink: 0;
@@ -481,8 +481,8 @@
   backdrop-filter: blur(6px);
 }
 .tm-confirm-card {
-  background: #0f1629;
-  border: 1px solid rgba(255,255,255,0.1);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 20px;
   padding: 28px;
   max-width: 380px;
@@ -496,9 +496,9 @@
 .tm-confirm-actions { display: flex; gap: 10px; margin-top: 20px; }
 .tm-btn-cancel {
   flex: 1; padding: 10px; border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.08);
-  background: rgba(30,41,59,0.8);
-  color: #64748b; font-size: 0.88rem; font-weight: 600;
+  border: 1px solid var(--border);
+  background: var(--bg-primary);
+  color: var(--text-secondary); font-size: 0.88rem; font-weight: 600;
   cursor: pointer; font-family: inherit; transition: all 0.18s;
 }
 .tm-btn-cancel:hover { border-color: #334155; color: #94a3b8; }
@@ -544,8 +544,8 @@
 }
 .tm-rstat {
   display: flex; flex-direction: column; align-items: center;
-  background: rgba(17,24,39,0.9);
-  border: 1px solid rgba(255,255,255,0.06);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 14px;
   padding: 14px 16px;
   min-width: 76px;
@@ -591,9 +591,9 @@
 /* Review toggle */
 .tm-review-toggle {
   width: 100%; padding: 11px; border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.07);
-  background: rgba(17,24,39,0.7);
-  color: #64748b; font-size: 0.88rem; font-weight: 600;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-secondary); font-size: 0.88rem; font-weight: 600;
   cursor: pointer; font-family: inherit; transition: all 0.2s;
 }
 .tm-review-toggle:hover { border-color: rgba(139,92,246,0.4); color: #c4b5fd; background: rgba(139,92,246,0.06); }
@@ -602,8 +602,8 @@
 .tm-review-list { width: 100%; display: flex; flex-direction: column; gap: 8px; }
 .tm-review-item {
   display: flex; gap: 12px;
-  background: rgba(17,24,39,0.8);
-  border: 1px solid rgba(255,255,255,0.05);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 12px; padding: 12px 14px;
 }
 .tm-review-item.correct { border-left: 3px solid #4ade80; }
@@ -635,11 +635,11 @@
 }
 .tm-btn-new:hover { opacity: 0.88; transform: translateY(-2px); box-shadow: 0 8px 28px rgba(139,92,246,0.4); }
 .tm-btn-dash {
-  border: 1px solid rgba(255,255,255,0.08);
-  background: rgba(17,24,39,0.8);
-  color: #64748b;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-secondary);
 }
-.tm-btn-dash:hover { border-color: #334155; color: #e2e8f0; background: rgba(30,41,59,0.8); }
+.tm-btn-dash:hover { border-color: var(--text-primary); color: var(--text-primary); background: var(--bg-primary); }
 
 
 /* ─────────────────────────────────────────────────────────
