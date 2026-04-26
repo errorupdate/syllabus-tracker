@@ -47,8 +47,9 @@ export default function PasswordLock({ children }) {
   return (
     <div className="password-lock-overlay">
       <div className="password-lock-card glass-card">
-        <h2>🔒 Security Lock</h2>
-        <p>Please enter the password to access your tracker.</p>
+        <div style={{ fontSize: '2.5rem', lineHeight: 1, marginBottom: '-4px' }}>🛡️</div>
+        <h2>Welcome Back</h2>
+        <p>Enter your password to unlock the revision tracker.</p>
         <form onSubmit={handleSubmit}>
           <input 
             type="password" 
@@ -58,7 +59,7 @@ export default function PasswordLock({ children }) {
             autoFocus
           />
           {error && <p className="error-text">{error}</p>}
-          <button type="submit" className="submit-btn" disabled={!password}>Unlock Application</button>
+          <button type="submit" className="submit-btn" disabled={!password}>Unlock</button>
         </form>
       </div>
     </div>

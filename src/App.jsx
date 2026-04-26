@@ -12,7 +12,7 @@ import SyncStorage from './components/SyncStorage';
 import TestMode from './components/TestMode/TestMode';
 import TestDashboard from './components/TestDashboard';
 import SubjectView from './components/SubjectView';
-import StudyNotes from './components/StudyNotes';
+import BiharNotes from './components/notes/BiharNotes';
 // ChatBot removed — was API-dependent
 // import ChatBot from './components/ChatBot';
 
@@ -22,6 +22,44 @@ import PasswordLock from './components/PasswordLock';
 import InstallPrompt from './components/InstallPrompt';
 
 const DOC_ID = 'user-revisions';
+
+// Helper: get breadcrumb trail for current view
+function getBreadcrumbs(activeView, subjects) {
+  if (activeView === 'dashboard') return [{ label: 'Dashboard', icon: '📊' }];
+  if (activeView === 'pyq') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'Previous Year Questions', icon: '🔍' }];
+  if (activeView === 'questionBank') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'Question Bank', icon: '📝' }];
+  if (activeView === 'testDashboard') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'Test Analytics', icon: '📊' }];
+  if (activeView === 'syncStorage') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'Sync Storage', icon: '☁️' }];
+  if (activeView === 'bihar-notes') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'General Paper', view: 'gp' }, { label: 'History', view: 'gp-t7' }, { label: 'CH-1 बिहार स्पेशल', view: 'gp-t7-ch1' }, { label: '📖 Study Notes', icon: '📖' }];
+
+  for (const subject of subjects) {
+    if (subject.id === activeView) {
+      return [{ label: 'Dashboard', view: 'dashboard' }, { label: subject.name, icon: '📘' }];
+    }
+    for (const topic of subject.topics) {
+      if (topic.id === activeView) {
+        return [
+          { label: 'Dashboard', view: 'dashboard' },
+          { label: subject.name, view: subject.id },
+          { label: topic.name.replace(/^T-?\d+\s*[-–]?\s*/, ''), icon: '📑' },
+        ];
+      }
+      if (topic.chapters) {
+        for (const ch of topic.chapters) {
+          if (ch.id === activeView) {
+            return [
+              { label: 'Dashboard', view: 'dashboard' },
+              { label: subject.name, view: subject.id },
+              { label: topic.name.replace(/^T-?\d+\s*[-–]?\s*/, ''), view: topic.chapters[0]?.id || topic.id },
+              { label: ch.name.replace(/^CH-\d+\s*/, ''), icon: '📄' },
+            ];
+          }
+        }
+      }
+    }
+  }
+  return [{ label: 'Dashboard', view: 'dashboard' }];
+}
 
 function App() {
   const [revisionData, setRevisionData] = useState({});
@@ -35,7 +73,6 @@ function App() {
   const sidebarVisible = sidebarPinned || sidebarHovered;
   const [isLoading, setIsLoading] = useState(true);
   const [testModeOpen, setTestModeOpen] = useState(false);
-  const [activeNotesFilter, setActiveNotesFilter] = useState(null);
   const [viewingPdf, setViewingPdf] = useState(null);
   const isNavigatingRef = useRef(false);
 
@@ -59,11 +96,6 @@ function App() {
     });
     setHistoryIndex(prev => prev + 1);
   }, [historyIndex]);
-
-  const openNotes = useCallback((filter) => {
-    setActiveNotesFilter(filter);
-    navigateTo('notes');
-  }, [navigateTo]);
 
   const canGoBack = historyIndex > 0;
   const canGoForward = historyIndex < viewHistory.length - 1;
@@ -145,19 +177,22 @@ function App() {
 
   if (isLoading) {
     return (
-      <div style={{ 
-        display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', 
-        height: '100vh', background: '#0a0e1a', gap: '20px' 
-      }}>
-        <div style={{
-          width: '48px', height: '48px', borderRadius: '50%',
-          border: '4px solid rgba(139,92,246,0.15)',
-          borderTopColor: '#8b5cf6',
-          animation: 'spin 0.8s linear infinite'
-        }} />
-        <span style={{ color: '#94a3b8', fontSize: '0.95rem', fontFamily: 'Inter, sans-serif' }}>
-          Loading your data securely...
-        </span>
+      <div className="skeleton-loading">
+        <div className="skeleton-topbar">
+          <div className="skeleton-pill" style={{ width: '120px' }} />
+          <div className="skeleton-pill" style={{ width: '200px', marginLeft: 'auto' }} />
+        </div>
+        <div className="skeleton-body">
+          <div className="skeleton-hero" />
+          <div className="skeleton-stats-row">
+            <div className="skeleton-stat" />
+            <div className="skeleton-stat" />
+            <div className="skeleton-stat" />
+            <div className="skeleton-stat" />
+          </div>
+          <div className="skeleton-panel" />
+          <div className="skeleton-panel" style={{ height: '120px' }} />
+        </div>
       </div>
     );
   }
@@ -167,26 +202,56 @@ function App() {
     content = <Dashboard subjects={SUBJECTS} revisionData={revisionData} onSelectView={navigateTo} onOpenPdf={setViewingPdf} />;
   } else if (activeView === 'testDashboard') {
     content = <TestDashboard />;
+  } else if (activeView === 'gp-t7-ch1') {
+    const ch = SUBJECTS.find(s => s.id === 'gp').topics.find(t => t.id === 'gp-t7').chapters.find(c => c.id === 'gp-t7-ch1');
+    content = (
+      <>
+        <div style={{ marginBottom: '16px' }}>
+          <button
+            onClick={() => navigateTo('bihar-notes')}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: '8px',
+              background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+              color: '#fff', border: 'none', borderRadius: '12px',
+              padding: '12px 20px', fontSize: '0.95rem', fontWeight: 700,
+              cursor: 'pointer', boxShadow: '0 4px 12px rgba(99,102,241,0.35)',
+              transition: 'transform 0.15s, box-shadow 0.15s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(99,102,241,0.45)'; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(99,102,241,0.35)'; }}
+          >
+            📖 View Bihar Special Study Notes →
+          </button>
+        </div>
+        <PDFList
+          title="CH-1 बिहार स्पेशल"
+          pdfs={ch.pdfs}
+          idPrefix="gp-t7-ch1"
+          revisionData={revisionData}
+          onToggle={toggleRevision}
+          onOpenPdf={setViewingPdf}
+        />
+      </>
+    );
+  } else if (activeView === 'bihar-notes') {
+    content = <BiharNotes embedded />;
   } else if (activeView === 'pyq') {
     content = <PYQPage />;
   } else if (activeView === 'questionBank') {
     content = <QuestionBank />;
   } else if (activeView === 'syncStorage') {
     content = <SyncStorage onClose={() => navigateTo('dashboard')} />;
-  } else if (activeView === 'notes') {
-    content = <StudyNotes filter={activeNotesFilter} onClose={goBack} />;
   } else {
     // Look for matching subject, topic or chapter
     for (const subject of SUBJECTS) {
       if (subject.id === activeView) {
         content = (
-          <SubjectView
-            subject={subject}
-            revisionData={revisionData}
-            onSelectView={navigateTo}
-            onOpenNotes={openNotes}
-            onOpenPdf={setViewingPdf}
-          />
+            <SubjectView
+              subject={subject}
+              revisionData={revisionData}
+              onSelectView={navigateTo}
+              onOpenPdf={setViewingPdf}
+            />
         );
         break;
       }
@@ -200,11 +265,6 @@ function App() {
               revisionData={revisionData}
               onToggle={toggleRevision}
               onOpenPdf={setViewingPdf}
-              onOpenNotes={() => openNotes({
-                subjectId: subject.id,
-                topicId: topic.id,
-                title: topic.name
-              })}
             />
           );
           break;
@@ -220,12 +280,6 @@ function App() {
                   revisionData={revisionData}
                   onToggle={toggleRevision}
                   onOpenPdf={setViewingPdf}
-                  onOpenNotes={() => openNotes({
-                    subjectId: subject.id,
-                    topicId: topic.id,
-                    chapterId: ch.id,
-                    title: ch.name
-                  })}
                 />
               );
               break;
@@ -237,6 +291,8 @@ function App() {
       if (content) break;
     }
   }
+
+  const breadcrumbs = getBreadcrumbs(activeView, SUBJECTS);
 
   return (
     <PasswordLock>
@@ -277,14 +333,20 @@ function App() {
 
         <main className="main-content">
           <header className="topbar">
-            <button className="hamburger" onClick={() => setMobileOpen(true)}>☰</button>
+            <button className="hamburger" onClick={() => setMobileOpen(true)} aria-label="Open menu">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
             {/* Pin button — locks sidebar open */}
             <button
               className={`sidebar-toggle-btn ${sidebarPinned ? 'pinned' : ''}`}
               onClick={() => { setSidebarPinned(prev => !prev); setSidebarHovered(false); }}
               title={sidebarPinned ? 'Unpin Sidebar (auto-hide)' : 'Pin Sidebar open'}
             >
-              {sidebarPinned ? '📌' : '☰'}
+              {sidebarPinned ? (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5v6l1 1 1-1v-6h5v-2l-2-2z"/></svg>
+              ) : (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="18" y2="18"/></svg>
+              )}
             </button>
             <div className="nav-buttons">
               <button className={`nav-btn ${!canGoBack ? 'disabled' : ''}`} onClick={goBack} disabled={!canGoBack} title="Go Back" aria-label="Go back">
@@ -297,7 +359,21 @@ function App() {
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
               </button>
             </div>
-            <span className="topbar-title">BPSC TRE 4.0 Revision Tracker</span>
+            {/* Breadcrumb navigation */}
+            <nav className="breadcrumbs" aria-label="Breadcrumb">
+              {breadcrumbs.map((crumb, i) => (
+                <span key={i} className="breadcrumb-item">
+                  {i > 0 && <span className="breadcrumb-sep">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                  </span>}
+                  {crumb.view ? (
+                    <button className="breadcrumb-link" onClick={() => navigateTo(crumb.view)}>{crumb.label}</button>
+                  ) : (
+                    <span className="breadcrumb-current">{crumb.label}</span>
+                  )}
+                </span>
+              ))}
+            </nav>
           </header>
           <div className="content-area">
             <div key={activeView} className="page-transition">

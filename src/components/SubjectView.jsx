@@ -49,7 +49,7 @@ export default function SubjectView({ subject, revisionData, onSelectView, onOpe
   const overallCovered = subject.topics.reduce((acc, t) => acc + getPdfsCovered(t), 0);
 
   return (
-    <div className="dashboard animate-fade" style={{ maxWidth: '1000px', margin: '0 auto', paddingBottom: '40px' }}>
+    <div className="dashboard animate-fade" style={{ paddingBottom: '40px' }}>
       <div className="dashboard-header" style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <div>
           <h1 style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: 0 }}>

@@ -172,10 +172,15 @@ export default function Sidebar({ subjects, revisionData, activeView, onSelectVi
         })}
       </nav>
       
-      <div style={{ padding: '20px', marginTop: 'auto' }}>
-        <button className="nav-item db-logout-btn" onClick={() => localStorage.clear() || window.location.reload()} style={{ width: '100%' }}>
+      
+      <div className="sidebar-footer">
+        <button className="nav-item db-logout-btn" onClick={() => { if(window.confirm('Reset all local data? This won\'t affect your Firebase data.')) { localStorage.clear(); window.location.reload(); } }} style={{ width: '100%' }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
           Reset Local Data
         </button>
+        <div style={{ textAlign: 'center', marginTop: '10px', fontSize: '0.6rem', color: 'var(--text-muted)', opacity: 0.5 }}>
+          BPSC Tracker v2.0
+        </div>
       </div>
     </aside>
   );

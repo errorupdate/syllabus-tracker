@@ -1,7 +1,27 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { db } from '../firebase';
 import { collection, onSnapshot, query, orderBy, limit } from 'firebase/firestore';
 import ProgressBar from './ProgressBar';
+
+// Animated counter component
+function AnimatedNumber({ value, duration = 800 }) {
+  const [display, setDisplay] = useState(0);
+  const rafRef = useRef(null);
+  useEffect(() => {
+    if (value === 0) { setDisplay(0); return; }
+    const start = performance.now();
+    const animate = (now) => {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setDisplay(Math.round(value * eased));
+      if (progress < 1) rafRef.current = requestAnimationFrame(animate);
+    };
+    rafRef.current = requestAnimationFrame(animate);
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+  }, [value, duration]);
+  return display;
+}
 
 export default function Dashboard({ subjects, revisionData, onSelectView }) {
   const [qbStats, setQbStats] = useState({ total: 0, cs: 0, gp: 0 });
@@ -461,19 +481,19 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
       {/* ══ QUICK STATS ROW ══ */}
       <div className="db-quick-stats animate-slide-up delay-1">
         <div className="qs-card purple" onClick={() => onSelectView('questionBank')} style={{ cursor: 'pointer' }}>
-          <div className="qs-val">{qbStats.total}</div>
+          <div className="qs-val"><AnimatedNumber value={qbStats.total} /></div>
           <div className="qs-lbl">Questions</div>
         </div>
         <div className="qs-card teal" onClick={() => onSelectView('testDashboard')} style={{ cursor: 'pointer' }}>
-          <div className="qs-val">{totalTests}</div>
+          <div className="qs-val"><AnimatedNumber value={totalTests} /></div>
           <div className="qs-lbl">Tests Done</div>
         </div>
         <div className="qs-card blue">
-          <div className="qs-val">{totalCovered}<span className="qs-denom">/{totalPdfs}</span></div>
+          <div className="qs-val"><AnimatedNumber value={totalCovered} /><span className="qs-denom">/{totalPdfs}</span></div>
           <div className="qs-lbl">PDFs Covered</div>
         </div>
         <div className="qs-card amber">
-          <div className="qs-val">{overallPct}<span className="qs-denom">%</span></div>
+          <div className="qs-val"><AnimatedNumber value={overallPct} /><span className="qs-denom">%</span></div>
           <div className="qs-lbl">Overall Progress</div>
         </div>
       </div>
