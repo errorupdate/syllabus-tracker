@@ -75,58 +75,73 @@ function getBreadcrumbs(activeView, subjects) {
 
 function App() {
   const [revisionData, setRevisionData] = useState({});
-  const [activeView, setActiveView] = useState('dashboard');
-  const [viewHistory, setViewHistory] = useState(['dashboard']);
-  const [historyIndex, setHistoryIndex] = useState(0);
+  const [activeView, setActiveView] = useState(() => {
+    const hash = window.location.hash.replace('#', '');
+    return hash || 'dashboard';
+  });
+  const [historyIndex, setHistoryIndex] = useState(() => window.history.state?.index || 0);
+  const [historyLength, setHistoryLength] = useState(() => window.history.state?.length || 1);
+
   const [mobileOpen, setMobileOpen] = useState(false);
-  // sidebarPinned = user locked sidebar open; sidebarHovered = auto-show on hover
   const [sidebarPinned, setSidebarPinned] = useState(false);
   const [sidebarHovered, setSidebarHovered] = useState(false);
   const sidebarVisible = sidebarPinned || sidebarHovered;
   const [isLoading, setIsLoading] = useState(true);
   const [testModeOpen, setTestModeOpen] = useState(false);
   const [viewingPdf, setViewingPdf] = useState(null);
-  const isNavigatingRef = useRef(false);
 
-  // Navigate to a new view (pushes to history)
+  const swipeFns = useRef({ canGoBack: false, canGoForward: false, goBack: null, goForward: null });
+
+  // Initialize native history state on mount
+  useEffect(() => {
+    if (!window.history.state || window.history.state.index === undefined) {
+      window.history.replaceState({ index: 0, length: 1, view: activeView }, '', '#' + activeView);
+    }
+  }, []);
+
+  // Listen to browser's native back/forward (e.g. from Mac trackpad swipe or browser buttons)
+  useEffect(() => {
+    const onPopState = (e) => {
+      if (e.state && e.state.view) {
+        setActiveView(e.state.view);
+        setHistoryIndex(e.state.index);
+        setHistoryLength(e.state.length);
+      } else {
+        const hash = window.location.hash.replace('#', '') || 'dashboard';
+        setActiveView(hash);
+      }
+    };
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
+
   const navigateTo = useCallback((view) => {
-    // Scroll content area to top smoothly
     const contentEl = document.querySelector('.content-area');
     if (contentEl) contentEl.scrollTo({ top: 0, behavior: 'smooth' });
 
-    if (isNavigatingRef.current) {
-      // Coming from back/forward, don't push to history
-      isNavigatingRef.current = false;
-      setActiveView(view);
-      return;
-    }
     setActiveView(view);
-    setViewHistory(prev => {
-      const newHistory = prev.slice(0, historyIndex + 1);
-      newHistory.push(view);
-      return newHistory;
-    });
-    setHistoryIndex(prev => prev + 1);
+    const newIndex = historyIndex + 1;
+    const newLength = newIndex + 1; // truncates forward history when pushing new state
+    window.history.pushState({ index: newIndex, length: newLength, view }, '', '#' + view);
+    
+    setHistoryIndex(newIndex);
+    setHistoryLength(newLength);
   }, [historyIndex]);
 
   const canGoBack = historyIndex > 0;
-  const canGoForward = historyIndex < viewHistory.length - 1;
+  const canGoForward = historyIndex < historyLength - 1;
 
   const goBack = useCallback(() => {
-    if (!canGoBack) return;
-    const newIndex = historyIndex - 1;
-    setHistoryIndex(newIndex);
-    isNavigatingRef.current = true;
-    navigateTo(viewHistory[newIndex]);
-  }, [canGoBack, historyIndex, viewHistory, navigateTo]);
+    if (canGoBack) window.history.back();
+  }, [canGoBack]);
 
   const goForward = useCallback(() => {
-    if (!canGoForward) return;
-    const newIndex = historyIndex + 1;
-    setHistoryIndex(newIndex);
-    isNavigatingRef.current = true;
-    navigateTo(viewHistory[newIndex]);
-  }, [canGoForward, historyIndex, viewHistory, navigateTo]);
+    if (canGoForward) window.history.forward();
+  }, [canGoForward]);
+
+  useEffect(() => {
+    swipeFns.current = { canGoBack, canGoForward, goBack, goForward };
+  }, [canGoBack, canGoForward, goBack, goForward]);
 
   const handleRefresh = useCallback(() => {
     // Force re-render by toggling a key
@@ -135,6 +150,67 @@ function App() {
       setTimeout(() => setActiveView(prev), 0);
       return null;
     });
+  }, []);
+
+  // Global Swipe Gestures (Touch + Mouse)
+  useEffect(() => {
+    let tsX = 0, tsY = 0;
+    let teX = 0, teY = 0;
+    let isMouseDown = false;
+    const minDistance = 50;
+
+    const handleGesture = () => {
+      const distanceX = tsX - teX;
+      const distanceY = Math.abs(tsY - teY);
+      
+      // Ignore if mostly vertical scrolling
+      if (distanceY > Math.abs(distanceX)) return;
+
+      const { canGoBack, canGoForward, goBack, goForward } = swipeFns.current;
+
+      if (distanceX > minDistance) {
+        // Swipe Left (finger moved right-to-left) -> user requested: backward
+        if (canGoBack && goBack) goBack();
+      } else if (distanceX < -minDistance) {
+        // Swipe Right (finger moved left-to-right) -> user requested: forward
+        if (canGoForward && goForward) goForward();
+      }
+    };
+
+    const onTouchStart = (e) => {
+      tsX = e.changedTouches[0].screenX;
+      tsY = e.changedTouches[0].screenY;
+    };
+    const onTouchEnd = (e) => {
+      teX = e.changedTouches[0].screenX;
+      teY = e.changedTouches[0].screenY;
+      handleGesture();
+    };
+
+    const onMouseDown = (e) => {
+      isMouseDown = true;
+      tsX = e.screenX;
+      tsY = e.screenY;
+    };
+    const onMouseUp = (e) => {
+      if (!isMouseDown) return;
+      isMouseDown = false;
+      teX = e.screenX;
+      teY = e.screenY;
+      handleGesture();
+    };
+
+    document.addEventListener('touchstart', onTouchStart, { passive: true });
+    document.addEventListener('touchend', onTouchEnd, { passive: true });
+    document.addEventListener('mousedown', onMouseDown);
+    document.addEventListener('mouseup', onMouseUp);
+
+    return () => {
+      document.removeEventListener('touchstart', onTouchStart);
+      document.removeEventListener('touchend', onTouchEnd);
+      document.removeEventListener('mousedown', onMouseDown);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
   }, []);
 
 
