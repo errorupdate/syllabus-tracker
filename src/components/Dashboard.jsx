@@ -436,14 +436,14 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
 
       {/* ══ HERO HEADER ══ */}
       <div className="db-hero animate-slide-up">
-        <div className="db-hero-left">
+        <div className="db-hero-center">
           <div className="db-hero-greeting">
             {todayRevisions === 0 ? '👋 Hey, ready to study?' : dailyGoalMet ? '🎉 Goal crushed today!' : `💪 ${dailyGoal - todayRevisions} more to go`}
           </div>
           <h1 className="db-hero-title">BPSC TRE 4.0</h1>
           <p className="db-hero-sub">{planDate}</p>
         </div>
-        <div className="db-hero-right">
+        <div className="db-hero-pills">
           {/* Streak pill */}
           <div className="db-hero-pill streak-pill">
             <span className="pill-icon">🔥</span>
@@ -492,10 +492,38 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
           <div className="qs-val"><AnimatedNumber value={totalCovered} /><span className="qs-denom">/{totalPdfs}</span></div>
           <div className="qs-lbl">PDFs Covered</div>
         </div>
-        <div className="qs-card amber">
-          <div className="qs-val"><AnimatedNumber value={overallPct} /><span className="qs-denom">%</span></div>
-          <div className="qs-lbl">Overall Progress</div>
+        <div className="qs-card amber" onClick={() => onSelectView('testDashboard')} style={{ cursor: 'pointer' }}>
+          <div className="qs-val"><AnimatedNumber value={avgTestAccuracy} /><span className="qs-denom">%</span></div>
+          <div className="qs-lbl">Avg Accuracy</div>
         </div>
+      </div>
+
+      {/* ══ QUICK ACCESS SHORTCUTS ══ */}
+      <div className="db-quick-actions animate-slide-up delay-1">
+        <button className="qa-btn qa-purple" onClick={() => onSelectView('questionBank')}>
+          <span className="qa-icon">📝</span>
+          <span className="qa-label">Question Bank</span>
+        </button>
+        <button className="qa-btn qa-teal" onClick={() => onSelectView('notesHub')}>
+          <span className="qa-icon">📖</span>
+          <span className="qa-label">Notes Hub</span>
+        </button>
+        <button className="qa-btn qa-blue" onClick={() => onSelectView('pyq')}>
+          <span className="qa-icon">🔍</span>
+          <span className="qa-label">PYQ Papers</span>
+        </button>
+        <button className="qa-btn qa-amber" onClick={() => onSelectView('testDashboard')}>
+          <span className="qa-icon">📊</span>
+          <span className="qa-label">Analytics</span>
+        </button>
+        <button className="qa-btn qa-green" onClick={() => onSelectView('cs')}>
+          <span className="qa-icon">💻</span>
+          <span className="qa-label">Comp Science</span>
+        </button>
+        <button className="qa-btn qa-pink" onClick={() => onSelectView('gp')}>
+          <span className="qa-icon">📚</span>
+          <span className="qa-label">General Paper</span>
+        </button>
       </div>
 
       {/* ══ OVERALL PROGRESS BAR ══ */}
@@ -553,200 +581,170 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
         </div>
       )}
 
-      {/* ══ ACTIVITY + SUBJECT COLUMNS ══ */}
-      <div className="db-body-grid animate-slide-up delay-3">
+      {/* ══ ANALYTICS GRID ══ */}
+      <div className="db-analytics-grid animate-slide-up delay-3">
 
-        {/* LEFT: Activity chart + Subject Progress */}
-        <div className="db-body-main">
-
-          {/* 7-Day Activity */}
-          <div className="db-panel glass-card activity-chart-panel" style={{ overflow: 'visible' }}>
-            <div className="db-panel-header">
-              <span className="db-panel-title">📅 7-Day Activity</span>
-              <span className="chart-total">{weekDays.reduce((s, d) => s + d.count, 0)} revisions</span>
-            </div>
-            <div className="activity-bars">
-              {weekDays.map((d, i) => (
-                <div key={i} className="activity-bar-col">
-                  <div className="bar-value">{d.count > 0 ? d.count : ''}</div>
-                  <div className="bar-track">
-                    <div className={`bar-fill ${d.isToday ? 'today' : ''} ${d.count === 0 ? 'empty' : ''}`}
-                      style={{ height: d.count > 0 ? `${Math.max(8, Math.round((d.count / Math.max(weekMax, 1)) * 70))}px` : '4px' }} />
-                  </div>
-                  <div className={`bar-label ${d.isToday ? 'today' : ''}`}>{d.label}</div>
-                </div>
-              ))}
-            </div>
+        {/* Row 1: Activity Chart + Subject Progress */}
+        <div className="db-panel glass-card activity-chart-panel" style={{ overflow: 'visible' }}>
+          <div className="db-panel-header">
+            <span className="db-panel-title">📅 7-Day Activity</span>
+            <span className="chart-total">{weekDays.reduce((s, d) => s + d.count, 0)} revisions</span>
           </div>
-
-
-          {/* Subject Progress */}
-          <div className="db-panel">
-            <div className="db-panel-header">
-              <span className="db-panel-title">📂 Subject Progress</span>
-            </div>
-            <div className="subject-cards">
-              {subjectStats.map(s => (
-                <div
-                  key={s.id}
-                  className="subject-card glass-card interactive"
-                  onClick={() => s.targetId && onSelectView(s.targetId)}
-                  style={{ cursor: s.targetId ? 'pointer' : 'default' }}
-                >
-                  <div className="subject-card-header">
-                    <h3>{s.name}</h3>
-                    <span className="topic-count">{s.topics.length} topics</span>
-                  </div>
-                  <div className="subject-card-stats">
-                    <span>{s.coveredPdfs} / {s.pdfCount} PDFs</span>
-                    <span style={{ color: 'var(--accent-teal)', fontWeight: 700 }}>{Math.round((s.revDone / s.revMax) * 100) || 0}%</span>
-                  </div>
-                  <ProgressBar value={s.revDone} max={s.revMax} size="md" />
+          <div className="activity-bars">
+            {weekDays.map((d, i) => (
+              <div key={i} className="activity-bar-col">
+                <div className="bar-value">{d.count > 0 ? d.count : ''}</div>
+                <div className="bar-track">
+                  <div className={`bar-fill ${d.isToday ? 'today' : ''} ${d.count === 0 ? 'empty' : ''}`}
+                    style={{ height: d.count > 0 ? `${Math.max(8, Math.round((d.count / Math.max(weekMax, 1)) * 70))}px` : '4px' }} />
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Test History */}
-          <div className="db-panel">
-            <div className="db-panel-header">
-              <span className="db-panel-title">🧪 Test History</span>
-              <button onClick={() => onSelectView('testDashboard')} className="db-panel-action-btn">Full Analytics →</button>
-            </div>
-            {testHistory.length === 0 ? (
-              <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '12px', padding: '20px 24px' }}>
-                No tests yet. Use <strong style={{ color: '#fbbf24' }}>Test Mode</strong> from the sidebar!
+                <div className={`bar-label ${d.isToday ? 'today' : ''}`}>{d.label}</div>
               </div>
-            ) : (
-              <>
-                {(() => {
-                  const last3 = testHistory.slice(0, 3).map(t => t.accuracy);
-                  let msg = '', icon = '', color = '#94a3b8';
-                  if (last3.length >= 2) {
-                    if (last3[0] > last3[last3.length - 1]) { icon = '📈'; msg = 'Accuracy is improving! Keep it up!'; color = '#3fb950'; }
-                    else if (last3[0] < last3[last3.length - 1]) { icon = '📉'; msg = 'Accuracy dipping — review weak topics!'; color = '#f85149'; }
-                    else { icon = '➡️'; msg = 'Consistent performance lately.'; color = '#fbbf24'; }
-                  }
-                  return msg ? (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'var(--bg-primary)', border: `1px solid ${color}33`, borderRadius: '12px', padding: '10px 16px', marginBottom: '12px', color }}>
-                      <span style={{ fontSize: '1.1rem' }}>{icon}</span>
-                      <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{msg}</span>
-                    </div>
-                  ) : null;
-                })()}
-                <div className="test-history-table">
-                  <div className="test-history-head">
-                    <span>Date</span><span>Category</span><span className="text-center">Total</span><span className="text-center">✓</span><span className="text-center">Skip</span><span className="text-center">Acc</span><span />
-                  </div>
-                  {testHistory.slice(0, 8).map((t, i) => {
-                    const accColor = t.accuracy >= 70 ? '#3fb950' : t.accuracy >= 40 ? '#f0883e' : '#f85149';
-                    return (
-                      <div key={t.id} className="test-history-row" style={{ cursor: t.questionsSnapshot ? 'pointer' : 'default' }} onClick={() => t.questionsSnapshot && setSelectedTest(t)}>
-                        <span className="th-date">{t.date}{t.timeStr ? <><br /><span className="th-time">{t.timeStr}</span></> : ''}</span>
-                        <span className="th-category">{t.category}</span>
-                        <span className="text-center th-stat">{t.totalQuestions}</span>
-                        <span className="text-center th-correct">{t.correct}</span>
-                        <span className="text-center th-skip">{t.totalQuestions - t.attempted}</span>
-                        <span className="text-center th-acc" style={{ color: accColor }}>{t.accuracy}%</span>
-                        <span className="text-center th-icon">{t.questionsSnapshot ? '📋' : ''}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-                {testHistory.some(t => t.questionsSnapshot) && (
-                  <p style={{ color: '#475569', fontSize: '0.72rem', marginTop: '8px', textAlign: 'center' }}>📋 Tap a row to review that test</p>
-                )}
-              </>
-            )}
+            ))}
           </div>
         </div>
 
-        {/* RIGHT: Weak topics + Recent Activity + Needs Attention + QB/Test stats */}
-        <div className="db-body-side">
-
-          {/* QB & Test mini stats */}
-          <div className="db-panel glass-card db-mini-stats-panel">
-            <div className="db-mini-stat" onClick={() => onSelectView('questionBank')} style={{ cursor: 'pointer' }}>
-              <span className="db-mini-icon">📝</span>
-              <div>
-                <div className="db-mini-val" style={{ color: 'var(--accent-purple)' }}>{qbStats.cs} <span style={{ color: 'var(--text-muted)', fontSize: '0.7rem' }}>CS</span></div>
-                <div className="db-mini-val" style={{ color: '#3fb950' }}>{qbStats.gp} <span style={{ color: 'var(--text-muted)', fontSize: '0.7rem' }}>GP</span></div>
-                <div className="db-mini-lbl">Question Bank</div>
-              </div>
-            </div>
-            <div className="db-mini-divider" />
-            <div className="db-mini-stat" onClick={() => onSelectView('testDashboard')} style={{ cursor: 'pointer' }}>
-              <span className="db-mini-icon">🎯</span>
-              <div>
-                <div className="db-mini-val" style={{ color: avgTestAccuracy >= 70 ? '#4ade80' : avgTestAccuracy >= 40 ? '#fb923c' : '#f85149' }}>{avgTestAccuracy}%</div>
-                <div className="db-mini-lbl">Avg Accuracy</div>
-              </div>
-            </div>
+        <div className="db-panel glass-card">
+          <div className="db-panel-header">
+            <span className="db-panel-title">📂 Subject Progress</span>
           </div>
+          <div className="subject-cards" style={{ gap: '10px' }}>
+            {subjectStats.map(s => (
+              <div
+                key={s.id}
+                className="subject-card glass-card interactive"
+                onClick={() => s.targetId && onSelectView(s.targetId)}
+                style={{ cursor: s.targetId ? 'pointer' : 'default' }}
+              >
+                <div className="subject-card-header">
+                  <h3>{s.name}</h3>
+                  <span className="topic-count">{s.topics.length} topics</span>
+                </div>
+                <div className="subject-card-stats">
+                  <span>{s.coveredPdfs} / {s.pdfCount} PDFs</span>
+                  <span style={{ color: 'var(--accent-teal)', fontWeight: 700 }}>{Math.round((s.revDone / s.revMax) * 100) || 0}%</span>
+                </div>
+                <ProgressBar value={s.revDone} max={s.revMax} size="md" />
+              </div>
+            ))}
+          </div>
+        </div>
 
-          {/* Weak Topics */}
-          {weakTopics.length > 0 && (
-            <div className="db-panel glass-card">
-              <div className="db-panel-header">
-                <span className="db-panel-title">📉 Weak Topics</span>
-              </div>
-              <div className="attention-list">
-                {weakTopics.map((t, i) => (
-                  <div key={i} className="attention-item glass-card weak-topic-item interactive"
-                    onClick={() => t.topicId && onSelectView(t.topicId)}
-                    style={{ cursor: t.topicId ? 'pointer' : 'default', padding: '10px 14px' }}>
-                    <div className="weak-topic-row">
-                      <span className="attention-name">{t.name}</span>
-                      <span className="weak-accuracy" style={{ color: t.accuracy < 50 ? '#f85149' : t.accuracy < 70 ? '#f0883e' : '#fbbf24' }}>{t.accuracy}%</span>
-                    </div>
-                    <div className="weak-bar-track">
-                      <div className="weak-bar-fill" style={{ width: `${t.accuracy}%`, background: t.accuracy < 50 ? 'linear-gradient(90deg,#f85149,#fb7185)' : t.accuracy < 70 ? 'linear-gradient(90deg,#f0883e,#fbbf24)' : 'linear-gradient(90deg,#fbbf24,#a3e635)' }} />
-                    </div>
-                    <span style={{ fontSize: '0.65rem', color: '#475569' }}>{t.correct}/{t.total} correct</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Recent Activity */}
-          {(todayList.length > 0 || yesterdayList.length > 0) && (
-            <div className="db-panel glass-card">
-              <div className="db-panel-header">
-                <span className="db-panel-title">⚡ Recent Activity</span>
-              </div>
-              <div className="attention-list">
-                {[...todayList, ...yesterdayList].slice(0, 5).map((item, i) => (
-                  <div key={i} className={`attention-item glass-card list-item-compact interactive ${item.type === 'today' ? 'highlight' : ''}`}
-                    onClick={() => item.targetId && onSelectView(item.targetId)}
-                    style={{ cursor: item.targetId ? 'pointer' : 'default', padding: '9px 12px' }}>
-                    <div className="activity-details">
-                      <span className="attention-name">{item.pdfName.replace(/\.pdf$/i, '')}</span>
-                      <span className="activity-subtext">{item.topicName.replace(/^T-?\d+\s*[-–]?\s*/, '')} (R{item.rev}) · {item.type === 'today' ? 'Today' : 'Yesterday'}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Needs Attention */}
+        {/* Row 2: Weak Topics + Recent Activity */}
+        {weakTopics.length > 0 && (
           <div className="db-panel glass-card">
             <div className="db-panel-header">
-              <span className="db-panel-title">🎯 Needs Attention</span>
+              <span className="db-panel-title">📉 Weak Topics</span>
             </div>
             <div className="attention-list">
-              {topicProgress.slice(0, 5).map((t, i) => (
-                <div key={i} className="attention-item glass-card interactive"
-                  onClick={() => t.targetId && onSelectView(t.targetId)}
-                  style={{ cursor: t.targetId ? 'pointer' : 'default', padding: '10px 14px' }}>
-                  <span className="attention-name">{t.name.replace(/^T-?\d+\s*[-–]?\s*/, '')}</span>
-                  <ProgressBar value={t.done} max={t.max} size="sm" />
+              {weakTopics.map((t, i) => (
+                <div key={i} className="attention-item glass-card weak-topic-item interactive"
+                  onClick={() => t.topicId && onSelectView(t.topicId)}
+                  style={{ cursor: t.topicId ? 'pointer' : 'default', padding: '10px 14px' }}>
+                  <div className="weak-topic-row">
+                    <span className="attention-name">{t.name}</span>
+                    <span className="weak-accuracy" style={{ color: t.accuracy < 50 ? '#f85149' : t.accuracy < 70 ? '#f0883e' : '#fbbf24' }}>{t.accuracy}%</span>
+                  </div>
+                  <div className="weak-bar-track">
+                    <div className="weak-bar-fill" style={{ width: `${t.accuracy}%`, background: t.accuracy < 50 ? 'linear-gradient(90deg,#f85149,#fb7185)' : t.accuracy < 70 ? 'linear-gradient(90deg,#f0883e,#fbbf24)' : 'linear-gradient(90deg,#fbbf24,#a3e635)' }} />
+                  </div>
+                  <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>{t.correct}/{t.total} correct</span>
                 </div>
               ))}
             </div>
           </div>
+        )}
+
+        {(todayList.length > 0 || yesterdayList.length > 0) && (
+          <div className="db-panel glass-card">
+            <div className="db-panel-header">
+              <span className="db-panel-title">⚡ Recent Activity</span>
+            </div>
+            <div className="attention-list">
+              {[...todayList, ...yesterdayList].slice(0, 5).map((item, i) => (
+                <div key={i} className={`attention-item glass-card list-item-compact interactive ${item.type === 'today' ? 'highlight' : ''}`}
+                  onClick={() => item.targetId && onSelectView(item.targetId)}
+                  style={{ cursor: item.targetId ? 'pointer' : 'default', padding: '9px 12px' }}>
+                  <div className="activity-details">
+                    <span className="attention-name">{item.pdfName.replace(/\.pdf$/i, '')}</span>
+                    <span className="activity-subtext">{item.topicName.replace(/^T-?\d+\s*[-–]?\s*/, '')} (R{item.rev}) · {item.type === 'today' ? 'Today' : 'Yesterday'}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Row 3: Test History (full width) */}
+        <div className="db-panel glass-card db-full-width">
+          <div className="db-panel-header">
+            <span className="db-panel-title">🧪 Test History</span>
+            <button onClick={() => onSelectView('testDashboard')} className="db-panel-action-btn">Full Analytics →</button>
+          </div>
+          {testHistory.length === 0 ? (
+            <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '12px', padding: '20px 24px' }}>
+              No tests yet. Use <strong style={{ color: '#fbbf24' }}>Test Mode</strong> from the sidebar!
+            </div>
+          ) : (
+            <>
+              {(() => {
+                const last3 = testHistory.slice(0, 3).map(t => t.accuracy);
+                let msg = '', icon = '', color = '#94a3b8';
+                if (last3.length >= 2) {
+                  if (last3[0] > last3[last3.length - 1]) { icon = '📈'; msg = 'Accuracy is improving! Keep it up!'; color = '#3fb950'; }
+                  else if (last3[0] < last3[last3.length - 1]) { icon = '📉'; msg = 'Accuracy dipping — review weak topics!'; color = '#f85149'; }
+                  else { icon = '➡️'; msg = 'Consistent performance lately.'; color = '#fbbf24'; }
+                }
+                return msg ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'var(--bg-primary)', border: `1px solid ${color}33`, borderRadius: '12px', padding: '10px 16px', marginBottom: '12px', color }}>
+                    <span style={{ fontSize: '1.1rem' }}>{icon}</span>
+                    <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{msg}</span>
+                  </div>
+                ) : null;
+              })()}
+              <div className="test-history-table">
+                <div className="test-history-head">
+                  <span>Date</span><span>Category</span><span className="text-center">Total</span><span className="text-center">✓</span><span className="text-center">Skip</span><span className="text-center">Acc</span><span />
+                </div>
+                {testHistory.slice(0, 8).map((t, i) => {
+                  const accColor = t.accuracy >= 70 ? '#3fb950' : t.accuracy >= 40 ? '#f0883e' : '#f85149';
+                  return (
+                    <div key={t.id} className="test-history-row" style={{ cursor: t.questionsSnapshot ? 'pointer' : 'default' }} onClick={() => t.questionsSnapshot && setSelectedTest(t)}>
+                      <span className="th-date">{t.date}{t.timeStr ? <><br /><span className="th-time">{t.timeStr}</span></> : ''}</span>
+                      <span className="th-category">{t.category}</span>
+                      <span className="text-center th-stat">{t.totalQuestions}</span>
+                      <span className="text-center th-correct">{t.correct}</span>
+                      <span className="text-center th-skip">{t.totalQuestions - t.attempted}</span>
+                      <span className="text-center th-acc" style={{ color: accColor }}>{t.accuracy}%</span>
+                      <span className="text-center th-icon">{t.questionsSnapshot ? '📋' : ''}</span>
+                    </div>
+                  );
+                })}
+              </div>
+              {testHistory.some(t => t.questionsSnapshot) && (
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.72rem', marginTop: '8px', textAlign: 'center' }}>📋 Tap a row to review that test</p>
+              )}
+            </>
+          )}
         </div>
+
+        {/* Row 4: Needs Attention (full width) */}
+        <div className="db-panel glass-card db-full-width">
+          <div className="db-panel-header">
+            <span className="db-panel-title">🎯 Needs Attention</span>
+          </div>
+          <div className="attention-list">
+            {topicProgress.slice(0, 5).map((t, i) => (
+              <div key={i} className="attention-item glass-card interactive"
+                onClick={() => t.targetId && onSelectView(t.targetId)}
+                style={{ cursor: t.targetId ? 'pointer' : 'default', padding: '10px 14px' }}>
+                <span className="attention-name">{t.name.replace(/^T-?\d+\s*[-–]?\s*/, '')}</span>
+                <ProgressBar value={t.done} max={t.max} size="sm" />
+              </div>
+            ))}
+          </div>
+        </div>
+
       </div>
 
       {/* ── Test Review Modal ── */}

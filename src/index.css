@@ -1807,13 +1807,13 @@ h1, h2, h3,
   /* ── Hero ── */
   .db-hero {
     flex-direction: column;
-    padding: 14px 16px;
-    gap: 10px;
+    padding: 24px 16px 18px;
+    gap: 14px;
     margin-bottom: 10px;
   }
 
   .db-hero-title {
-    font-size: 1.25rem;
+    font-size: 1.8rem;
   }
 
   .db-hero-sub {
@@ -1821,10 +1821,11 @@ h1, h2, h3,
   }
 
   .db-hero-greeting {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
+    padding: 3px 10px;
   }
 
-  .db-hero-right {
+  .db-hero-pills {
     width: 100%;
     gap: 8px;
     flex-wrap: nowrap;
@@ -1834,7 +1835,7 @@ h1, h2, h3,
     padding-bottom: 2px;
   }
 
-  .db-hero-right::-webkit-scrollbar {
+  .db-hero-pills::-webkit-scrollbar {
     display: none;
   }
 
@@ -2257,11 +2258,11 @@ h1, h2, h3,
 
   /* Hero on small phones */
   .db-hero {
-    padding: 12px;
+    padding: 20px 12px 14px;
   }
 
   .db-hero-title {
-    font-size: 1.1rem;
+    font-size: 1.6rem;
   }
 
   .db-hero-greeting {
@@ -2469,14 +2470,14 @@ h1, h2, h3,
 
   /* Hero collapses title further */
   .db-hero-title {
-    font-size: 1rem;
+    font-size: 1.4rem;
   }
 
   .db-hero {
-    padding: 10px;
+    padding: 18px 10px 12px;
   }
 
-  .db-hero-right {
+  .db-hero-pills {
     gap: 6px;
   }
 
@@ -2920,16 +2921,17 @@ h1, h2, h3,
 /* ── Hero Header ── */
 .db-hero {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
-  padding: 28px 32px;
-  background: linear-gradient(135deg, rgba(167, 139, 250, 0.06) 0%, rgba(45, 212, 191, 0.04) 50%, rgba(96, 165, 250, 0.03) 100%);
-  border: 1px solid rgba(167, 139, 250, 0.12);
-  border-radius: 22px;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 40px 32px 32px;
+  background: linear-gradient(160deg, rgba(99, 102, 241, 0.12) 0%, rgba(139, 92, 246, 0.1) 25%, rgba(45, 212, 191, 0.06) 50%, rgba(96, 165, 250, 0.05) 75%, rgba(251, 191, 36, 0.04) 100%);
+  border: 1px solid rgba(167, 139, 250, 0.15);
+  border-radius: 24px;
   margin-bottom: 16px;
   position: relative;
   overflow: hidden;
+  text-align: center;
 }
 
 .db-hero::before {
@@ -2938,53 +2940,71 @@ h1, h2, h3,
   top: 0;
   left: 0;
   right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, var(--accent-purple), var(--accent-teal), var(--accent-amber));
-  opacity: 0.7;
+  height: 3px;
+  background: linear-gradient(90deg, #6366f1, #a78bfa, #2dd4bf, #60a5fa, #fbbf24);
+  background-size: 300% 100%;
+  animation: heroTopBar 4s linear infinite;
+}
+
+@keyframes heroTopBar {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
 }
 
 .db-hero::after {
   content: '';
   position: absolute;
-  top: -60px;
-  right: -60px;
-  width: 250px;
-  height: 250px;
-  background: radial-gradient(circle, rgba(167, 139, 250, 0.1) 0%, transparent 70%);
+  top: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, rgba(99, 102, 241, 0.06) 30%, transparent 65%);
   pointer-events: none;
-  animation: heroGlow 8s ease-in-out infinite alternate;
+  animation: heroGlow 6s ease-in-out infinite alternate;
 }
 
 @keyframes heroGlow {
-  0% { opacity: 0.5; transform: scale(1); }
-  100% { opacity: 1; transform: scale(1.2); }
+  0% { opacity: 0.4; transform: translateX(-50%) scale(0.9); }
+  100% { opacity: 1; transform: translateX(-50%) scale(1.3); }
 }
 
-.db-hero-left {
-  flex: 1;
-  min-width: 0;
+.db-hero-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 1;
 }
 
 .db-hero-greeting {
   font-size: 0.78rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--accent-teal);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 6px;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 14px;
+  background: rgba(45, 212, 191, 0.08);
+  border: 1px solid rgba(45, 212, 191, 0.15);
+  border-radius: 20px;
 }
 
 .db-hero-title {
-  font-size: 1.9rem;
+  font-size: 2.8rem;
   font-weight: 900;
-  background: linear-gradient(135deg, #f1f5f9 0%, #c4b5fd 40%, #5eead4 80%, #fde68a 100%);
-  background-size: 200% 200%;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #c4b5fd 0%, #f1f5f9 20%, #a78bfa 40%, #5eead4 60%, #60a5fa 80%, #fde68a 100%);
+  background-size: 300% 300%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  line-height: 1.15;
-  margin: 0 0 4px 0;
-  animation: gradientShift 6s ease-in-out infinite;
+  line-height: 1.1;
+  margin: 0 0 6px 0;
+  animation: gradientShift 5s ease-in-out infinite;
+  text-shadow: none;
 }
 
 @keyframes gradientShift {
@@ -2993,34 +3013,38 @@ h1, h2, h3,
 }
 
 .db-hero-sub {
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   color: var(--text-muted);
   margin: 0;
+  font-weight: 500;
 }
 
-.db-hero-right {
+.db-hero-pills {
   display: flex;
   align-items: center;
   gap: 10px;
-  flex-shrink: 0;
   flex-wrap: wrap;
+  justify-content: center;
   position: relative;
+  z-index: 1;
 }
 
 .db-hero-pill {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 14px;
-  background: rgba(0, 0, 0, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 10px 16px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   border-radius: 14px;
-  transition: border-color 0.2s, background 0.2s;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: border-color 0.2s, background 0.2s, transform 0.2s;
 }
 
 .db-hero-pill:hover {
-  border-color: rgba(255, 255, 255, 0.15);
-  background: rgba(0, 0, 0, 0.35);
+  border-color: rgba(167, 139, 250, 0.25);
+  transform: translateY(-2px);
 }
 
 .pill-icon {
@@ -3050,7 +3074,7 @@ h1, h2, h3,
   top: calc(100% + 8px);
   right: 0;
   background: var(--bg-card);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border);
   border-radius: 10px;
   padding: 8px;
   z-index: 10;
@@ -3193,6 +3217,155 @@ h1, h2, h3,
   letter-spacing: 0.03em;
   white-space: normal;
   word-break: break-word;
+}
+
+/* ── Quick Access Shortcuts ── */
+.db-quick-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.qa-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px 10px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s, border-color 0.25s;
+  font-family: inherit;
+  position: relative;
+  overflow: hidden;
+}
+
+.qa-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+
+.qa-btn:hover::before {
+  opacity: 1;
+}
+
+.qa-btn:hover {
+  transform: translateY(-3px);
+  border-color: rgba(167, 139, 250, 0.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.qa-btn:active {
+  transform: translateY(-1px) scale(0.98);
+}
+
+.qa-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.qa-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-align: center;
+  line-height: 1.2;
+}
+
+/* Color variants */
+.qa-purple { border-color: rgba(167, 139, 250, 0.15); }
+.qa-purple::before { background: linear-gradient(90deg, transparent, var(--accent-purple), transparent); }
+.qa-purple:hover { border-color: rgba(167, 139, 250, 0.3); box-shadow: 0 8px 24px rgba(167, 139, 250, 0.1); }
+.qa-purple .qa-label { color: var(--accent-purple); }
+
+.qa-teal { border-color: rgba(45, 212, 191, 0.15); }
+.qa-teal::before { background: linear-gradient(90deg, transparent, var(--accent-teal), transparent); }
+.qa-teal:hover { border-color: rgba(45, 212, 191, 0.3); box-shadow: 0 8px 24px rgba(45, 212, 191, 0.1); }
+.qa-teal .qa-label { color: var(--accent-teal); }
+
+.qa-blue { border-color: rgba(96, 165, 250, 0.15); }
+.qa-blue::before { background: linear-gradient(90deg, transparent, #60a5fa, transparent); }
+.qa-blue:hover { border-color: rgba(96, 165, 250, 0.3); box-shadow: 0 8px 24px rgba(96, 165, 250, 0.1); }
+.qa-blue .qa-label { color: #60a5fa; }
+
+.qa-amber { border-color: rgba(251, 191, 36, 0.15); }
+.qa-amber::before { background: linear-gradient(90deg, transparent, var(--accent-amber), transparent); }
+.qa-amber:hover { border-color: rgba(251, 191, 36, 0.3); box-shadow: 0 8px 24px rgba(251, 191, 36, 0.1); }
+.qa-amber .qa-label { color: var(--accent-amber); }
+
+.qa-green { border-color: rgba(52, 211, 153, 0.15); }
+.qa-green::before { background: linear-gradient(90deg, transparent, var(--accent-green), transparent); }
+.qa-green:hover { border-color: rgba(52, 211, 153, 0.3); box-shadow: 0 8px 24px rgba(52, 211, 153, 0.1); }
+.qa-green .qa-label { color: var(--accent-green); }
+
+.qa-pink { border-color: rgba(244, 114, 182, 0.15); }
+.qa-pink::before { background: linear-gradient(90deg, transparent, #f472b6, transparent); }
+.qa-pink:hover { border-color: rgba(244, 114, 182, 0.3); box-shadow: 0 8px 24px rgba(244, 114, 182, 0.1); }
+.qa-pink .qa-label { color: #f472b6; }
+
+/* ── Analytics Grid (replaces db-body-grid) ── */
+.db-analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.db-analytics-grid .db-full-width {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 768px) {
+  .db-analytics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .db-quick-actions {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .qa-btn {
+    padding: 12px 8px;
+  }
+
+  .qa-icon {
+    font-size: 1.3rem;
+  }
+
+  .qa-label {
+    font-size: 0.6rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .db-quick-actions {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+
+  .qa-btn {
+    padding: 10px 6px;
+    gap: 4px;
+  }
+
+  .qa-icon {
+    font-size: 1.15rem;
+  }
+
+  .qa-label {
+    font-size: 0.55rem;
+  }
 }
 
 /* ── Progress Bar Row ── */
@@ -3369,17 +3542,17 @@ h1, h2, h3,
 @media (max-width: 600px) {
   .db-hero {
     flex-direction: column;
-    padding: 14px;
-    gap: 10px;
+    padding: 24px 14px 16px;
+    gap: 14px;
   }
 
   .db-hero-title {
-    font-size: 1.2rem;
+    font-size: 1.8rem;
   }
 
-  .db-hero-right {
+  .db-hero-pills {
     width: 100%;
-    justify-content: flex-start;
+    justify-content: center;
     flex-wrap: nowrap;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
@@ -3387,7 +3560,7 @@ h1, h2, h3,
     padding-bottom: 2px;
   }
 
-  .db-hero-right::-webkit-scrollbar {
+  .db-hero-pills::-webkit-scrollbar {
     display: none;
   }
 
