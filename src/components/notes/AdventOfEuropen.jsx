@@ -25,6 +25,13 @@ const App = () => {
             border: "border-green-200",
             btnColor: "bg-green-100 text-green-700 hover:bg-green-200",
             icon: <Anchor className="w-6 h-6 text-green-600" />,
+            people: [
+                { name: "Francisco de Almeida", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Retrato_de_D._Francisco_de_Almeida_%28ap%C3%B3s_1545%29_-_Autor_desconhecido.png/500px-Retrato_de_D._Francisco_de_Almeida_%28ap%C3%B3s_1545%29_-_Autor_desconhecido.png" },
+                { name: "Alfonso de Albuquerque", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Retrato_de_Afonso_de_Albuquerque_%28ap%C3%B3s_1545%29_-_Autor_desconhecido.png/500px-Retrato_de_Afonso_de_Albuquerque_%28ap%C3%B3s_1545%29_-_Autor_desconhecido.png" }
+            ],
+            places: [
+                { name: "Goa", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Front_Elevation_of_Basilica_of_Bom_Jesus.jpg/500px-Front_Elevation_of_Basilica_of_Bom_Jesus.jpg" }
+            ],
             summary: [
                 "Vasco da Gama reached Calicut (Kerala) in 1498, guided by Abdul Majid. Welcomed by local ruler Zamorin.",
                 "First Factory: Established in Cochin in 1500.",
@@ -70,6 +77,9 @@ const App = () => {
             border: "border-blue-200",
             btnColor: "bg-blue-100 text-blue-700 hover:bg-blue-200",
             icon: <Award className="w-6 h-6 text-blue-600" />,
+            people: [
+                { name: "Robert Clive", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Robert_Clive%2C_1st_Baron_Clive_by_Nathaniel_Dance%2C_%28later_Sir_Nathaniel_Dance-Holland%2C_Bt%29.jpg/500px-Robert_Clive%2C_1st_Baron_Clive_by_Nathaniel_Dance%2C_%28later_Sir_Nathaniel_Dance-Holland%2C_Bt%29.jpg" }
+            ],
             summary: [
                 "British East India Company formed by Royal Charter on Dec 31, 1600.",
                 "First Factories: Masulipatnam (1611) and Surat (1612/1613).",
@@ -114,6 +124,12 @@ const App = () => {
             border: "border-red-200",
             btnColor: "bg-red-100 text-red-700 hover:bg-red-200",
             icon: <Map className="w-6 h-6 text-red-600" />,
+            people: [
+                { name: "Joseph François Dupleix", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Joseph_Francois_Dupleix.jpg/500px-Joseph_Francois_Dupleix.jpg" }
+            ],
+            places: [
+                { name: "Pondicherry", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Pondicherry-Rock_beach_aerial_view.jpg/500px-Pondicherry-Rock_beach_aerial_view.jpg" }
+            ],
             summary: [
                 "French East India Company established in 1664 by Colbert.",
                 "First Factory: Surat (1668) by Francois Caron.",
@@ -174,7 +190,7 @@ const App = () => {
 
                 {/* TAB 1: DETAILED NOTES & INFOGRAPHICS */}
                 {activeTab === 'notes' && (
-                    <div className="space-y-10 animate-fadeIn">
+                    <div className="space-y-12 animate-fadeIn">
 
                         {/* INFOGRAPHIC 1: The Ottoman Blockade & The Need for a New Route */}
                         <section className="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-slate-200">
@@ -222,25 +238,112 @@ const App = () => {
                             {/* The Solution Route Infographic */}
                             <div className="mt-8 bg-indigo-50 rounded-2xl p-6 border border-indigo-100">
                                 <h3 className="font-bold text-indigo-900 mb-4">The Solution: The Oceanic Route</h3>
-                                <div className="flex flex-col md:flex-row items-center gap-4">
-                                    <div className="flex-1 bg-white p-4 rounded-xl border border-indigo-100 shadow-sm flex items-start gap-3">
-                                        <div className="bg-indigo-100 p-2 rounded-lg text-indigo-700"><Map className="w-5 h-5" /></div>
-                                        <div>
-                                            <h4 className="font-bold text-sm text-slate-800">1487: Bartholomew Diaz</h4>
-                                            <p className="text-xs text-slate-600">Reached the southern tip of Africa (Cape of Good Hope).</p>
+                                <div className="flex flex-col md:flex-row items-stretch gap-4">
+                                    <div className="flex-1 bg-white p-5 rounded-xl border border-indigo-100 shadow-sm flex flex-col gap-4 hover:shadow-md transition-shadow">
+                                        <div className="flex items-start gap-3">
+                                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Bartolomeu_Dias%2C_South_Africa_House_%28cut%29.JPG/500px-Bartolomeu_Dias%2C_South_Africa_House_%28cut%29.JPG" alt="Bartholomew Diaz" className="w-12 h-12 rounded-full object-cover border border-indigo-200" />
+                                            <div>
+                                                <h4 className="font-bold text-sm text-slate-800">1487: Bartholomew Diaz</h4>
+                                                <p className="text-xs text-slate-600">Reached the southern tip of Africa.</p>
+                                            </div>
+                                        </div>
+                                        <div className="relative h-28 rounded-lg overflow-hidden group">
+                                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Playa_Dias%2C_Cape_Point%2C_Sud%C3%A1frica%2C_2018-07-23%2C_DD_103.jpg/500px-Playa_Dias%2C_Cape_Point%2C_Sud%C3%A1frica%2C_2018-07-23%2C_DD_103.jpg" alt="Cape of Good Hope" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-2">
+                                                <span className="text-white text-xs font-bold flex items-center"><Map className="w-3 h-3 mr-1" /> Cape of Good Hope</span>
+                                            </div>
                                         </div>
                                     </div>
-                                    <ChevronRight className="w-6 h-6 text-indigo-300 hidden md:block" />
-                                    <div className="flex-1 bg-white p-4 rounded-xl border border-indigo-100 shadow-sm flex items-start gap-3">
-                                        <div className="bg-emerald-100 p-2 rounded-lg text-emerald-700"><Ship className="w-5 h-5" /></div>
-                                        <div>
-                                            <h4 className="font-bold text-sm text-slate-800">1498: Vasco da Gama</h4>
-                                            <p className="text-xs text-slate-600">Successfully rounded the Cape and reached Calicut, India.</p>
+                                    <div className="hidden md:flex items-center justify-center">
+                                        <ChevronRight className="w-8 h-8 text-indigo-300" />
+                                    </div>
+                                    <div className="flex-1 bg-white p-5 rounded-xl border border-indigo-100 shadow-sm flex flex-col gap-4 hover:shadow-md transition-shadow">
+                                        <div className="flex items-start gap-3">
+                                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Ignoto_portoghese%2C_ritratto_di_un_cavaliere_dell%27ordine_di_cristo%2C_1525-50_ca._02.jpg/500px-Ignoto_portoghese%2C_ritratto_di_un_cavaliere_dell%27ordine_di_cristo%2C_1525-50_ca._02.jpg" alt="Vasco da Gama" className="w-12 h-12 rounded-full object-cover border border-emerald-200" />
+                                            <div>
+                                                <h4 className="font-bold text-sm text-slate-800">1498: Vasco da Gama</h4>
+                                                <p className="text-xs text-slate-600">Rounded the Cape and reached India.</p>
+                                            </div>
+                                        </div>
+                                        <div className="relative h-28 rounded-lg overflow-hidden group">
+                                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Kozhikode_beach_kites.jpg/500px-Kozhikode_beach_kites.jpg" alt="Calicut" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-2">
+                                                <span className="text-white text-xs font-bold flex items-center"><Anchor className="w-3 h-3 mr-1" /> Calicut, India</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </section>
+
+                            {/* Trick Card */}
+                            <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-indigo-100 flex flex-col justify-center relative overflow-hidden group hover:shadow-md transition-all">
+                                <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform duration-500">
+                                    <Lightbulb className="w-32 h-32 text-indigo-900 -mt-8 -mr-8" />
+                                </div>
+                                <span className="bg-indigo-100 text-indigo-800 text-xs font-bold px-3 py-1.5 rounded-full w-max mb-6 inline-flex items-center shadow-sm">
+                                    <Lightbulb className="w-3.5 h-3.5 mr-1.5" /> BPSC Pro Trick
+                                </span>
+                                <h3 className="text-2xl font-extrabold text-slate-800 mb-2">Order of Arrival</h3>
+                                <p className="text-indigo-600 text-xl italic font-bold mb-6">"Please Don't Enter First, Dad!"</p>
+                                <div className="space-y-3 text-sm text-slate-600 relative z-10 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                                    <p><strong className="text-slate-800 text-base">P</strong>ortuguese ➔ <strong className="text-slate-800 text-base">D</strong>utch</p>
+                                    <p><strong className="text-slate-800 text-base">E</strong>nglish ➔ <strong className="text-slate-800 text-base">F</strong>rench</p>
+                                    <p className="text-xs text-slate-400 mt-2 italic">*Danes (Dad) arrived before French.</p>
+                                </div>
+                            </div>
+
+                            {/* Concept 1: Factory Setup Master Table */}
+                            <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200">
+                                    <h3 className="text-xl font-bold text-indigo-800 mb-4 flex items-center">
+                                        <Map className="w-5 h-5 mr-2" />
+                                        Ultimate Table: First Factories & Headquarters
+                                    </h3>
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-sm text-left border-collapse min-w-[600px]">
+                                            <thead>
+                                                <tr className="bg-slate-100 text-slate-700 uppercase text-xs tracking-wider">
+                                                    <th className="p-4 border font-bold rounded-tl-lg">European Power</th>
+                                                    <th className="p-4 border font-bold">First Factory (Year)</th>
+                                                    <th className="p-4 border font-bold">Early Headquarters</th>
+                                                    <th className="p-4 border font-bold rounded-tr-lg">Key Founders / Governors</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-slate-100">
+                                                <tr className="hover:bg-slate-50 transition-colors">
+                                                    <td className="p-4 font-bold text-green-700 flex items-center gap-2"><Anchor className="w-4 h-4" /> Portuguese</td>
+                                                    <td className="p-4 text-slate-600">Cochin (1500)</td>
+                                                    <td className="p-4 text-slate-600">Cochin, later shifted to Goa (1530)</td>
+                                                    <td className="p-4 text-slate-600">Vasco da Gama, Almeida, Albuquerque</td>
+                                                </tr>
+                                                <tr className="hover:bg-slate-50 transition-colors">
+                                                    <td className="p-4 font-bold text-orange-700 flex items-center gap-2"><Compass className="w-4 h-4" /> Dutch</td>
+                                                    <td className="p-4 text-slate-600">Masulipatnam (1605)</td>
+                                                    <td className="p-4 text-slate-600">Pulicat, later shifted to Nagapattinam</td>
+                                                    <td className="p-4 text-slate-600">Cornelius Houtman (early explorer)</td>
+                                                </tr>
+                                                <tr className="hover:bg-slate-50 transition-colors">
+                                                    <td className="p-4 font-bold text-blue-700 flex items-center gap-2"><Award className="w-4 h-4" /> English</td>
+                                                    <td className="p-4 text-slate-600">Masulipatnam (1611) / Surat (1613 permanent)</td>
+                                                    <td className="p-4 text-slate-600">Surat, later shifted to Bombay & Calcutta</td>
+                                                    <td className="p-4 text-slate-600">Thomas Roe, Robert Clive</td>
+                                                </tr>
+                                                <tr className="hover:bg-slate-50 transition-colors">
+                                                    <td className="p-4 font-bold text-teal-700 flex items-center gap-2"><Ship className="w-4 h-4" /> Danes</td>
+                                                    <td className="p-4 text-slate-600">Tranquebar (1620)</td>
+                                                    <td className="p-4 text-slate-600">Serampore (Bengal)</td>
+                                                    <td className="p-4 text-slate-600">N/A (Missionary Focus)</td>
+                                                </tr>
+                                                <tr className="hover:bg-slate-50 transition-colors">
+                                                    <td className="p-4 font-bold text-red-700 flex items-center gap-2"><Map className="w-4 h-4" /> French</td>
+                                                    <td className="p-4 text-slate-600">Surat (1668)</td>
+                                                    <td className="p-4 text-slate-600">Pondicherry</td>
+                                                    <td className="p-4 text-slate-600">Colbert, Francois Caron, Dupleix</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
 
                         {/* The 4 Powers - Expandable Deep Dives */}
                         <h2 className="text-2xl font-extrabold text-slate-800 mt-12 mb-6 flex items-center">
@@ -295,7 +398,26 @@ const App = () => {
                                     {/* Expandable Detailed Content */}
                                     {expandedPower === power.id && (
                                         <div className="p-6 bg-white border-t border-slate-100 animate-fadeIn">
-                                            <h4 className="font-bold text-slate-800 mb-3 uppercase text-xs tracking-wider">In-Depth Historical Context</h4>
+                                            <h4 className="font-bold text-slate-800 mb-4 uppercase text-xs tracking-wider">In-Depth Historical Context</h4>
+                                            
+                                            {/* Render People and Places if they exist */}
+                                            {(power.people || power.places) && (
+                                                <div className="flex flex-wrap gap-4 mb-6">
+                                                    {power.people && power.people.map((person, idx) => (
+                                                        <div key={`person-${idx}`} className="flex items-center gap-3 bg-slate-50 p-2 pr-4 rounded-full border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+                                                            <img src={person.url} alt={person.name} className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm" />
+                                                            <span className="text-sm font-bold text-slate-700">{person.name}</span>
+                                                        </div>
+                                                    ))}
+                                                    {power.places && power.places.map((place, idx) => (
+                                                        <div key={`place-${idx}`} className="flex items-center gap-3 bg-slate-50 p-2 pr-4 rounded-full border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+                                                            <img src={place.url} alt={place.name} className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm" />
+                                                            <span className="text-sm font-bold text-slate-700">{place.name}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+
                                             <ul className="space-y-4">
                                                 {power.detailed.map((detail, i) => {
                                                     const [heading, ...rest] = detail.split(': ');
@@ -319,206 +441,6 @@ const App = () => {
                                 </div>
                             ))}
                         </div>
-
-                        {/* INFOGRAPHIC 2: Why British Succeeded */}
-                        <section className="bg-gradient-to-br from-slate-900 via-indigo-950 to-indigo-900 text-white p-8 md:p-10 rounded-3xl shadow-xl mt-12 relative overflow-hidden">
-                            <div className="absolute top-0 right-0 opacity-10">
-                                <TrendingUp className="w-96 h-96 -mt-20 -mr-20" />
-                            </div>
-
-                            <div className="relative z-10">
-                                <h2 className="text-3xl font-extrabold mb-2">
-                                    The Blueprint of British Supremacy
-                                </h2>
-                                <p className="text-indigo-200 mb-8">Why did the East India Company defeat both Indian rulers and European rivals?</p>
-
-                                <div className="grid md:grid-cols-3 gap-6">
-                                    {/* Pillar 1 */}
-                                    <div className="bg-white/5 p-6 rounded-2xl backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-colors">
-                                        <div className="bg-indigo-500/30 p-3 rounded-lg w-12 h-12 flex items-center justify-center mb-4 border border-indigo-400/50">
-                                            <Anchor className="w-6 h-6 text-indigo-300" />
-                                        </div>
-                                        <h3 className="font-bold text-lg mb-3 text-indigo-100">Naval & Financial Superiority</h3>
-                                        <p className="text-sm text-slate-300 leading-relaxed">
-                                            The British Royal Navy was arguably the best in the world. Furthermore, the EIC was a private shareholder company, highly profitable and backed by the Bank of England, unlike the state-reliant French company.
-                                        </p>
-                                    </div>
-
-                                    {/* Pillar 2 */}
-                                    <div className="bg-white/5 p-6 rounded-2xl backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-colors relative">
-                                        <div className="bg-emerald-500/30 p-3 rounded-lg w-12 h-12 flex items-center justify-center mb-4 border border-emerald-400/50">
-                                            <Map className="w-6 h-6 text-emerald-300" />
-                                        </div>
-                                        <h3 className="font-bold text-lg mb-3 text-emerald-100">Strategic Settlements</h3>
-                                        <p className="text-sm text-slate-300 leading-relaxed">
-                                            The British secured three major coastal presidencies: Calcutta, Madras, and Bombay. If they lost a land battle in the interior, they could retreat to the coast and get reinforcements by sea.
-                                        </p>
-                                    </div>
-
-                                    {/* Pillar 3 */}
-                                    <div className="bg-white/5 p-6 rounded-2xl backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-colors">
-                                        <div className="bg-rose-500/30 p-3 rounded-lg w-12 h-12 flex items-center justify-center mb-4 border border-rose-400/50">
-                                            <Swords className="w-6 h-6 text-rose-300" />
-                                        </div>
-                                        <h3 className="font-bold text-lg mb-3 text-rose-100">War-Treaty-War Policy</h3>
-                                        <p className="text-sm text-slate-300 leading-relaxed">
-                                            Instead of fighting everywhere at once, they fought one enemy, signed a treaty to buy time/resources, and then attacked again when stronger. They mastered the art of "Divide and Rule".
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
-                    </div>
-                )}
-
-                {/* TAB 2: EXTREMELY DETAILED BPSC STRATEGY */}
-                {activeTab === 'strategy' && (
-                    <div className="space-y-8 animate-fadeIn">
-
-                        {/* Strategy Banner */}
-                        <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white p-8 rounded-3xl shadow-lg relative overflow-hidden">
-                            <div className="relative z-10 flex flex-col md:flex-row items-center gap-6">
-                                <div className="bg-white/20 p-4 rounded-full border border-white/30 shrink-0">
-                                    <Target className="w-12 h-12 text-white" />
-                                </div>
-                                <div>
-                                    <h2 className="text-3xl font-extrabold mb-2">BPSC TRE 4.0 Pro-Strategy</h2>
-                                    <p className="text-amber-50 leading-relaxed">
-                                        Modern History is the <strong>highest-yielding section</strong> in the BPSC General Studies paper (approx 15-20 questions). The "Advent of Europeans" is the foundation. BPSC strictly tests <strong>factual accuracy, chronology, and exact geographic locations.</strong>
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* 1. Exam Framing & Tricks */}
-                        <div className="grid lg:grid-cols-3 gap-6 mb-8">
-                            {/* Trick Card */}
-                            <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-indigo-100 flex flex-col justify-center relative overflow-hidden group hover:shadow-md transition-all">
-                                <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform duration-500">
-                                    <Lightbulb className="w-32 h-32 text-indigo-900 -mt-8 -mr-8" />
-                                </div>
-                                <span className="bg-indigo-100 text-indigo-800 text-xs font-bold px-3 py-1.5 rounded-full w-max mb-6 inline-flex items-center shadow-sm">
-                                    <Lightbulb className="w-3.5 h-3.5 mr-1.5" /> BPSC Pro Trick
-                                </span>
-                                <h3 className="text-2xl font-extrabold text-slate-800 mb-2">Order of Arrival</h3>
-                                <p className="text-indigo-600 text-xl italic font-bold mb-6">"Please Don't Enter First, Dad!"</p>
-                                <div className="space-y-3 text-sm text-slate-600 relative z-10 bg-slate-50 p-4 rounded-xl border border-slate-100">
-                                    <p><strong className="text-slate-800 text-base">P</strong>ortuguese ➔ <strong className="text-slate-800 text-base">D</strong>utch</p>
-                                    <p><strong className="text-slate-800 text-base">E</strong>nglish ➔ <strong className="text-slate-800 text-base">F</strong>rench</p>
-                                    <p className="text-xs text-slate-400 mt-2 italic">*Danes (Dad) arrived before French.</p>
-                                </div>
-                            </div>
-
-                            {/* How they frame questions */}
-                            <div className="lg:col-span-2 bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-center">
-                                <h3 className="text-xl font-bold text-slate-800 mb-6 flex items-center border-b border-slate-100 pb-4">
-                                    <Target className="w-6 h-6 mr-3 text-rose-500" />
-                                    How BPSC Frames Questions
-                                </h3>
-                                <div className="grid md:grid-cols-3 gap-4 md:gap-6">
-                                    <div className="bg-slate-50 p-5 rounded-xl border border-slate-100 hover:border-indigo-300 transition-colors group">
-                                        <div className="bg-white w-12 h-12 rounded-full flex items-center justify-center shadow-sm mb-4 text-indigo-600 group-hover:scale-110 transition-transform">
-                                            <Clock className="w-6 h-6" />
-                                        </div>
-                                        <strong className="text-slate-800 block mb-2 text-lg">1. Chronology</strong>
-                                        <p className="text-sm text-slate-600 leading-relaxed">"Arrange the establishment of factories in chronological order."</p>
-                                    </div>
-                                    <div className="bg-slate-50 p-5 rounded-xl border border-slate-100 hover:border-emerald-300 transition-colors group">
-                                        <div className="bg-white w-12 h-12 rounded-full flex items-center justify-center shadow-sm mb-4 text-emerald-600 group-hover:scale-110 transition-transform">
-                                            <Map className="w-6 h-6" />
-                                        </div>
-                                        <strong className="text-slate-800 block mb-2 text-lg">2. Match Location</strong>
-                                        <p className="text-sm text-slate-600 leading-relaxed">"Match the European Power with their First Factory location."</p>
-                                    </div>
-                                    <div className="bg-slate-50 p-5 rounded-xl border border-slate-100 hover:border-rose-300 transition-colors group">
-                                        <div className="bg-white w-12 h-12 rounded-full flex items-center justify-center shadow-sm mb-4 text-rose-600 group-hover:scale-110 transition-transform">
-                                            <Swords className="w-6 h-6" />
-                                        </div>
-                                        <strong className="text-slate-800 block mb-2 text-lg">3. Decisive Battles</strong>
-                                        <p className="text-sm text-slate-600 leading-relaxed">"Which battle ended the Dutch power in India?"</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Recommended Booklist Banner */}
-                        <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm mb-8">
-                            <div className="flex items-center space-x-4 shrink-0">
-                                <div className="bg-indigo-600 p-3 rounded-xl shadow-md text-white">
-                                    <BookOpen className="w-8 h-8" />
-                                </div>
-                                <div>
-                                    <h4 className="font-bold text-lg text-indigo-900">Recommended Booklist</h4>
-                                    <p className="text-sm text-indigo-700">Official sources for BPSC TRE Modern History</p>
-                                </div>
-                            </div>
-                            <div className="flex-1 flex flex-wrap gap-3 md:justify-end">
-                                <span className="bg-white border border-indigo-200 text-indigo-800 px-4 py-2 rounded-lg text-sm font-medium shadow-sm flex items-center">
-                                    <CheckCircle2 className="w-4 h-4 mr-2 text-emerald-500" /> SCERT Bihar Board (Class 8)
-                                </span>
-                                <span className="bg-white border border-indigo-200 text-indigo-800 px-4 py-2 rounded-lg text-sm font-medium shadow-sm flex items-center">
-                                    <CheckCircle2 className="w-4 h-4 mr-2 text-emerald-500" /> Lucent's General Knowledge
-                                </span>
-                                <span className="bg-white border border-indigo-200 text-indigo-800 px-4 py-2 rounded-lg text-sm font-medium shadow-sm flex items-center">
-                                    <CheckCircle2 className="w-4 h-4 mr-2 text-emerald-500" /> Spectrum (Chapters 1-3)
-                                </span>
-                            </div>
-                        </div>
-
-                        {/* Master Tables & Timelines (Full Width) */}
-                        <div className="space-y-8">
-
-                            {/* Concept 1: Factory Setup Master Table */}
-                            <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200">
-                                    <h3 className="text-xl font-bold text-indigo-800 mb-4 flex items-center">
-                                        <Map className="w-5 h-5 mr-2" />
-                                        Ultimate Table: First Factories & Headquarters
-                                    </h3>
-                                    <div className="overflow-x-auto">
-                                        <table className="w-full text-sm text-left border-collapse min-w-[600px]">
-                                            <thead>
-                                                <tr className="bg-slate-100 text-slate-700 uppercase text-xs tracking-wider">
-                                                    <th className="p-4 border font-bold rounded-tl-lg">European Power</th>
-                                                    <th className="p-4 border font-bold">First Factory (Year)</th>
-                                                    <th className="p-4 border font-bold">Early Headquarters</th>
-                                                    <th className="p-4 border font-bold rounded-tr-lg">Key Founders / Governors</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="divide-y divide-slate-100">
-                                                <tr className="hover:bg-slate-50 transition-colors">
-                                                    <td className="p-4 font-bold text-green-700 flex items-center gap-2"><Anchor className="w-4 h-4" /> Portuguese</td>
-                                                    <td className="p-4 text-slate-600">Cochin (1500)</td>
-                                                    <td className="p-4 text-slate-600">Cochin, later shifted to Goa (1530)</td>
-                                                    <td className="p-4 text-slate-600">Vasco da Gama, Almeida, Albuquerque</td>
-                                                </tr>
-                                                <tr className="hover:bg-slate-50 transition-colors">
-                                                    <td className="p-4 font-bold text-orange-700 flex items-center gap-2"><Compass className="w-4 h-4" /> Dutch</td>
-                                                    <td className="p-4 text-slate-600">Masulipatnam (1605)</td>
-                                                    <td className="p-4 text-slate-600">Pulicat, later shifted to Nagapattinam</td>
-                                                    <td className="p-4 text-slate-600">Cornelius Houtman (early explorer)</td>
-                                                </tr>
-                                                <tr className="hover:bg-slate-50 transition-colors">
-                                                    <td className="p-4 font-bold text-blue-700 flex items-center gap-2"><Award className="w-4 h-4" /> English</td>
-                                                    <td className="p-4 text-slate-600">Masulipatnam (1611) / Surat (1613 permanent)</td>
-                                                    <td className="p-4 text-slate-600">Surat, later shifted to Bombay & Calcutta</td>
-                                                    <td className="p-4 text-slate-600">Thomas Roe, Robert Clive</td>
-                                                </tr>
-                                                <tr className="hover:bg-slate-50 transition-colors">
-                                                    <td className="p-4 font-bold text-teal-700 flex items-center gap-2"><Ship className="w-4 h-4" /> Danes</td>
-                                                    <td className="p-4 text-slate-600">Tranquebar (1620)</td>
-                                                    <td className="p-4 text-slate-600">Serampore (Bengal)</td>
-                                                    <td className="p-4 text-slate-600">N/A (Missionary Focus)</td>
-                                                </tr>
-                                                <tr className="hover:bg-slate-50 transition-colors">
-                                                    <td className="p-4 font-bold text-red-700 flex items-center gap-2"><Map className="w-4 h-4" /> French</td>
-                                                    <td className="p-4 text-slate-600">Surat (1668)</td>
-                                                    <td className="p-4 text-slate-600">Pondicherry</td>
-                                                    <td className="p-4 text-slate-600">Colbert, Francois Caron, Dupleix</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
 
                                 {/* Concept 2: The Decisive Battles Infographic List */}
                                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
@@ -575,6 +497,202 @@ const App = () => {
                                     </div>
                                 </div>
 
+                        {/* INFOGRAPHIC 2: Why British Succeeded */}
+                        <section className="bg-gradient-to-br from-slate-900 via-indigo-950 to-indigo-900 text-white p-8 md:p-10 rounded-3xl shadow-xl mt-12 relative overflow-hidden">
+                            <div className="absolute top-0 right-0 opacity-10">
+                                <TrendingUp className="w-96 h-96 -mt-20 -mr-20" />
+                            </div>
+
+                            <div className="relative z-10">
+                                <h2 className="text-3xl font-extrabold mb-2">
+                                    The Blueprint of British Supremacy
+                                </h2>
+                                <p className="text-indigo-200 mb-8">Why did the East India Company defeat both Indian rulers and European rivals?</p>
+
+                                <div className="grid md:grid-cols-3 gap-6">
+                                    {/* Pillar 1 */}
+                                    <div className="bg-white/5 p-6 rounded-2xl backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-colors">
+                                        <div className="bg-indigo-500/30 p-3 rounded-lg w-12 h-12 flex items-center justify-center mb-4 border border-indigo-400/50">
+                                            <Anchor className="w-6 h-6 text-indigo-300" />
+                                        </div>
+                                        <h3 className="font-bold text-lg mb-3 text-indigo-100">Naval & Financial Superiority</h3>
+                                        <p className="text-sm text-slate-300 leading-relaxed">
+                                            The British Royal Navy was arguably the best in the world. Furthermore, the EIC was a private shareholder company, highly profitable and backed by the Bank of England, unlike the state-reliant French company.
+                                        </p>
+                                    </div>
+
+                                    {/* Pillar 2 */}
+                                    <div className="bg-white/5 p-6 rounded-2xl backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-colors relative">
+                                        <div className="bg-emerald-500/30 p-3 rounded-lg w-12 h-12 flex items-center justify-center mb-4 border border-emerald-400/50">
+                                            <Map className="w-6 h-6 text-emerald-300" />
+                                        </div>
+                                        <h3 className="font-bold text-lg mb-3 text-emerald-100">Strategic Settlements</h3>
+                                        <p className="text-sm text-slate-300 leading-relaxed">
+                                            The British secured three major coastal presidencies: Calcutta, Madras, and Bombay. If they lost a land battle in the interior, they could retreat to the coast and get reinforcements by sea.
+                                        </p>
+                                    </div>
+
+                                    {/* Pillar 3 */}
+                                    <div className="bg-white/5 p-6 rounded-2xl backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-colors">
+                                        <div className="bg-rose-500/30 p-3 rounded-lg w-12 h-12 flex items-center justify-center mb-4 border border-rose-400/50">
+                                            <Swords className="w-6 h-6 text-rose-300" />
+                                        </div>
+                                        <h3 className="font-bold text-lg mb-3 text-rose-100">War-Treaty-War Policy</h3>
+                                        <p className="text-sm text-slate-300 leading-relaxed">
+                                            Instead of fighting everywhere at once, they fought one enemy, signed a treaty to buy time/resources, and then attacked again when stronger. They mastered the art of "Divide and Rule".
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        {/* THEMES 1-4: EXPANDED CONTEXT */}
+                        <section className="bg-slate-100 p-8 md:p-10 rounded-3xl shadow-inner border border-slate-200 mt-12 relative">
+                            <h2 className="text-3xl font-extrabold text-slate-800 mb-8 flex items-center">
+                                <ScrollText className="w-8 h-8 mr-4 text-indigo-600" />
+                                Key Historical Themes & Reforms
+                            </h2>
+                            <p className="text-slate-600 mb-8">
+                                These four themes are frequently tested in BPSC examinations. While some details overlap with the timeline above, this section provides a focused, thematic review.
+                            </p>
+
+                            <div className="grid md:grid-cols-2 gap-8">
+                                {/* Theme 1 */}
+                                <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow relative overflow-hidden group">
+                                    <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
+                                    <h3 className="text-xl font-bold text-indigo-900 mb-4 flex items-center border-b pb-3 border-slate-100 relative z-10">
+                                        <Ship className="w-6 h-6 mr-3 text-indigo-500" />
+                                        Theme 1: Advent of Europeans
+                                    </h3>
+                                    <ul className="space-y-4 text-sm text-slate-600 relative z-10">
+                                        <li className="flex items-start"><ChevronRight className="w-5 h-5 mr-2 mt-0.5 text-indigo-400 shrink-0" /><span><strong>Discovery:</strong> Vasco da Gama (Portuguese) reached Calicut in 1498, received by Zamorin.</span></li>
+                                        <li className="flex items-start"><ChevronRight className="w-5 h-5 mr-2 mt-0.5 text-indigo-400 shrink-0" /><span><strong>Chronology:</strong> Portuguese (1498) → Dutch (1605) → English (1608/13) → Danes (1620) → French (1664).</span></li>
+                                        <li className="flex items-start"><ChevronRight className="w-5 h-5 mr-2 mt-0.5 text-indigo-400 shrink-0" /><span><strong>First Factories:</strong> Portuguese (Cochin 1503), English (Surat 1613), Dutch (Masulipatnam 1605), French (Surat 1668).</span></li>
+                                        <li className="flex items-start"><ChevronRight className="w-5 h-5 mr-2 mt-0.5 text-indigo-400 shrink-0" /><span><strong>Battle of Swally (1612):</strong> Captain Thomas Best defeated Portuguese near Surat, securing a farman from Jahangir.</span></li>
+                                    </ul>
+                                </div>
+
+                                {/* Theme 2 */}
+                                <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow relative overflow-hidden group">
+                                    <div className="absolute top-0 right-0 w-24 h-24 bg-purple-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
+                                    <h3 className="text-xl font-bold text-purple-900 mb-4 flex items-center border-b pb-3 border-slate-100 relative z-10">
+                                        <Swords className="w-6 h-6 mr-3 text-purple-500" />
+                                        Theme 2: Battle of Buxar (1764)
+                                    </h3>
+                                    <ul className="space-y-4 text-sm text-slate-600 relative z-10">
+                                        <li className="flex items-start"><ChevronRight className="w-5 h-5 mr-2 mt-0.5 text-purple-400 shrink-0" /><span><strong>Geography:</strong> Fought in Buxar, Bihar on the banks of the Ganges River. Highly critical for BPSC.</span></li>
+                                        <li className="flex items-start"><ChevronRight className="w-5 h-5 mr-2 mt-0.5 text-purple-400 shrink-0" /><span><strong>Trick Question:</strong> The Nawab of Bengal during the battle was <strong>Mir Jafar</strong> (Mir Qasim had been deposed).</span></li>
+                                        <li className="flex items-start"><ChevronRight className="w-5 h-5 mr-2 mt-0.5 text-purple-400 shrink-0" /><span><strong>Outcome:</strong> Major Hector Munro defeated Mir Qasim, Shuja-ud-Daula (Awadh), and Shah Alam II (Mughal).</span></li>
+                                        <li className="flex items-start"><ChevronRight className="w-5 h-5 mr-2 mt-0.5 text-purple-400 shrink-0" /><span><strong>Treaty of Allahabad (1765):</strong> Lord Clive secured Diwani Rights of Bengal, Bihar, and Odisha, making the EIC a territorial power.</span></li>
+                                    </ul>
+                                </div>
+
+                                {/* Theme 3 */}
+                                <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow relative overflow-hidden group">
+                                    <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
+                                    <h3 className="text-xl font-bold text-emerald-900 mb-4 flex items-center border-b pb-3 border-slate-100 relative z-10">
+                                        <BookOpenCheck className="w-6 h-6 mr-3 text-emerald-500" />
+                                        Theme 3: Education Under British Rule
+                                    </h3>
+                                    <ul className="space-y-4 text-sm text-slate-600 relative z-10">
+                                        <li className="flex items-start"><ChevronRight className="w-5 h-5 mr-2 mt-0.5 text-emerald-400 shrink-0" /><span><strong>Calcutta Madrasa (1781):</strong> Established by Warren Hastings for the study of Islamic law and Arabic.</span></li>
+                                        <li className="flex items-start"><ChevronRight className="w-5 h-5 mr-2 mt-0.5 text-emerald-400 shrink-0" /><span><strong>Asiatic Society (1784):</strong> Founded by Sir William Jones in Calcutta for Oriental research.</span></li>
+                                        <li className="flex items-start"><ChevronRight className="w-5 h-5 mr-2 mt-0.5 text-emerald-400 shrink-0" /><span><strong>Sanskrit College (1791):</strong> Established in Benaras by Jonathan Duncan to help British judges understand Hindu laws.</span></li>
+                                        <li className="flex items-start"><ChevronRight className="w-5 h-5 mr-2 mt-0.5 text-emerald-400 shrink-0" /><span><strong>Hindu College (1817):</strong> Established in Calcutta by David Hare & Raja Ram Mohan Roy for Western education.</span></li>
+                                        <li className="flex items-start"><ChevronRight className="w-5 h-5 mr-2 mt-0.5 text-emerald-400 shrink-0" /><span><strong>Indian Universities Act (1904):</strong> Under Viceroy Lord Curzon (based on Raleigh Commission) to increase government control over universities and curb nationalism.</span></li>
+                                    </ul>
+                                </div>
+
+                                {/* Theme 4 */}
+                                <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow relative overflow-hidden group">
+                                    <div className="absolute top-0 right-0 w-24 h-24 bg-rose-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
+                                    <h3 className="text-xl font-bold text-rose-900 mb-4 flex items-center border-b pb-3 border-slate-100 relative z-10">
+                                        <ShieldAlert className="w-6 h-6 mr-3 text-rose-500" />
+                                        Theme 4: Legal & Admin Reforms
+                                    </h3>
+                                    <ul className="space-y-4 text-sm text-slate-600 relative z-10">
+                                        <li className="flex items-start"><ChevronRight className="w-5 h-5 mr-2 mt-0.5 text-rose-400 shrink-0" /><span><strong>Abolition of Slavery (1843):</strong> Legally prohibited in India by the Indian Slavery Act (Act V of 1843) under Lord Ellenborough.</span></li>
+                                        <li className="flex items-start"><ChevronRight className="w-5 h-5 mr-2 mt-0.5 text-rose-400 shrink-0" /><span><strong>Indian Penal Code (IPC):</strong> Drafted by the First Law Commission chaired by Lord Macaulay in 1834. Enacted in 1860, came into force in 1862.</span></li>
+                                        <li className="flex items-start"><ChevronRight className="w-5 h-5 mr-2 mt-0.5 text-rose-400 shrink-0" /><span><strong>Criminal Procedure Code (CrPC):</strong> First enacted in 1861 and came into force in 1862, creating a standardized procedure for administering criminal law.</span></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                )}
+
+                {/* TAB 2: EXTREMELY DETAILED BPSC STRATEGY */}
+                {activeTab === 'strategy' && (
+                    <div className="space-y-12 animate-fadeIn">
+
+                        {/* Strategy Banner */}
+                        <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white p-8 rounded-3xl shadow-lg relative overflow-hidden">
+                            <div className="relative z-10 flex flex-col md:flex-row items-center gap-6">
+                                <div className="bg-white/20 p-4 rounded-full border border-white/30 shrink-0">
+                                    <Target className="w-12 h-12 text-white" />
+                                </div>
+                                <div>
+                                    <h2 className="text-3xl font-extrabold mb-2">BPSC TRE 4.0 Pro-Strategy</h2>
+                                    <p className="text-amber-50 leading-relaxed">
+                                        Modern History is the <strong>highest-yielding section</strong> in the BPSC General Studies paper (approx 15-20 questions). The "Advent of Europeans" is the foundation. BPSC strictly tests <strong>factual accuracy, chronology, and exact geographic locations.</strong>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Recommended Booklist Banner */}
+                        <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm mb-8">
+                            <div className="flex items-center space-x-4 shrink-0">
+                                <div className="bg-indigo-600 p-3 rounded-xl shadow-md text-white">
+                                    <BookOpen className="w-8 h-8" />
+                                </div>
+                                <div>
+                                    <h4 className="font-bold text-lg text-indigo-900">Recommended Booklist</h4>
+                                    <p className="text-sm text-indigo-700">Official sources for BPSC TRE Modern History</p>
+                                </div>
+                            </div>
+                            <div className="flex-1 flex flex-wrap gap-3 md:justify-end">
+                                <span className="bg-white border border-indigo-200 text-indigo-800 px-4 py-2 rounded-lg text-sm font-medium shadow-sm flex items-center">
+                                    <CheckCircle2 className="w-4 h-4 mr-2 text-emerald-500" /> SCERT Bihar Board (Class 8)
+                                </span>
+                                <span className="bg-white border border-indigo-200 text-indigo-800 px-4 py-2 rounded-lg text-sm font-medium shadow-sm flex items-center">
+                                    <CheckCircle2 className="w-4 h-4 mr-2 text-emerald-500" /> Lucent's General Knowledge
+                                </span>
+                                <span className="bg-white border border-indigo-200 text-indigo-800 px-4 py-2 rounded-lg text-sm font-medium shadow-sm flex items-center">
+                                    <CheckCircle2 className="w-4 h-4 mr-2 text-emerald-500" /> Spectrum (Chapters 1-3)
+                                </span>
+                            </div>
+                        </div>
+
+                            {/* How they frame questions */}
+                            <div className="lg:col-span-2 bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-center">
+                                <h3 className="text-xl font-bold text-slate-800 mb-6 flex items-center border-b border-slate-100 pb-4">
+                                    <Target className="w-6 h-6 mr-3 text-rose-500" />
+                                    How BPSC Frames Questions
+                                </h3>
+                                <div className="grid md:grid-cols-3 gap-4 md:gap-6">
+                                    <div className="bg-slate-50 p-5 rounded-xl border border-slate-100 hover:border-indigo-300 transition-colors group">
+                                        <div className="bg-white w-12 h-12 rounded-full flex items-center justify-center shadow-sm mb-4 text-indigo-600 group-hover:scale-110 transition-transform">
+                                            <Clock className="w-6 h-6" />
+                                        </div>
+                                        <strong className="text-slate-800 block mb-2 text-lg">1. Chronology</strong>
+                                        <p className="text-sm text-slate-600 leading-relaxed">"Arrange the establishment of factories in chronological order."</p>
+                                    </div>
+                                    <div className="bg-slate-50 p-5 rounded-xl border border-slate-100 hover:border-emerald-300 transition-colors group">
+                                        <div className="bg-white w-12 h-12 rounded-full flex items-center justify-center shadow-sm mb-4 text-emerald-600 group-hover:scale-110 transition-transform">
+                                            <Map className="w-6 h-6" />
+                                        </div>
+                                        <strong className="text-slate-800 block mb-2 text-lg">2. Match Location</strong>
+                                        <p className="text-sm text-slate-600 leading-relaxed">"Match the European Power with their First Factory location."</p>
+                                    </div>
+                                    <div className="bg-slate-50 p-5 rounded-xl border border-slate-100 hover:border-rose-300 transition-colors group">
+                                        <div className="bg-white w-12 h-12 rounded-full flex items-center justify-center shadow-sm mb-4 text-rose-600 group-hover:scale-110 transition-transform">
+                                            <Swords className="w-6 h-6" />
+                                        </div>
+                                        <strong className="text-slate-800 block mb-2 text-lg">3. Decisive Battles</strong>
+                                        <p className="text-sm text-slate-600 leading-relaxed">"Which battle ended the Dutch power in India?"</p>
+                                    </div>
+                                </div>
                             </div>
 
                         {/* Concept 3: Fact Traps (Full width at bottom) */}
@@ -613,7 +731,6 @@ const App = () => {
                                 </div>
                             </div>
                         </div>
-
                     </div>
                 )}
             </main>
