@@ -3309,10 +3309,12 @@ h1, h2, h3,
 .qa-green:hover { border-color: rgba(52, 211, 153, 0.3); box-shadow: 0 8px 24px rgba(52, 211, 153, 0.1); }
 .qa-green .qa-label { color: var(--accent-green); }
 
-.qa-pink { border-color: rgba(244, 114, 182, 0.15); }
-.qa-pink::before { background: linear-gradient(90deg, transparent, #f472b6, transparent); }
-.qa-pink:hover { border-color: rgba(244, 114, 182, 0.3); box-shadow: 0 8px 24px rgba(244, 114, 182, 0.1); }
 .qa-pink .qa-label { color: #f472b6; }
+
+.qa-indigo { border-color: rgba(99, 102, 241, 0.15); }
+.qa-indigo::before { background: linear-gradient(90deg, transparent, #6366f1, transparent); }
+.qa-indigo:hover { border-color: rgba(99, 102, 241, 0.3); box-shadow: 0 8px 24px rgba(99, 102, 241, 0.1); }
+.qa-indigo .qa-label { color: #6366f1; }
 
 /* ── Analytics Grid (replaces db-body-grid) ── */
 .db-analytics-grid {
@@ -3971,4 +3973,15 @@ h1, h2, h3,
 .attention-item.highlight {
   border-color: rgba(45, 212, 191, 0.2) !important;
   background: rgba(45, 212, 191, 0.03) !important;
+}
+/* Highlight effect for deep linking */
+@keyframes highlight-pulse {
+  0% { background-color: rgba(99, 102, 241, 0.1); outline: 2px solid rgba(99, 102, 241, 0.5); }
+  50% { background-color: rgba(99, 102, 241, 0.3); outline: 4px solid rgba(99, 102, 241, 0.8); }
+  100% { background-color: transparent; outline: 0px solid transparent; }
+}
+
+.highlight-pulse {
+  animation: highlight-pulse 2s ease-out 2;
+  border-radius: 12px;
 }

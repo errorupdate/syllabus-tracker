@@ -91,6 +91,15 @@ export default function Sidebar({ subjects, revisionData, activeView, onSelectVi
         </div>
 
         <div
+          className={`nav-item dashboard-btn ${activeView === 'historical-timeline' ? 'active' : ''}`}
+          onClick={() => { onSelectView('historical-timeline'); onCloseMobile(); }}
+          style={{ marginTop: '8px', background: activeView === 'historical-timeline' ? 'var(--accent-bg)' : 'transparent', color: activeView === 'historical-timeline' ? 'var(--accent)' : 'inherit' }}
+        >
+          <span className="nav-icon">⏳</span>
+          <span>Timeline</span>
+        </div>
+
+        <div
           className={`nav-item dashboard-btn ${activeView === 'questionBank' ? 'active' : ''}`}
           onClick={() => { onSelectView('questionBank'); onCloseMobile(); }}
           style={{ marginTop: '8px', background: activeView === 'questionBank' ? 'var(--accent-bg)' : 'transparent', color: activeView === 'questionBank' ? 'var(--accent)' : 'inherit' }}

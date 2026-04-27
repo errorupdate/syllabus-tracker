@@ -88,7 +88,10 @@ const WILDLIFE_SANCTUARIES = [
 ];
 
 const TIMELINE = [
+    { year: '563 BCE', title: 'Birth of Gautam Buddha', desc: 'Siddhartha Gautama was born in Lumbini (now Nepal) on Vaishakh Purnima to King Suddhodana and Queen Mayadevi of the Shakya clan.' },
+    { year: '528 BCE', title: 'Enlightenment of Buddha', desc: 'Attained Supreme Enlightenment (Sambodhi) under the Bodhi Tree at Bodh Gaya (Bihar) on Vaishakh Purnima at age 35.' },
     { year: '527 BCE', title: 'Nirvana of Mahavira', desc: 'Lord Mahavira attained Nirvana at Pawapuri at age 72 on Kartik Krishna Amavasya.' },
+    { year: '483 BCE', title: 'Mahaparinirvana of Buddha', desc: 'Gautam Buddha attained Mahaparinirvana at Kushinagar (Malla Republic) at age 80 on Vaishakh Purnima. His last meal was offered by Chunda. Last words: "Appamadena sampadetha" (Strive with diligence).' },
     { year: '1541', title: 'Patna Capital Restored', desc: 'Sher Shah Suri made Patna the provincial capital (originally made capital by Udayin in ancient times).' },
     { year: '1592', title: 'Exile of Yusuf Shah Chak', desc: 'The last Muslim ruler of the Kashmir Valley was exiled by Akbar and buried in Biswak, Nalanda.' },
     { year: '1632', title: 'First European Factory', desc: 'The Dutch established the first factory in Patna (Northern building of Patna College) trading in Calico, China, Saltpeter (Shoraa), and Opium.' },
@@ -716,7 +719,7 @@ export default function BiharNotes({ embedded = false }) {
                             <div className="space-y-4">
                                 <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100">
                                     <p className="text-sm text-blue-800 font-bold uppercase mb-1">Mahaparinirvana</p>
-                                    <p className="text-slate-700">Passed away at age 80 in a grove of Sal Trees on the bank of Hiranyavati River.</p>
+                                    <p className="text-slate-700">Attained Mahaparinirvana in <strong>483 BCE</strong> at age 80, on <strong>Vaishakh Purnima</strong>, in a grove of Sal Trees on the bank of Hiranyavati River.</p>
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
@@ -784,7 +787,7 @@ export default function BiharNotes({ embedded = false }) {
                                 const isActive = timelineProgress > (i / (TIMELINE.length - 1)) * 100 - 5;
                                 
                                 return (
-                                <div key={i} className="relative pl-8 md:pl-12 group">
+                                <div key={i} id={`event-${item.year.replace(/\s+/g, '-').toLowerCase()}`} className="relative pl-8 md:pl-12 group scroll-mt-40">
                                     {/* The Connecting Dot */}
                                     <div className={`absolute left-0 top-1.5 w-4 h-4 rounded-full ring-4 ring-white transition-all duration-500 shadow-sm -translate-x-1/2
                                         ${isActive ? 'bg-purple-600 scale-110' : 'bg-slate-300'} 

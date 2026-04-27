@@ -19,6 +19,7 @@ import DevelopmentOfEducationInIndia from './components/notes/DevelopmentofEduca
 import TribalMovements from './components/notes/TribalMovements';
 import EmergingTrends from './components/notes/EmergingTrends';
 import NotesHub from './components/NotesHub';
+import HistoricalTimeline from './components/HistoricalTimeline';
 // ChatBot removed — was API-dependent
 // import ChatBot from './components/ChatBot';
 
@@ -43,6 +44,7 @@ function getBreadcrumbs(activeView, subjects) {
   if (activeView === 'tribal-movements') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'General Paper', view: 'gp' }, { label: 'History', view: 'gp-t7' }, { label: 'CH-5 जनजातीय और किसान आंदोलन', view: 'gp-t7-ch5' }, { label: '📖 Study Notes', icon: '📖' }];
   if (activeView === 'emerging-trends') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'Computer Science', view: 'cs' }, { label: 'T-9 Emerging Trends', view: 'cs-t9' }, { label: '📖 Study Notes', icon: '📖' }];
   if (activeView === 'notesHub') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'Notes Hub', icon: '📖' }];
+  if (activeView === 'historical-timeline') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'Historical Timeline', icon: '⏳' }];
 
   for (const subject of subjects) {
     if (subject.id === activeView) {
@@ -115,17 +117,29 @@ function App() {
     return () => window.removeEventListener('popstate', onPopState);
   }, []);
 
-  const navigateTo = useCallback((view) => {
+  const navigateTo = useCallback((view, anchorId) => {
     const contentEl = document.querySelector('.content-area');
     if (contentEl) contentEl.scrollTo({ top: 0, behavior: 'smooth' });
 
     setActiveView(view);
     const newIndex = historyIndex + 1;
-    const newLength = newIndex + 1; // truncates forward history when pushing new state
+    const newLength = newIndex + 1;
     window.history.pushState({ index: newIndex, length: newLength, view }, '', '#' + view);
     
     setHistoryIndex(newIndex);
     setHistoryLength(newLength);
+
+    if (anchorId) {
+      setTimeout(() => {
+        const el = document.getElementById(anchorId);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          // Highlight effect
+          el.classList.add('highlight-pulse');
+          setTimeout(() => el.classList.remove('highlight-pulse'), 3000);
+        }
+      }, 600);
+    }
   }, [historyIndex]);
 
   const canGoBack = historyIndex > 0;
@@ -494,6 +508,8 @@ function App() {
     content = <PYQPage />;
   } else if (activeView === 'questionBank') {
     content = <QuestionBank />;
+  } else if (activeView === 'historical-timeline') {
+    content = <HistoricalTimeline onNavigate={navigateTo} />;
   } else if (activeView === 'syncStorage') {
     content = <SyncStorage onClose={() => navigateTo('dashboard')} />;
   } else {
@@ -630,7 +646,7 @@ function App() {
               ))}
             </nav>
           </header>
-          <div className="content-area">
+          <div className={`content-area ${activeView === 'historical-timeline' ? 'no-padding' : ''}`}>
             <div key={activeView} className="page-transition">
               {content}
             </div>

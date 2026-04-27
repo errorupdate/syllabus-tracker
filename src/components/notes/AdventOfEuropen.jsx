@@ -353,7 +353,7 @@ const App = () => {
 
                         <div className="relative border-l-4 border-indigo-200 ml-4 md:ml-8 space-y-12 pb-8 mt-8">
                             {powersData.map((power) => (
-                                <div key={power.id} className="relative pl-8 md:pl-12 group">
+                                <div key={power.id} id={`power-${power.id}`} className="relative pl-8 md:pl-12 group scroll-mt-40">
                                     {/* Timeline Node Icon */}
                                     <div className={`absolute -left-[22px] md:-left-[24px] top-4 w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center ring-4 ring-white shadow-md z-10 transition-transform group-hover:scale-110 ${power.bg} border-2 border-white`}>
                                         {power.icon}
@@ -451,7 +451,7 @@ const App = () => {
                                     <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-slate-200 before:via-slate-300 before:to-transparent">
 
                                         {/* Battle 1 */}
-                                        <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                                        <div id="battle-1612" className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active scroll-mt-40">
                                             <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white bg-red-100 text-red-700 font-extrabold shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 text-xs z-10 ring-2 ring-red-200">
                                                 1612
                                             </div>
@@ -462,7 +462,7 @@ const App = () => {
                                         </div>
 
                                         {/* Battle 2 */}
-                                        <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                                        <div id="battle-1759" className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active scroll-mt-40">
                                             <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white bg-orange-100 text-orange-700 font-extrabold shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 text-xs z-10 ring-2 ring-orange-200">
                                                 1759
                                             </div>
@@ -473,7 +473,7 @@ const App = () => {
                                         </div>
 
                                         {/* Battle 3 */}
-                                        <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                                        <div id="battle-1760" className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active scroll-mt-40">
                                             <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white bg-blue-100 text-blue-700 font-extrabold shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 text-xs z-10 ring-2 ring-blue-200">
                                                 1760
                                             </div>
@@ -484,7 +484,7 @@ const App = () => {
                                         </div>
 
                                         {/* Battle 4 */}
-                                        <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                                        <div id="battle-1764" className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active scroll-mt-40">
                                             <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white bg-purple-100 text-purple-700 font-extrabold shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 text-xs z-10 ring-2 ring-purple-200">
                                                 1764
                                             </div>

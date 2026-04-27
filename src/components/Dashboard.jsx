@@ -512,6 +512,10 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
           <span className="qa-icon">🔍</span>
           <span className="qa-label">PYQ Papers</span>
         </button>
+        <button className="qa-btn qa-indigo" onClick={() => onSelectView('historical-timeline')}>
+          <span className="qa-icon">⏳</span>
+          <span className="qa-label">Timeline</span>
+        </button>
         <button className="qa-btn qa-amber" onClick={() => onSelectView('testDashboard')}>
           <span className="qa-icon">📊</span>
           <span className="qa-label">Analytics</span>
