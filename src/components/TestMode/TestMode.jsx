@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { db } from '../../firebase';
 import { collection, onSnapshot, query, orderBy, addDoc, serverTimestamp } from 'firebase/firestore';
 import { SUBJECTS } from '../../data';
+import { useAuth } from '../../AuthContext';
 import './TestMode.css';
 
 // ──────────────────────────────────────────────
@@ -371,6 +372,7 @@ function ActiveTest({ config, onEnd }) {
 // Phase: RESULT
 // ──────────────────────────────────────────────
 function ResultScreen({ result, onNewTest, onClose }) {
+  const { isAdmin } = useAuth();
   const [showReview, setShowReview] = useState(false);
   const { totalQuestions, attempted, correct, wrong, accuracy, category, questions, answersMap } = result;
   const skipped = totalQuestions - attempted;
@@ -389,6 +391,11 @@ function ResultScreen({ result, onNewTest, onClose }) {
         <h2>Test Complete!</h2>
         <div className="tm-result-category">{category}</div>
         <div className="tm-result-date">{new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+        {!isAdmin && (
+          <div style={{ marginTop: '10px', fontSize: '0.8rem', color: '#94a3b8', background: 'rgba(255,255,255,0.05)', padding: '4px 12px', borderRadius: '12px', display: 'inline-block' }}>
+            🔒 View-Only Mode: This result was not saved to the cloud history.
+          </div>
+        )}
       </div>
 
       <div className="tm-result-stats">
@@ -502,6 +509,7 @@ function ResultScreen({ result, onNewTest, onClose }) {
 // Root: TestMode
 // ──────────────────────────────────────────────
 export default function TestMode({ onClose }) {
+  const { isAdmin } = useAuth();
   const [phase, setPhase] = useState('setup'); // 'setup' | 'active' | 'result'
   const [testConfig, setTestConfig] = useState(null);
   const [testResult, setTestResult] = useState(null);
@@ -550,12 +558,13 @@ export default function TestMode({ onClose }) {
       chapterName: q.chapterName || '',
     }));
 
-    // Save to Firestore
-    const today = new Date();
-    const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-    const timeStr = today.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
-    try {
-      await addDoc(collection(db, 'testResults'), {
+    // Save to Firestore (Admin only)
+    if (isAdmin) {
+      const today = new Date();
+      const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+      const timeStr = today.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+      try {
+        await addDoc(collection(db, 'testResults'), {
         date: dateStr,
         timeStr,
         timestamp: serverTimestamp(),
@@ -570,11 +579,12 @@ export default function TestMode({ onClose }) {
         motivationalMessage,
         questionsSnapshot,
         answersMap: result.answersMap,
-      });
-    } catch (e) {
-      console.error('Failed to save test result:', e);
+        });
+      } catch (e) {
+        console.error('Failed to save test result:', e);
+      }
     }
-  }, []);
+  }, [isAdmin, testConfig]);
 
 
   const handleNewTest = useCallback(() => {

@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { db } from '../firebase';
 import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, deleteDoc, updateDoc, setDoc } from 'firebase/firestore';
 import { SUBJECTS } from '../data';
+import { useAuth } from '../AuthContext';
 import './QuestionBank.css';
 
 // Fixed Option Texts
@@ -20,6 +21,7 @@ function shuffle(array) {
 }
 
 export default function QuestionBank() {
+  const { isAdmin } = useAuth();
   const [activeTab, setActiveTab] = useState('list'); // 'add', 'list'
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -265,6 +267,10 @@ export default function QuestionBank() {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+    if (!isAdmin) {
+      alert("🔒 Restricted Access: Only the Administrator can add or edit questions.");
+      return;
+    }
     if (!newQuestion.subjectId || !newQuestion.topicId || !newQuestion.text.trim() || 
         !newQuestion.opt1.trim() || !newQuestion.opt2.trim() || !newQuestion.opt3.trim()) {
       alert("Please fill out the required fields (Subject, Topic, Question, and the 3 custom options).");
@@ -375,6 +381,10 @@ export default function QuestionBank() {
   }, [filterSubject, filterTopic, filterChapter, searchQuery]);
 
   const resetScore = () => {
+    if (!isAdmin) {
+      alert("🔒 Restricted Access: Only the Administrator can reset scores and session data.");
+      return;
+    }
     setScore({ attempted: 0, correct: 0, wrong: 0 });
     setAttempts({});
     setCompletedSubjectsList([]); // reset completions flags for this session
@@ -387,6 +397,10 @@ export default function QuestionBank() {
   };
 
   const handleDelete = async (questionId) => {
+    if (!isAdmin) {
+      alert("🔒 Restricted Access: Only the Administrator can delete questions.");
+      return;
+    }
     if (window.confirm('Are you sure you want to completely delete this question?')) {
       try {
         await deleteDoc(doc(db, 'questionBank-v2', questionId));
@@ -415,6 +429,7 @@ export default function QuestionBank() {
   };
 
   const handleBulkDelete = async () => {
+    if (!isAdmin) return;
     if (selectedIds.size === 0) return;
     if (!window.confirm(`Delete ${selectedIds.size} selected question(s)? This cannot be undone.`)) return;
     try {
@@ -523,12 +538,14 @@ export default function QuestionBank() {
           >
             🔍 Browse Questions
           </button>
-          <button 
-            className={`qb-tab add-btn ${activeTab === 'add' ? 'active' : ''}`}
-            onClick={() => { cancelEdit(); setActiveTab('add'); }}
-          >
-            + Add Question
-          </button>
+          {isAdmin && (
+            <button 
+              className={`qb-tab add-btn ${activeTab === 'add' ? 'active' : ''}`}
+              onClick={() => { cancelEdit(); setActiveTab('add'); }}
+            >
+              + Add Question
+            </button>
+          )}
         </div>
       </div>
 

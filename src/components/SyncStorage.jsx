@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { storage } from '../firebase';
+import { useAuth } from '../AuthContext';
 import './QuestionBank.css'; // Steal some styles for the UI
 
 export default function SyncStorage({ onClose }) {
@@ -9,6 +10,7 @@ export default function SyncStorage({ onClose }) {
   const [progress, setProgress] = useState(0);
   const [statusText, setStatusText] = useState('');
   const [errors, setErrors] = useState([]);
+  const { isAdmin } = useAuth();
   const fileInputRef = useRef(null);
 
   const handleFolderSelect = (e) => {
@@ -49,7 +51,14 @@ export default function SyncStorage({ onClose }) {
 
   return (
     <div className="tm-overlay">
-      <div className="tm-setup-card animate-fade-in" style={{ maxWidth: '600px', width: '90%', margin: '0 auto', textAlign: 'center' }}>
+      {!isAdmin ? (
+        <div className="tm-setup-card animate-fade-in" style={{ maxWidth: '400px', width: '90%', textAlign: 'center' }}>
+          <h2 style={{ color: '#ef4444', marginBottom: '20px' }}>🔒 Restricted Access</h2>
+          <p style={{ color: 'var(--text-muted)', marginBottom: '30px' }}>Only the Administrator can synchronize local folders to the cloud storage.</p>
+          <button className="qb-btn" onClick={onClose}>Return to Dashboard</button>
+        </div>
+      ) : (
+        <div className="tm-setup-card animate-fade-in" style={{ maxWidth: '600px', width: '90%', margin: '0 auto', textAlign: 'center' }}>
         <h2 style={{ color: 'var(--accent)', marginBottom: '10px' }}>☁️ Cloud Firebase Sync</h2>
         <p style={{ color: 'var(--text-muted)', marginBottom: '30px' }}>Select your local "BPSC tre 4.0" folder to securely synchronize all your PDFs to the cloud across all your devices.</p>
         
@@ -114,7 +123,8 @@ export default function SyncStorage({ onClose }) {
         >
           {progress === 100 ? 'Go to Dashboard' : 'Cancel & Close'}
         </button>
-      </div>
+        </div>
+      )}
     </div>
   );
 }

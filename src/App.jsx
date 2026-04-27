@@ -27,6 +27,7 @@ import './index.css';
 
 import PasswordLock from './components/PasswordLock';
 import InstallPrompt from './components/InstallPrompt';
+import { useAuth } from './AuthContext';
 
 const DOC_ID = 'user-revisions';
 
@@ -258,7 +259,14 @@ function App() {
     return () => unsubscribe();
   }, []);
 
+  const { userRole, isAdmin } = useAuth();
+
   const toggleRevision = useCallback(async (key) => {
+    if (!isAdmin) {
+      alert("🔒 Restricted Access: You are in View-Only mode. Only the Administrator can modify revision status.");
+      return;
+    }
+
     // Optimistic UI update
     const newValue = revisionData[key] ? null : Date.now();
     const updatedRevisions = {
@@ -275,7 +283,7 @@ function App() {
     } catch (error) {
       console.error("Error saving data:", error);
     }
-  }, [revisionData]);
+  }, [revisionData, isAdmin]);
 
   if (isLoading) {
     return (
@@ -566,7 +574,7 @@ function App() {
   const breadcrumbs = getBreadcrumbs(activeView, SUBJECTS);
 
   return (
-    <PasswordLock>
+    <>
       <InstallPrompt />
       {/* Full-screen Test Mode overlay — blocks everything else */}
       {testModeOpen && <TestMode onClose={() => setTestModeOpen(false)} />}
@@ -653,7 +661,7 @@ function App() {
           </div>
         </main>
       </div>
-    </PasswordLock>
+    </>
   );
 }
 
