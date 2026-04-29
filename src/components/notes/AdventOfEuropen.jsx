@@ -6,6 +6,137 @@ import {
     Ship, TrendingUp, BookOpenCheck, ShieldAlert
 } from 'lucide-react';
 
+export const POWERS_DATA = [
+    {
+        id: 'portuguese',
+        name: "1. The Portuguese",
+        timeline: "1498 - 1961",
+        subtitle: "The Pioneers of the Sea Route",
+        bg: "bg-green-50",
+        border: "border-green-200",
+        btnColor: "bg-green-100 text-green-700 hover:bg-green-200",
+        icon: '⚓', // Changed from component to string for easier indexing if needed, but keeping original for now if I can
+        people: [
+            { name: "Francisco de Almeida", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Retrato_de_D._Francisco_de_Almeida_%28ap%C3%B3s_1545%29_-_Autor_desconhecido.png/500px-Retrato_de_D._Francisco_de_Almeida_%28ap%C3%B3s_1545%29_-_Autor_desconhecido.png" },
+            { name: "Alfonso de Albuquerque", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Retrato_de_Afonso_de_Albuquerque_%28ap%C3%B3s_1545%29_-_Autor_desconhecido.png/500px-Retrato_de_Afonso_de_Albuquerque_%28ap%C3%B3s_1545%29_-_Autor_desconhecido.png" }
+        ],
+        places: [
+            { name: "Goa", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Front_Elevation_of_Basilica_of_Bom_Jesus.jpg/500px-Front_Elevation_of_Basilica_of_Bom_Jesus.jpg" }
+        ],
+        summary: [
+            "Vasco da Gama reached Calicut (Kerala) in 1498, guided by Abdul Majid. Welcomed by local ruler Zamorin.",
+            "First Factory: Established in Cochin in 1500.",
+            "Francisco de Almeida: First Governor, introduced the 'Blue Water Policy'.",
+            "Alfonso de Albuquerque: Captured Goa in 1510."
+        ],
+        detailed: [
+            "Deep Context: Vasco da Gama's voyage yielded a profit 60 times the cost of the entire expedition, triggering the European rush to India.",
+            "Blue Water Policy (Cartaze System): Almeida believed the Portuguese should master the Indian Ocean rather than build fortresses on land. They forced other ships to buy passes (Cartazes) to sail.",
+            "Alfonso de Albuquerque (Real Founder): He acquired Goa from the Sultan of Bijapur in 1510. He also abolished Sati in Portuguese territories and encouraged his men to marry local women to build a permanent population.",
+            "Reason for Decline: Religious intolerance, discovery of Brazil (which diverted their attention), and the rise of superior English and Dutch navies. Their naval supremacy was permanently broken by the English at the Battle of Swally (1612).",
+            "They were the 'First to Arrive' (1498) and 'Last to Leave' (Operation Vijay, 1961 to liberate Goa)."
+        ]
+    },
+    {
+        id: 'dutch',
+        name: "2. The Dutch",
+        timeline: "1605 - 1759",
+        subtitle: "The Spice Island Focus",
+        bg: "bg-orange-50",
+        border: "border-orange-200",
+        btnColor: "bg-orange-100 text-orange-700 hover:bg-orange-200",
+        icon: '🧭',
+        summary: [
+            "Dutch East India Company (VOC) formed in 1602.",
+            "First Factory: Masulipatnam (Andhra Pradesh) in 1605.",
+            "Main Trade Centers: Pulicat, Nagapattinam, Cochin, Surat.",
+            "Decline: Defeated decisively by the English in the Battle of Bedara (1759)."
+        ],
+        detailed: [
+            "Core Objective: Unlike other powers, the Dutch were more interested in the 'Spice Islands' of Indonesia (Java, Sumatra, Borneo) than in India.",
+            "Role of India: They used India primarily as a trading corridor—buying Indian textiles (cotton) to exchange for spices in Indonesia. They made Indian textiles a premier export commodity.",
+            "The Amboyna Massacre (1623): The Dutch killed several English merchants in Indonesia, which led to a bitter rivalry and an eventual compromise where the British left Indonesia to the Dutch, and the Dutch left India to the British.",
+            "Final Blow: The Battle of Bedara (also known as Battle of Chinsura) in 1759, where Robert Clive completely crushed Dutch military power in India."
+        ]
+    },
+    {
+        id: 'english',
+        name: "3. The English",
+        timeline: "1600 - 1947",
+        subtitle: "The Ultimate Victors",
+        bg: "bg-blue-50",
+        border: "border-blue-200",
+        btnColor: "bg-blue-100 text-blue-700 hover:bg-blue-200",
+        icon: '🏆',
+        people: [
+            { name: "Robert Clive", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Robert_Clive%2C_1st_Baron_Clive_by_Nathaniel_Dance%2C_%28later_Sir_Nathaniel_Dance-Holland%2C_Bt%29.jpg/500px-Robert_Clive%2C_1st_Baron_Clive_by_Nathaniel_Dance%2C_%28later_Sir_Nathaniel_Dance-Holland%2C_Bt%29.jpg" }
+        ],
+        summary: [
+            "British East India Company formed by Royal Charter on Dec 31, 1600.",
+            "First Factories: Masulipatnam (1611) and Surat (1612/1613).",
+            "1615: Sir Thomas Roe secured trading rights from Jahangir.",
+            "Gradually transitioned from traders to rulers after the Battles of Plassey (1757) and Buxar (1764)."
+        ],
+        detailed: [
+            "Initial Struggle: Captain William Hawkins visited Jahangir's court in 1608 but failed to get permission for a factory at Surat due to Portuguese opposition.",
+            "The Turning Point (1612): Captain Best defeated the Portuguese fleet at the Battle of Swally. Impressed by British naval might, Jahangir granted permission to establish a factory at Surat.",
+            "The Magna Carta (1717): Mughal Emperor Farrukhsiyar issued a 'Farman' granting the Company immense privileges, including duty-free trade in Bengal, which immensely boosted their power.",
+            "Strategic Centers: They established three highly fortified presidencies: Fort St. George (Madras), Bombay (received as dowry from the Portuguese to King Charles II), and Fort William (Calcutta).",
+            "The Shift to Power: The Battle of Plassey (1757) against Nawab Siraj-ud-Daulah made them the masters of Bengal, providing them the immense wealth needed to conquer the rest of India."
+        ]
+    },
+    {
+        id: 'danes',
+        id: 'danes',
+        name: "4. The Danes",
+        timeline: "1616 - 1845",
+        subtitle: "The Short-Lived Traders",
+        bg: "bg-teal-50",
+        border: "border-teal-200",
+        btnColor: "bg-teal-100 text-teal-700 hover:bg-teal-200",
+        icon: '🚢',
+        summary: [
+            "Danish East India Company formed in 1616.",
+            "First Factory: Tranquebar (Tamil Nadu) in 1620.",
+            "Main Center: Serampore (Bengal) established in 1676.",
+            "Eventually sold all their settlements to the British in 1845."
+        ],
+        detailed: [
+            "Primary Focus: Unlike other powers, the Danes were more interested in missionary activities rather than building a vast commercial empire.",
+            "Serampore Mission: Their headquarters in Bengal (Serampore) became a major center for the printing press and education in India.",
+            "The Exit: Finding it difficult to compete with the massive British and French operations, they sold all their Indian properties to the British government in 1845 for 1.25 million rupees."
+        ]
+    },
+    {
+        id: 'french',
+        name: "5. The French",
+        timeline: "1664 - 1793",
+        subtitle: "The Formidable Rivals",
+        bg: "bg-red-50",
+        border: "border-red-200",
+        btnColor: "bg-red-100 text-red-700 hover:bg-red-200",
+        icon: '🗺️',
+        people: [
+            { name: "Joseph François Dupleix", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Joseph_Francois_Dupleix.jpg/500px-Joseph_Francois_Dupleix.jpg" }
+        ],
+        places: [
+            { name: "Pondicherry", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Pondicherry-Rock_beach_aerial_view.jpg/500px-Pondicherry-Rock_beach_aerial_view.jpg" }
+        ],
+        summary: [
+            "French East India Company established in 1664 by Colbert.",
+            "First Factory: Surat (1668) by Francois Caron.",
+            "Main Centers: Pondicherry, Mahe, Karaikal, Chandernagore.",
+            "Decline: Lost the Carnatic Wars to the British; final defeat at Wandiwash (1760)."
+        ],
+        detailed: [
+            "Nature of Company: Unlike the British company which was a private enterprise, the French company was heavily state-controlled and dependent on the French monarchy, which led to bureaucratic delays and poor finances.",
+            "Joseph François Dupleix: The greatest French Governor in India. He was the first European to understand that the internal fighting among Indian princes could be exploited. He originated the concept of the 'Subsidiary Alliance' (later perfected by Lord Wellesley).",
+            "The Carnatic Wars (1746-1763): A series of three wars fought between the English and French in South India for supremacy.",
+            "The End of the Dream: In the Third Carnatic War, the British forces under Sir Eyre Coote decisively defeated the French under Comte de Lally at the Battle of Wandiwash (1760). The French were restricted to small enclaves like Pondicherry and forbidden from maintaining standing armies."
+        ]
+    }
+];
+
 const App = () => {
     const [activeTab, setActiveTab] = useState('notes');
     const [expandedPower, setExpandedPower] = useState(null);
@@ -15,135 +146,7 @@ const App = () => {
         { id: 'strategy', label: 'BPSC Master Strategy', icon: <Target className="w-5 h-5" /> }
     ];
 
-    const powersData = [
-        {
-            id: 'portuguese',
-            name: "1. The Portuguese",
-            timeline: "1498 - 1961",
-            subtitle: "The Pioneers of the Sea Route",
-            bg: "bg-green-50",
-            border: "border-green-200",
-            btnColor: "bg-green-100 text-green-700 hover:bg-green-200",
-            icon: <Anchor className="w-6 h-6 text-green-600" />,
-            people: [
-                { name: "Francisco de Almeida", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Retrato_de_D._Francisco_de_Almeida_%28ap%C3%B3s_1545%29_-_Autor_desconhecido.png/500px-Retrato_de_D._Francisco_de_Almeida_%28ap%C3%B3s_1545%29_-_Autor_desconhecido.png" },
-                { name: "Alfonso de Albuquerque", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Retrato_de_Afonso_de_Albuquerque_%28ap%C3%B3s_1545%29_-_Autor_desconhecido.png/500px-Retrato_de_Afonso_de_Albuquerque_%28ap%C3%B3s_1545%29_-_Autor_desconhecido.png" }
-            ],
-            places: [
-                { name: "Goa", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Front_Elevation_of_Basilica_of_Bom_Jesus.jpg/500px-Front_Elevation_of_Basilica_of_Bom_Jesus.jpg" }
-            ],
-            summary: [
-                "Vasco da Gama reached Calicut (Kerala) in 1498, guided by Abdul Majid. Welcomed by local ruler Zamorin.",
-                "First Factory: Established in Cochin in 1500.",
-                "Francisco de Almeida: First Governor, introduced the 'Blue Water Policy'.",
-                "Alfonso de Albuquerque: Captured Goa in 1510."
-            ],
-            detailed: [
-                "Deep Context: Vasco da Gama's voyage yielded a profit 60 times the cost of the entire expedition, triggering the European rush to India.",
-                "Blue Water Policy (Cartaze System): Almeida believed the Portuguese should master the Indian Ocean rather than build fortresses on land. They forced other ships to buy passes (Cartazes) to sail.",
-                "Alfonso de Albuquerque (Real Founder): He acquired Goa from the Sultan of Bijapur in 1510. He also abolished Sati in Portuguese territories and encouraged his men to marry local women to build a permanent population.",
-                "Reason for Decline: Religious intolerance, discovery of Brazil (which diverted their attention), and the rise of superior English and Dutch navies. Their naval supremacy was permanently broken by the English at the Battle of Swally (1612).",
-                "They were the 'First to Arrive' (1498) and 'Last to Leave' (Operation Vijay, 1961 to liberate Goa)."
-            ]
-        },
-        {
-            id: 'dutch',
-            name: "2. The Dutch",
-            timeline: "1605 - 1759",
-            subtitle: "The Spice Island Focus",
-            bg: "bg-orange-50",
-            border: "border-orange-200",
-            btnColor: "bg-orange-100 text-orange-700 hover:bg-orange-200",
-            icon: <Compass className="w-6 h-6 text-orange-600" />,
-            summary: [
-                "Dutch East India Company (VOC) formed in 1602.",
-                "First Factory: Masulipatnam (Andhra Pradesh) in 1605.",
-                "Main Trade Centers: Pulicat, Nagapattinam, Cochin, Surat.",
-                "Decline: Defeated decisively by the English in the Battle of Bedara (1759)."
-            ],
-            detailed: [
-                "Core Objective: Unlike other powers, the Dutch were more interested in the 'Spice Islands' of Indonesia (Java, Sumatra, Borneo) than in India.",
-                "Role of India: They used India primarily as a trading corridor—buying Indian textiles (cotton) to exchange for spices in Indonesia. They made Indian textiles a premier export commodity.",
-                "The Amboyna Massacre (1623): The Dutch killed several English merchants in Indonesia, which led to a bitter rivalry and an eventual compromise where the British left Indonesia to the Dutch, and the Dutch left India to the British.",
-                "Final Blow: The Battle of Bedara (also known as Battle of Chinsura) in 1759, where Robert Clive completely crushed Dutch military power in India."
-            ]
-        },
-        {
-            id: 'english',
-            name: "3. The English",
-            timeline: "1600 - 1947",
-            subtitle: "The Ultimate Victors",
-            bg: "bg-blue-50",
-            border: "border-blue-200",
-            btnColor: "bg-blue-100 text-blue-700 hover:bg-blue-200",
-            icon: <Award className="w-6 h-6 text-blue-600" />,
-            people: [
-                { name: "Robert Clive", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Robert_Clive%2C_1st_Baron_Clive_by_Nathaniel_Dance%2C_%28later_Sir_Nathaniel_Dance-Holland%2C_Bt%29.jpg/500px-Robert_Clive%2C_1st_Baron_Clive_by_Nathaniel_Dance%2C_%28later_Sir_Nathaniel_Dance-Holland%2C_Bt%29.jpg" }
-            ],
-            summary: [
-                "British East India Company formed by Royal Charter on Dec 31, 1600.",
-                "First Factories: Masulipatnam (1611) and Surat (1612/1613).",
-                "1615: Sir Thomas Roe secured trading rights from Jahangir.",
-                "Gradually transitioned from traders to rulers after the Battles of Plassey (1757) and Buxar (1764)."
-            ],
-            detailed: [
-                "Initial Struggle: Captain William Hawkins visited Jahangir's court in 1608 but failed to get permission for a factory at Surat due to Portuguese opposition.",
-                "The Turning Point (1612): Captain Best defeated the Portuguese fleet at the Battle of Swally. Impressed by British naval might, Jahangir granted permission to establish a factory at Surat.",
-                "The Magna Carta (1717): Mughal Emperor Farrukhsiyar issued a 'Farman' granting the Company immense privileges, including duty-free trade in Bengal, which immensely boosted their power.",
-                "Strategic Centers: They established three highly fortified presidencies: Fort St. George (Madras), Bombay (received as dowry from the Portuguese to King Charles II), and Fort William (Calcutta).",
-                "The Shift to Power: The Battle of Plassey (1757) against Nawab Siraj-ud-Daulah made them the masters of Bengal, providing them the immense wealth needed to conquer the rest of India."
-            ]
-        },
-        {
-            id: 'danes',
-            name: "4. The Danes",
-            timeline: "1616 - 1845",
-            subtitle: "The Short-Lived Traders",
-            bg: "bg-teal-50",
-            border: "border-teal-200",
-            btnColor: "bg-teal-100 text-teal-700 hover:bg-teal-200",
-            icon: <Ship className="w-6 h-6 text-teal-600" />,
-            summary: [
-                "Danish East India Company formed in 1616.",
-                "First Factory: Tranquebar (Tamil Nadu) in 1620.",
-                "Main Center: Serampore (Bengal) established in 1676.",
-                "Eventually sold all their settlements to the British in 1845."
-            ],
-            detailed: [
-                "Primary Focus: Unlike other powers, the Danes were more interested in missionary activities rather than building a vast commercial empire.",
-                "Serampore Mission: Their headquarters in Bengal (Serampore) became a major center for the printing press and education in India.",
-                "The Exit: Finding it difficult to compete with the massive British and French operations, they sold all their Indian properties to the British government in 1845 for 1.25 million rupees."
-            ]
-        },
-        {
-            id: 'french',
-            name: "5. The French",
-            timeline: "1664 - 1793",
-            subtitle: "The Formidable Rivals",
-            bg: "bg-red-50",
-            border: "border-red-200",
-            btnColor: "bg-red-100 text-red-700 hover:bg-red-200",
-            icon: <Map className="w-6 h-6 text-red-600" />,
-            people: [
-                { name: "Joseph François Dupleix", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Joseph_Francois_Dupleix.jpg/500px-Joseph_Francois_Dupleix.jpg" }
-            ],
-            places: [
-                { name: "Pondicherry", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Pondicherry-Rock_beach_aerial_view.jpg/500px-Pondicherry-Rock_beach_aerial_view.jpg" }
-            ],
-            summary: [
-                "French East India Company established in 1664 by Colbert.",
-                "First Factory: Surat (1668) by Francois Caron.",
-                "Main Centers: Pondicherry, Mahe, Karaikal, Chandernagore.",
-                "Decline: Lost the Carnatic Wars to the British; final defeat at Wandiwash (1760)."
-            ],
-            detailed: [
-                "Nature of Company: Unlike the British company which was a private enterprise, the French company was heavily state-controlled and dependent on the French monarchy, which led to bureaucratic delays and poor finances.",
-                "Joseph François Dupleix: The greatest French Governor in India. He was the first European to understand that the internal fighting among Indian princes could be exploited. He originated the concept of the 'Subsidiary Alliance' (later perfected by Lord Wellesley).",
-                "The Carnatic Wars (1746-1763): A series of three wars fought between the English and French in South India for supremacy.",
-                "The End of the Dream: In the Third Carnatic War, the British forces under Sir Eyre Coote decisively defeated the French under Comte de Lally at the Battle of Wandiwash (1760). The French were restricted to small enclaves like Pondicherry and forbidden from maintaining standing armies."
-            ]
-        }
-    ];
+    const powersData = POWERS_DATA;
 
     return (
         <div className="min-h-screen bg-slate-50 font-sans text-gray-800">

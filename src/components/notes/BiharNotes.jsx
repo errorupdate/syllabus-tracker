@@ -7,149 +7,40 @@ import {
     Droplets, GraduationCap, AlertCircle, Scroll, Flame, Newspaper
 } from 'lucide-react';
 
-// --- Extensive Data Constants Extracted from Lecture 01-05 & Deep Dives ---
+import * as notesData from '../../data/notesData.jsx';
 
-const DEMOGRAPHICS = [
-    { label: 'Total Districts', value: '38', icon: <MapPin className="text-blue-500" /> },
-    { label: 'Population Rank', value: '3rd in India', subtitle: 'After UP & Maharashtra', icon: <Users className="text-emerald-500" /> },
-    { label: 'Population Density', value: '1106 / sq km', subtitle: 'Highest in India', icon: <Activity className="text-rose-500" /> },
-    { label: 'Geography', value: 'Landlocked', subtitle: 'Nepal (N), UP (W), WB (E), Jharkhand (S)', icon: <Globe className="text-purple-500" /> }
-];
+const slugify = (text) => {
+    if (!text) return '';
+    return text.toString().toLowerCase()
+        .trim()
+        .replace(/\s+/g, '-')
+        .replace(/[^\w\-]+/g, '')
+        .replace(/\-\-+/g, '-')
+        .replace(/^-+/, '')
+        .replace(/-+$/, '');
+};
 
-const LEGISLATURE = [
-    { label: 'Vidhan Sabha (Assembly)', value: '243 Seats', sub: '38 seats reserved for SC candidates.' },
-    { label: 'Vidhan Parishad (Council)', value: '75 Seats', sub: 'Upper House. First meeting held on Jan 20, 1913.' },
-    { label: 'Lok Sabha', value: '40 Seats', sub: 'Lower House of Parliament.' },
-    { label: 'Rajya Sabha', value: '16 Seats', sub: 'Upper House of Parliament.' },
-    { label: 'Panchayati Raj', value: '50% Quota', sub: 'In 2006, Bihar became the first state to give 50% reservation to women.' },
-];
+// Re-map for local compatibility
+const DEMOGRAPHICS = notesData.BIHAR_DEMOGRAPHICS.map(d => ({ ...d, id: slugify(d.label) }));
+const LEGISLATURE = notesData.BIHAR_LEGISLATURE.map(l => ({ ...l, id: slugify(l.label) }));
+const STATE_SYMBOLS = notesData.BIHAR_STATE_SYMBOLS.map(s => ({ ...s, id: slugify(s.label) }));
+const ANCIENT_KINGDOMS = notesData.BIHAR_ANCIENT_KINGDOMS.map(k => ({ ...k, id: slugify(k.name) }));
+const RIVERS_AND_DIVISIONS = notesData.BIHAR_RIVERS.map(r => ({ ...r, id: slugify(r.name) }));
+const FOLK_ARTS = notesData.BIHAR_FOLK_ARTS.map(a => ({ ...a, id: slugify(a.name) }));
+const CENSUS_2011 = notesData.BIHAR_CENSUS_2011.map(c => ({ ...c, id: slugify(c.label) }));
+const MINERALS_INDUSTRIES = notesData.BIHAR_MINERALS.map(m => ({ ...m, id: slugify(m.name) }));
+const TIMELINE = notesData.BIHAR_TIMELINE.map(t => ({ ...t, id: slugify(t.title || t.year) }));
+const PERSONALITIES = notesData.BIHAR_PERSONALITIES.map(p => ({ ...p, id: slugify(p.name) }));
+const AGRICULTURE_GI_TAGS = notesData.BIHAR_AGRICULTURE_GI.map(a => ({ ...a, id: slugify(a.name) }));
+const WILDLIFE_SANCTUARIES = notesData.BIHAR_WILDLIFE.map(w => ({ ...w, id: slugify(w.name) }));
+const MODERN_HISTORY_TIMELINE = notesData.BIHAR_MODERN_TIMELINE.map(m => ({ ...m, id: slugify(m.title) }));
+const REVOLT_1857 = notesData.BIHAR_REVOLT_1857.map(r => ({ ...r, id: slugify(r.location) }));
+const EDUCATIONAL_TIMELINES = notesData.BIHAR_EDUCATION_TIMELINE.map(e => ({ ...e, id: slugify(e.name) }));
+const BPSC_CATCHES = notesData.BIHAR_BPSC_CATCHES.map(c => ({ ...c, id: slugify(c.title) }));
 
-const STATE_SYMBOLS = [
-    { label: 'State Animal', value: 'Gaur (Mithun) / Ox', icon: '🐃' },
-    { label: 'State Bird', value: 'House Sparrow', icon: '🐦' },
-    { label: 'State Flower', value: 'Kachnar', icon: '🌸' },
-    { label: 'State Tree', value: 'Peepal', icon: '🌳' },
-    { label: 'State Fish', value: 'Mangur', icon: '🐟' },
-    { label: 'State Emblem', value: 'Bodhi Tree', icon: '🌿' }
-];
+// Personalities are now managed via notesData
 
-const ANCIENT_KINGDOMS = [
-    { name: 'Magadha', capital: 'Rajgir (Girivraj) → Pataliputra', founder: 'Bimbisara (Haryanka Dynasty)', details: 'The most powerful Mahajanapada. Key rulers: Ajatashatru, Mahapadma Nanda. Known for military use of elephants.' },
-    { name: 'Maurya Empire', capital: 'Pataliputra', founder: 'Chandragupta Maurya', details: 'Established after overthrowing Nandas. Ashoka the Great expanded it to cover most of the Indian subcontinent. Built Sanchi Stupa and Pillars.' },
-    { name: 'Gupta Empire', capital: 'Pataliputra', founder: 'Sri Gupta', details: 'The Golden Age of India. Key rulers: Samudragupta (Napoleon of India), Chandragupta II (Vikramaditya). Great advancements in science, math (Aryabhata), and literature.' }
-];
-
-const RIVERS_AND_DIVISIONS = [
-    { name: 'North Bihar Rivers', details: 'Ganga, Ghaghara, Gandak, Burhi Gandak, Bagmati, Kamla, Kosi (Sorrow of Bihar), Mahananda. Prone to flooding.' },
-    { name: 'South Bihar Rivers', details: 'Sone, Punpun, Falgu (Niranjana), Karmnasa, Kiul. Mostly rain-fed and originate from southern plateau.' },
-    { name: 'Administrative Divisions (9)', details: 'Patna, Tirhut, Saran, Darbhanga, Kosi, Purnia, Bhagalpur, Munger, Magadh.' }
-];
-
-const FOLK_ARTS = [
-    { name: 'Madhubani (Mithila) Painting', region: 'Mithila Region', details: 'Features geometric patterns, no empty spaces, primarily mythological themes. GI Tag 2010. Traditionally painted by women on mud walls.' },
-    { name: 'Manjusha Art', region: 'Anga (Bhagalpur)', details: 'Sequential scroll/box painting known as Snake Paintings (Bihula-Bishahari folklore). Uniquely uses three colors: Pink, Green, and Yellow.' },
-    { name: 'Tikuli Art', region: 'Patna', details: '800-year-old tradition. Vibrant, glossy glass/MDF craft inspired by "Bindi". Historically involved melting glass and gold foil embellishments.' }
-];
-
-const CENSUS_2011 = [
-    { label: 'Highest Literacy', value: 'Rohtas (73.37%)', sub: 'Rohtas also has highest Male & Female literacy.', icon: <BookOpen className="text-emerald-500" /> },
-    { label: 'Lowest Literacy', value: 'Purnia (51.08%)', sub: 'Saharsa has lowest female literacy.', icon: <BookOpen className="text-rose-500" /> },
-    { label: 'Highest Sex Ratio', value: 'Gopalganj (1021)', sub: 'Females per 1000 males.', icon: <Users className="text-indigo-500" /> },
-    { label: 'Lowest Sex Ratio', value: 'Munger (876)', sub: 'Females per 1000 males.', icon: <Users className="text-rose-500" /> },
-    { label: 'Highest Density', value: 'Sheohar (1882)', sub: 'Persons per sq. km.', icon: <MapPin className="text-purple-500" /> },
-    { label: 'Lowest Density', value: 'Kaimur (488)', sub: 'Persons per sq. km.', icon: <MapPin className="text-amber-500" /> },
-    { label: 'Highest Population', value: 'Patna', sub: 'Most populous district.', icon: <Activity className="text-blue-500" /> },
-    { label: 'Highest Growth Rate', value: 'Madhepura', sub: 'Decadal growth (2001-2011).', icon: <Activity className="text-teal-500" /> }
-];
-
-const MINERALS_INDUSTRIES = [
-    { name: 'Mica (Abhrak)', region: 'Nawada, Jamui, Gaya', details: 'Used in electrical industries.' },
-    { name: 'Gold (Swarna)', region: 'Karmatiya (Jamui)', details: 'Largest gold reserve in India (as per recent GSI survey).' },
-    { name: 'Limestone (Chuna Patthar)', region: 'Rohtas, Kaimur', details: 'Found in Vindhyan rocks. Crucial for the cement industry (Dalmia Nagar).' },
-    { name: 'Pyrites (Mools)', region: 'Amjhore (Rohtas)', details: 'Bihar holds 95% of India’s pyrite reserves. Used for sulfuric acid.' },
-    { name: 'Oil Refinery', region: 'Barauni (Begusarai)', details: 'Established with Soviet Union collaboration in 1964.' },
-];
-
-const AGRICULTURE_GI_TAGS = [
-    { name: 'Zardalu Mango', region: 'Bhagalpur', type: 'Fruit (GI Tag)' },
-    { name: 'Shahi Litchi', region: 'Muzaffarpur', type: 'Fruit (GI Tag)' },
-    { name: 'Magahi Paan', region: 'Magadh Region (Nawada, Gaya)', type: 'Betel Leaf (GI Tag)' },
-    { name: 'Katarni Rice', region: 'Bhagalpur, Banka', type: 'Grain (GI Tag)' },
-    { name: 'Makhana (Fox Nut)', region: 'Mithilanchal (Darbhanga, Madhubani)', type: 'Aquatic Crop (GI Tag - Mithila Makhana)' },
-    { name: 'Major Soil Types', region: 'North/South Bihar', type: 'Soil', details: 'Bhangar (Old Alluvium), Khadar (New Alluvium), Balsundari (North Bihar), Tal (South of Ganga).' }
-];
-
-const WILDLIFE_SANCTUARIES = [
-    { name: 'Valmiki National Park', region: 'West Champaran', type: 'National Park / Tiger Reserve' },
-    { name: 'Kanwar Lake Bird Sanctuary', region: 'Begusarai', type: 'Ramsar Site (Oxbow lake)' },
-    { name: 'Bhimbandh Wildlife Sanctuary', region: 'Munger', type: 'Sanctuary (known for hot springs)' },
-    { name: 'Nagi-Nakti Dam', region: 'Jamui', type: 'Bird Sanctuary' },
-    { name: 'Gautam Buddha Sanctuary', region: 'Gaya', type: 'Sanctuary' }
-];
-
-const TIMELINE = [
-    { year: '563 BCE', title: 'Birth of Gautam Buddha', desc: 'Siddhartha Gautama was born in Lumbini (now Nepal) on Vaishakh Purnima to King Suddhodana and Queen Mayadevi of the Shakya clan.' },
-    { year: '528 BCE', title: 'Enlightenment of Buddha', desc: 'Attained Supreme Enlightenment (Sambodhi) under the Bodhi Tree at Bodh Gaya (Bihar) on Vaishakh Purnima at age 35.' },
-    { year: '527 BCE', title: 'Nirvana of Mahavira', desc: 'Lord Mahavira attained Nirvana at Pawapuri at age 72 on Kartik Krishna Amavasya.' },
-    { year: '483 BCE', title: 'Mahaparinirvana of Buddha', desc: 'Gautam Buddha attained Mahaparinirvana at Kushinagar (Malla Republic) at age 80 on Vaishakh Purnima. His last meal was offered by Chunda. Last words: "Appamadena sampadetha" (Strive with diligence).' },
-    { year: '1541', title: 'Patna Capital Restored', desc: 'Sher Shah Suri made Patna the provincial capital (originally made capital by Udayin in ancient times).' },
-    { year: '1592', title: 'Exile of Yusuf Shah Chak', desc: 'The last Muslim ruler of the Kashmir Valley was exiled by Akbar and buried in Biswak, Nalanda.' },
-    { year: '1632', title: 'First European Factory', desc: 'The Dutch established the first factory in Patna (Northern building of Patna College) trading in Calico, China, Saltpeter (Shoraa), and Opium.' },
-    { year: '1793', title: 'Permanent Settlement', desc: 'Zamindari system introduced by Lord Cornwallis. (Later systems: Ryotwari by Thomas Munro, Mahalwari by Holt Mackenzie).' },
-    { year: '1830s', title: 'Wahabi Movement', desc: 'Patna city emerged as the primary center of the Wahabi movement.' },
-    { year: '1855-56', title: 'Santhal Rebellion', desc: 'Santhals declared their own independent government in the Bhagalpur-Rajmahal area.' },
-    { year: '1866-67', title: 'Indigo Cultivators Revolt', desc: 'Major rebellion by indigo farmers erupted in the regions of Champaran, Muzaffarpur, and Darbhanga.' },
-    { year: '1885', title: 'Bengal Tenancy Act', desc: 'Accepted the rights of tenants on land in Bengal and Bihar.' },
-    { year: '1906', title: 'Bihar Students Conference', desc: 'Founded by Dr. Rajendra Prasad in Patna College hall. Preceded the BPCC.' },
-    { year: '1908', title: 'Chhotanagpur Tenancy Act', desc: 'Prohibited the practice of "Beth Begari" (forced, unpaid labor) protecting tribal rights.' },
-    { year: '1912', title: 'Creation of Bihar Province', desc: 'Separated from the Bengal Presidency on March 22 (celebrated as Bihar Day). Movement led by Sachchidanand Sinha.' },
-    { year: '1912', title: 'First INC Session in Bihar', desc: 'The 27th session of the INC was held in Bankipore, Patna. Presided over by R.N. Mudholkar.' },
-    { year: '1916', title: 'Patna High Court', desc: 'The Patna High Court was officially established.' },
-    { year: '1923', title: 'Swaraj Dal', desc: 'Swaraj Dal in Bihar was formed under the leadership of Shri Krishna Singh.' },
-    { year: '1929', title: 'Bihar Provincial Kisan Sabha', desc: 'Formed by Swami Sahajanand Saraswati to mobilize peasant grievances. Official formation at Sonepur Fair.' },
-    { year: '1931', title: 'Bihar Socialist Party', desc: 'Formed by Phoolan Prasad Verma and Jayaprakash Narayan.' },
-    { year: '1936', title: 'Separation of Orissa', desc: 'Orissa was formally separated from Bihar on April 1, under the Govt of India Act 1935.' },
-];
-
-const REVOLT_1857 = [
-    { location: 'Rohini (Deoghar)', date: '7th June 1857', desc: 'Uprising in the 32nd Infantry.' },
-    { location: 'Patna', date: '3rd July 1857', desc: 'Led by bookseller Pir Ali.' },
-    { location: 'Muzaffarpur', date: '25th July 1857', desc: 'Irregular cavalry rebellion.' },
-    { location: 'Jagdishpur (Arrah)', date: '25th July 1857', desc: 'Kunwar Singh leads the revolt.' },
-];
-
-const EDUCATIONAL_TIMELINES = [
-    { name: 'Patna University', date: 'Oct 1, 1917' },
-    { name: 'IIT Patna', date: 'Aug 6, 2008' },
-    { name: 'Nalanda Univ. (Re-established)', date: 'Nov 25, 2010' },
-];
-
-const BPSC_CATCHES = [
-    {
-        title: 'The 1632 Dutch Factory Controversy:',
-        desc: 'Standard historians (e.g., Jadunath Sarkar) debate this, but always choose 1632 CE for the Dutch establishing a factory in Patna (Northern wing of Patna College) per the BPSC answer key.'
-    },
-    {
-        title: 'Premier vs. Chief Minister:',
-        desc: 'Before 1950, the head was the "Premier". Mohammad Yunus was technically the first Premier for a few months, but Shri Krishna Singh is legally recognized as the first Chief Minister.'
-    },
-    {
-        title: 'BPCC President Trap:',
-        desc: 'While Mazharul Haque was the first president of the reorganized BPCC in 1921, Syed Ali Imam presided over the very first Provincial Conference in 1908.'
-    },
-];
-
-const PERSONALITIES = [
-    { name: 'Sri Krishna Singh (Shri Babu)', title: 'First Chief Minister', desc: 'Architect of Modern Bihar & "Bihar Kesari". Abolished Zamindari system. Led Dalits into Baidyanath Dham temple. Established HEC Ranchi & Barauni Refinery.', img: 'https://upload.wikimedia.org/wikipedia/commons/e/ee/Shri_Krishna_Singh_2016_stamp_of_India.jpg', initials: 'SK' },
-    { name: 'Sachchidanand Sinha', title: 'Creator of Modern Bihar', desc: 'Led the movement for a separate province which resulted in the creation of Bihar in 1912.', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Portrait_of_Dr._Sachchidananda_Sinha.jpg/500px-Portrait_of_Dr._Sachchidananda_Sinha.jpg', initials: 'SS' },
-    { name: 'Swami Sahajanand Saraswati', title: 'Kisan Pran (Life of Peasants)', desc: 'Founded Bihar Provincial Kisan Sabha. Famous slogan: "Latth Hamara Zindabad". Published radical journal "Hunkar".', img: 'https://ui-avatars.com/api/?name=Swami+Sahajanand&background=f59e0b&color=fff&size=256', initials: 'SS' },
-    { name: 'Birsa Munda', title: 'Tribal Leader', desc: 'Led the Munda Rebellion against "Dikus". His guru was Anand Pandey. Tragically passed away in jail due to cholera.', img: 'https://upload.wikimedia.org/wikipedia/commons/7/71/Birsa_Munda%2C_photograph_in_Roy_%281912-72%29.JPG', initials: 'BM' },
-    { name: 'Rajkumar Shukla', title: 'Champaran Catalyst', desc: 'Resident of Murli Bharhwa village. He personally invited Mahatma Gandhi to Champaran.', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Raj_Kumar_Shukla_2000_stamp_of_India.jpg/500px-Raj_Kumar_Shukla_2000_stamp_of_India.jpg', initials: 'RS' },
-    { name: 'Pir Muhammad Munis', title: 'Writer & Activist', desc: 'Wrote under pseudonyms like "Dukhi", "Dukhi Atma", and "Dukhi Hriday" to highlight farmers\' plight.', img: 'https://ui-avatars.com/api/?name=Pir+Muhammad+Munis&background=10b981&color=fff&size=256', initials: 'PM' },
-    { name: 'Ustad Bismillah Khan', title: 'Shehnai Maestro', desc: 'Born in Dumraon, Bihar. Elevated the Shehnai to classical concert stages worldwide.', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Bismillah_Khan.jpg/500px-Bismillah_Khan.jpg', initials: 'BK' },
-];
-
-const QUIZ_QUESTIONS = [
+export const QUIZ_QUESTIONS = [
     { q: "Where is the place of salvation of Mahavir ji located?", options: ["Maner", "Rajgir", "Pawapuri (Apapapuri)", "Jalan Fort"], ans: 2 },
     { q: "According to BPSC, which company established its factory in Patna in the year 1632?", options: ["British", "Dutch", "Portuguese", "French"], ans: 1 },
     { q: "Who established a branch of Anushilan Samiti in Patna in 1913?", options: ["Revati Nag", "Yadunath Sarkar", "Sachindranath Sanyal", "Majrul Haq"], ans: 2 },
@@ -330,6 +221,20 @@ export default function BiharNotes({ embedded = false }) {
         return () => observer.disconnect();
     }, []);
 
+    // Handle hash highlighting on mount
+    useEffect(() => {
+        const hash = window.location.hash.replace('#', '');
+        if (hash) {
+            const element = document.getElementById(hash);
+            if (element) {
+                element.classList.add('highlight-pulse');
+                setTimeout(() => {
+                    element.classList.remove('highlight-pulse');
+                }, 4000);
+            }
+        }
+    }, []);
+
     return (
         <div className={`${embedded ? '' : 'min-h-screen'} bg-[#f8fafc] font-sans text-slate-800`}>
 
@@ -447,7 +352,7 @@ export default function BiharNotes({ embedded = false }) {
                                     </h3>
                                     <ul className="space-y-4 text-sm leading-relaxed text-rose-100">
                                         {BPSC_CATCHES.map((item, index) => (
-                                            <li key={index} className={index !== BPSC_CATCHES.length - 1 ? "border-b border-rose-700/50 pb-3" : ""}>
+                                            <li key={index} id={item.id} className={`${index !== BPSC_CATCHES.length - 1 ? "border-b border-rose-700/50 pb-3" : ""} scroll-mt-32`}>
                                                 <strong className="text-white block mb-1">{item.title}</strong>
                                                 {item.desc}
                                             </li>
@@ -463,7 +368,7 @@ export default function BiharNotes({ embedded = false }) {
                                         </h3>
                                         <ul className="space-y-2 text-sm text-rose-100 mt-4">
                                             {EDUCATIONAL_TIMELINES.map((edu, index) => (
-                                                <li key={index} className="flex justify-between items-center border-b border-rose-700/50 pb-2 mb-2 last:border-0 last:mb-0 last:pb-0">
+                                                <li key={index} id={edu.id} className="flex justify-between items-center border-b border-rose-700/50 pb-2 mb-2 last:border-0 last:mb-0 last:pb-0 scroll-mt-32">
                                                     <span>{edu.name}</span>
                                                     <span className="font-mono bg-rose-100 text-rose-900 px-2 py-0.5 rounded font-bold text-xs">{edu.date}</span>
                                                 </li>
@@ -499,7 +404,7 @@ export default function BiharNotes({ embedded = false }) {
 
                     <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                         {DEMOGRAPHICS.map((stat, i) => (
-                            <div key={i} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+                            <div key={i} id={stat.id} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow scroll-mt-32">
                                 <div className="mb-4">{stat.icon}</div>
                                 <p className="text-sm text-slate-500 font-semibold uppercase tracking-wider mb-1">{stat.label}</p>
                                 <p className="text-xl font-bold text-slate-800">{stat.value}</p>
@@ -513,7 +418,7 @@ export default function BiharNotes({ embedded = false }) {
                     </h3>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
                         {STATE_SYMBOLS.map((sym, i) => (
-                            <div key={i} className="bg-gradient-to-br from-blue-50 to-white p-4 rounded-2xl shadow-sm border border-blue-100 flex flex-col items-center text-center hover:shadow-md transition-all hover:-translate-y-1">
+                            <div key={i} id={sym.id} className="bg-gradient-to-br from-blue-50 to-white p-4 rounded-2xl shadow-sm border border-blue-100 flex flex-col items-center text-center hover:shadow-md transition-all hover:-translate-y-1 scroll-mt-32">
                                 <span className="text-3xl mb-2">{sym.icon}</span>
                                 <p className="text-xs text-blue-600 font-bold uppercase mb-1">{sym.label}</p>
                                 <p className="text-sm font-bold text-slate-800">{sym.value}</p>
@@ -526,7 +431,7 @@ export default function BiharNotes({ embedded = false }) {
                     </h3>
                     <div className="grid md:grid-cols-3 gap-4 mb-12">
                         {RIVERS_AND_DIVISIONS.map((item, i) => (
-                            <div key={i} className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 hover:border-blue-300 transition-colors">
+                            <div key={i} id={item.id} className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 hover:border-blue-300 transition-colors scroll-mt-32">
                                 <p className="font-bold text-blue-900 mb-2">{item.name}</p>
                                 <p className="text-sm text-slate-600 leading-relaxed">{item.details}</p>
                             </div>
@@ -541,7 +446,7 @@ export default function BiharNotes({ embedded = false }) {
                             </h3>
                             <div className="space-y-3 relative z-10">
                                 {LEGISLATURE.map((leg, i) => (
-                                    <div key={i} className="flex justify-between items-center bg-indigo-800/60 p-4 rounded-xl backdrop-blur-sm border border-indigo-700/50 hover:bg-indigo-700/60 transition-colors">
+                                    <div key={i} id={leg.id} className="flex justify-between items-center bg-indigo-800/60 p-4 rounded-xl backdrop-blur-sm border border-indigo-700/50 hover:bg-indigo-700/60 transition-colors scroll-mt-32">
                                         <p className="font-bold text-sm md:text-base text-white">{leg.label}</p>
                                         <span className="font-mono bg-indigo-950/80 px-3 py-1 rounded-lg text-indigo-200 font-semibold shadow-sm text-sm">{leg.value}</span>
                                     </div>
@@ -593,7 +498,7 @@ export default function BiharNotes({ embedded = false }) {
                         </h3>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                             {CENSUS_2011.map((stat, i) => (
-                                <div key={i} className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+                                <div key={i} id={stat.id} className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
                                     <div className="mb-3">{stat.icon}</div>
                                     <p className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">{stat.label}</p>
                                     <p className="text-lg font-bold text-slate-800">{stat.value}</p>
@@ -611,7 +516,7 @@ export default function BiharNotes({ embedded = false }) {
                             </h3>
                             <ul className="space-y-4">
                                 {MINERALS_INDUSTRIES.map((min, i) => (
-                                    <li key={i} className="bg-white p-4 rounded-xl shadow-sm border border-emerald-50">
+                                    <li key={i} id={min.id} className="bg-white p-4 rounded-xl shadow-sm border border-emerald-50">
                                         <div className="flex justify-between items-start mb-1">
                                             <p className="font-bold text-slate-800">{min.name}</p>
                                             <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold uppercase">{min.region}</span>
@@ -628,7 +533,7 @@ export default function BiharNotes({ embedded = false }) {
                             </h3>
                             <ul className="space-y-4">
                                 {AGRICULTURE_GI_TAGS.map((agri, i) => (
-                                    <li key={i} className="bg-white p-4 rounded-xl shadow-sm border border-yellow-50">
+                                    <li key={i} id={agri.id} className="bg-white p-4 rounded-xl shadow-sm border border-yellow-50 scroll-mt-32">
                                         <div className="flex justify-between items-start mb-1">
                                             <p className="font-bold text-slate-800">{agri.name}</p>
                                             <span className="text-[10px] bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded font-bold uppercase">{agri.type}</span>
@@ -648,7 +553,7 @@ export default function BiharNotes({ embedded = false }) {
                         </h3>
                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 relative z-10">
                             {WILDLIFE_SANCTUARIES.map((park, i) => (
-                                <div key={i} className="bg-slate-800/80 p-5 rounded-2xl border border-emerald-900/50 hover:border-emerald-500/50 transition-colors backdrop-blur-sm">
+                                <div key={i} id={park.id} className="bg-slate-800/80 p-5 rounded-2xl border border-emerald-900/50 hover:border-emerald-500/50 transition-colors backdrop-blur-sm scroll-mt-32">
                                     <p className="font-bold text-white mb-1">{park.name}</p>
                                     <p className="text-xs text-emerald-300 font-bold uppercase tracking-wider mb-2">{park.type}</p>
                                     <p className="text-sm text-slate-400">📍 {park.region}</p>
@@ -750,7 +655,7 @@ export default function BiharNotes({ embedded = false }) {
                         </h3>
                         <div className="grid md:grid-cols-3 gap-6">
                             {ANCIENT_KINGDOMS.map((kingdom, i) => (
-                                <div key={i} className="bg-white p-6 rounded-2xl shadow-sm border border-amber-100 hover:border-amber-400 hover:shadow-md transition-all">
+                                <div key={i} id={kingdom.id} className="bg-white p-6 rounded-2xl shadow-sm border border-amber-100 hover:border-amber-400 hover:shadow-md transition-all scroll-mt-32">
                                     <h4 className="font-bold text-lg text-slate-800 mb-2">{kingdom.name}</h4>
                                     <div className="space-y-2 text-sm text-slate-600 mb-4">
                                         <p><strong className="text-slate-800">Capital:</strong> {kingdom.capital}</p>
@@ -787,7 +692,7 @@ export default function BiharNotes({ embedded = false }) {
                                 const isActive = timelineProgress > (i / (TIMELINE.length - 1)) * 100 - 5;
                                 
                                 return (
-                                <div key={i} id={`event-${item.year.replace(/\s+/g, '-').toLowerCase()}`} className="relative pl-8 md:pl-12 group scroll-mt-40">
+                                <div key={i} id={item.id} className="relative pl-8 md:pl-12 group scroll-mt-40">
                                     {/* The Connecting Dot */}
                                     <div className={`absolute left-0 top-1.5 w-4 h-4 rounded-full ring-4 ring-white transition-all duration-500 shadow-sm -translate-x-1/2
                                         ${isActive ? 'bg-purple-600 scale-110' : 'bg-slate-300'} 
@@ -827,7 +732,7 @@ export default function BiharNotes({ embedded = false }) {
                                 <div className="absolute top-5 md:top-5 left-4 md:left-8 w-1 h-[calc(100%-2rem)] md:w-[calc(100%-4rem)] md:h-1 bg-rose-200 z-0 rounded"></div>
 
                                 {REVOLT_1857.map((item, index) => (
-                                    <div key={index} className="relative flex md:flex-col items-start md:items-center gap-4 md:gap-3 z-10 w-full md:w-1/4 group">
+                                    <div key={index} id={item.id} className="relative flex md:flex-col items-start md:items-center gap-4 md:gap-3 z-10 w-full md:w-1/4 group scroll-mt-32">
                                         <div className="w-10 h-10 rounded-full bg-white border-4 border-rose-500 text-rose-600 flex items-center justify-center font-bold text-sm shadow-md shrink-0 group-hover:scale-110 group-hover:bg-rose-50 transition-all">
                                             {index + 1}
                                         </div>
@@ -845,7 +750,7 @@ export default function BiharNotes({ embedded = false }) {
                         </div>
 
                         {/* Congress & Conferences */}
-                        <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm">
+                        <div id="congress-conferences" className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm scroll-mt-32">
                             <h3 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
                                 <Users className="text-rose-500" size={24} /> Congress & Conferences
                             </h3>
@@ -862,7 +767,7 @@ export default function BiharNotes({ embedded = false }) {
                         </div>
 
                         {/* Peasant Movements */}
-                        <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm flex flex-col">
+                        <div id="kisan-sabhas" className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm flex flex-col scroll-mt-32">
                             <h3 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
                                 <Leaf className="text-rose-500" size={24} /> Kisan Sabhas & Satyagraha
                             </h3>
@@ -887,7 +792,7 @@ export default function BiharNotes({ embedded = false }) {
                         </div>
 
                         {/* Publications Deep Dive */}
-                        <div className="bg-slate-900 rounded-3xl p-8 text-white md:col-span-2 shadow-lg relative overflow-hidden">
+                        <div id="publications-literature" className="bg-slate-900 rounded-3xl p-8 text-white md:col-span-2 shadow-lg relative overflow-hidden scroll-mt-32">
                             <Newspaper className="absolute -top-10 -right-10 text-slate-800 w-64 h-64 opacity-50" />
                             <h3 className="font-bold text-2xl text-rose-300 mb-8 border-b border-slate-700 pb-4 relative z-10">Radical Publications & Literature</h3>
 
@@ -911,6 +816,25 @@ export default function BiharNotes({ embedded = false }) {
                                 </div>
                             </div>
                         </div>
+
+                        {/* Modern History Detailed Timeline */}
+                        <div id="modern-timeline" className="mt-8 bg-white rounded-3xl p-8 border border-slate-200 shadow-sm scroll-mt-32 col-span-1 md:col-span-2">
+                            <h3 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                                <History className="text-rose-500" size={24} /> Modern History Detailed Timeline
+                            </h3>
+                            <div className="grid md:grid-cols-2 gap-4">
+                                {MODERN_HISTORY_TIMELINE.map((item, i) => (
+                                    <div key={i} id={item.id} className="p-4 rounded-xl bg-slate-50 border border-slate-100 hover:bg-rose-50 hover:border-rose-200 transition-all scroll-mt-32 group">
+                                        <div className="flex justify-between items-center mb-2">
+                                            <span className="text-xs font-bold bg-rose-600 text-white px-2 py-0.5 rounded uppercase">{item.year || 'Event'}</span>
+                                            <History size={14} className="text-rose-300 group-hover:text-rose-500" />
+                                        </div>
+                                        <h4 className="font-bold text-slate-900 mb-1">{item.title}</h4>
+                                        <p className="text-sm text-slate-600 leading-relaxed">{item.desc}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     </div>
                 </section>
 
@@ -925,7 +849,7 @@ export default function BiharNotes({ embedded = false }) {
 
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {PERSONALITIES.map((person, i) => (
-                            <div key={i}>
+                            <div key={i} id={person.id} className="scroll-mt-32">
                                 <ProfileCard person={person} />
                             </div>
                         ))}
@@ -1033,7 +957,7 @@ export default function BiharNotes({ embedded = false }) {
                         </h3>
                         <div className="grid md:grid-cols-3 gap-6 relative z-10">
                             {FOLK_ARTS.map((art, i) => (
-                                <div key={i} className="bg-slate-800/60 p-6 rounded-2xl border border-teal-700/50 hover:bg-slate-800 hover:border-teal-500/50 transition-all backdrop-blur-sm group">
+                                <div key={i} id={art.id} className="bg-slate-800/60 p-6 rounded-2xl border border-teal-700/50 hover:bg-slate-800 hover:border-teal-500/50 transition-all backdrop-blur-sm group scroll-mt-32">
                                     <h4 className="font-bold text-lg text-white mb-1 group-hover:text-teal-300 transition-colors">{art.name}</h4>
                                     <p className="text-teal-400 text-xs font-bold uppercase tracking-wide mb-3">{art.region}</p>
                                     <p className="text-slate-300 text-sm leading-relaxed">{art.details}</p>

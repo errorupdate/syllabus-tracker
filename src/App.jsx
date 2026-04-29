@@ -27,6 +27,7 @@ import './index.css';
 
 import PasswordLock from './components/PasswordLock';
 import InstallPrompt from './components/InstallPrompt';
+import SearchModal from './components/SearchModal';
 import { useAuth } from './AuthContext';
 
 const DOC_ID = 'user-revisions';
@@ -92,6 +93,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [testModeOpen, setTestModeOpen] = useState(false);
   const [viewingPdf, setViewingPdf] = useState(null);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   const swipeFns = useRef({ canGoBack: false, canGoForward: false, goBack: null, goForward: null });
 
@@ -118,7 +120,7 @@ function App() {
     return () => window.removeEventListener('popstate', onPopState);
   }, []);
 
-  const navigateTo = useCallback((view, anchorId) => {
+  const navigateTo = useCallback((view, anchorId, itemName) => {
     const contentEl = document.querySelector('.content-area');
     if (contentEl) contentEl.scrollTo({ top: 0, behavior: 'smooth' });
 
@@ -130,16 +132,44 @@ function App() {
     setHistoryIndex(newIndex);
     setHistoryLength(newLength);
 
-    if (anchorId) {
+    if (anchorId || itemName) {
       setTimeout(() => {
-        const el = document.getElementById(anchorId);
-        if (el) {
-          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          // Highlight effect
-          el.classList.add('highlight-pulse');
-          setTimeout(() => el.classList.remove('highlight-pulse'), 3000);
+        let el = anchorId ? document.getElementById(anchorId) : null;
+        let exactTextNodeElement = null;
+        
+        // Robust Fallback: If no explicit ID exists, search the DOM text to find the exact portion
+        if (itemName) {
+          const searchRoot = el || document.body;
+          const walker = document.createTreeWalker(searchRoot, NodeFilter.SHOW_TEXT, null, false);
+          let node;
+          while ((node = walker.nextNode())) {
+            // Find text nodes that contain the searched item name (case insensitive)
+            if (node.nodeValue.toLowerCase().includes(itemName.toLowerCase()) && node.parentElement) {
+              // Ignore script and style tags
+              if (['SCRIPT', 'STYLE', 'NOSCRIPT'].includes(node.parentElement.tagName)) continue;
+              // Ignore the search bar itself
+              if (node.parentElement.closest('.search-modal')) continue;
+              
+              exactTextNodeElement = node.parentElement;
+              // If it's a very generic container, try to find a more specific child wrapper, but parentElement is usually a p, span, div, h1-h6.
+              // To make highlighting look good, if it's an inline element, grab its block parent if possible.
+              if (['SPAN', 'STRONG', 'B', 'I', 'EM'].includes(exactTextNodeElement.tagName) && exactTextNodeElement.parentElement) {
+                exactTextNodeElement = exactTextNodeElement.parentElement;
+              }
+              break;
+            }
+          }
         }
-      }, 600);
+
+        const targetElement = exactTextNodeElement || el;
+
+        if (targetElement) {
+          targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          // Highlight effect
+          targetElement.classList.add('highlight-pulse');
+          setTimeout(() => targetElement.classList.remove('highlight-pulse'), 4000);
+        }
+      }, 600); // Wait for component to mount and render
     }
   }, [historyIndex]);
 
@@ -226,6 +256,18 @@ function App() {
       document.removeEventListener('mousedown', onMouseDown);
       document.removeEventListener('mouseup', onMouseUp);
     };
+  }, []);
+
+  // Keyboard Shortcuts (Cmd+K for search)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setSearchOpen(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
 
@@ -579,6 +621,7 @@ function App() {
       {/* Full-screen Test Mode overlay — blocks everything else */}
       {testModeOpen && <TestMode onClose={() => setTestModeOpen(false)} />}
       {viewingPdf && <PDFViewer pdfName={viewingPdf} onClose={() => setViewingPdf(null)} />}
+      <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} onNavigate={navigateTo} />
       <div className={`app-layout ${sidebarVisible ? '' : 'sidebar-collapsed'}`}>
 
         {/* Invisible hover trigger zone on the left edge */}
@@ -636,6 +679,9 @@ function App() {
               </button>
               <button className="nav-btn" onClick={handleRefresh} title="Refresh" aria-label="Refresh page">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+              </button>
+              <button className="nav-btn search-trigger-btn" onClick={() => setSearchOpen(true)} title="Search (⌘K)" aria-label="Search">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
               </button>
             </div>
             {/* Breadcrumb navigation */}
