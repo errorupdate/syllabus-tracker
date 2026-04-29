@@ -39,11 +39,11 @@ function getBreadcrumbs(activeView, subjects) {
   if (activeView === 'questionBank') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'Question Bank', icon: '📝' }];
   if (activeView === 'testDashboard') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'Test Analytics', icon: '📊' }];
   if (activeView === 'syncStorage') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'Sync Storage', icon: '☁️' }];
-  if (activeView === 'bihar-notes') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'General Paper', view: 'gp' }, { label: 'History', view: 'gp-t7' }, { label: 'CH-1 बिहार स्पेशल', view: 'gp-t7-ch1' }, { label: '📖 Study Notes', icon: '📖' }];
-  if (activeView === 'advent-of-european') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'General Paper', view: 'gp' }, { label: 'History', view: 'gp-t7' }, { label: 'CH-2 यूरोपियों का आगमन', view: 'gp-t7-ch2' }, { label: '📖 Study Notes', icon: '📖' }];
-  if (activeView === 'land-revenue') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'General Paper', view: 'gp' }, { label: 'History', view: 'gp-t7' }, { label: 'CH-3 भारत में भूमि बंदोबस्त', view: 'gp-t7-ch3' }, { label: '📖 Study Notes', icon: '📖' }];
-  if (activeView === 'education-india') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'General Paper', view: 'gp' }, { label: 'History', view: 'gp-t7' }, { label: 'CH-4 शिक्षा का विकास', view: 'gp-t7-ch4' }, { label: '📖 Study Notes', icon: '📖' }];
-  if (activeView === 'tribal-movements') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'General Paper', view: 'gp' }, { label: 'History', view: 'gp-t7' }, { label: 'CH-5 जनजातीय और किसान आंदोलन', view: 'gp-t7-ch5' }, { label: '📖 Study Notes', icon: '📖' }];
+  if (activeView === 'bihar-notes') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'General Paper', view: 'gp' }, { label: 'History', view: 'gp-t7' }, { label: 'CH-1 Bihar Special', view: 'gp-t7-ch1' }, { label: '📖 Study Notes', icon: '📖' }];
+  if (activeView === 'advent-of-european') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'General Paper', view: 'gp' }, { label: 'History', view: 'gp-t7' }, { label: 'CH-2 Advent of Europeans', view: 'gp-t7-ch2' }, { label: '📖 Study Notes', icon: '📖' }];
+  if (activeView === 'land-revenue') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'General Paper', view: 'gp' }, { label: 'History', view: 'gp-t7' }, { label: 'CH-3 Land Revenue Systems in India', view: 'gp-t7-ch3' }, { label: '📖 Study Notes', icon: '📖' }];
+  if (activeView === 'education-india') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'General Paper', view: 'gp' }, { label: 'History', view: 'gp-t7' }, { label: 'CH-4 Development of Education in India', view: 'gp-t7-ch4' }, { label: '📖 Study Notes', icon: '📖' }];
+  if (activeView === 'tribal-movements') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'General Paper', view: 'gp' }, { label: 'History', view: 'gp-t7' }, { label: 'CH-5 Major Movements', view: 'gp-t7-ch5' }, { label: '📖 Study Notes', icon: '📖' }];
   if (activeView === 'emerging-trends') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'Computer Science', view: 'cs' }, { label: 'T-9 Emerging Trends', view: 'cs-t9' }, { label: '📖 Study Notes', icon: '📖' }];
   if (activeView === 'notesHub') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'Notes Hub', icon: '📖' }];
   if (activeView === 'historical-timeline') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'Historical Timeline', icon: '⏳' }];
@@ -397,7 +397,7 @@ function App() {
           </button>
         </div>
         <PDFList
-          title="CH-1 बिहार स्पेशल"
+          title="CH-1 Bihar Special"
           pdfs={ch.pdfs}
           idPrefix="gp-t7-ch1"
           revisionData={revisionData}
@@ -428,7 +428,7 @@ function App() {
           </button>
         </div>
         <PDFList
-          title="CH-2 यूरोपियों का आगमन"
+          title="CH-2 Advent of Europeans"
           pdfs={ch.pdfs}
           idPrefix="gp-t7-ch2"
           revisionData={revisionData}
@@ -459,7 +459,7 @@ function App() {
           </button>
         </div>
         <PDFList
-          title="CH-3 भारत में भूमि बंदोबस्त"
+          title="CH-3 Land Revenue Systems in India"
           pdfs={ch.pdfs}
           idPrefix="gp-t7-ch3"
           revisionData={revisionData}
@@ -490,7 +490,7 @@ function App() {
           </button>
         </div>
         <PDFList
-          title="CH-4 शिक्षा का विकास"
+          title="CH-4 Development of Education in India"
           pdfs={ch?.pdfs || []}
           idPrefix="gp-t7-ch4"
           revisionData={revisionData}
@@ -521,7 +521,7 @@ function App() {
           </button>
         </div>
         <PDFList
-          title="CH-5 जनजातीय और किसान आंदोलन"
+          title="CH-5 Major Movements"
           pdfs={ch?.pdfs || []}
           idPrefix="gp-t7-ch5"
           revisionData={revisionData}
