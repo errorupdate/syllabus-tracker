@@ -271,7 +271,7 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
   }
 
   // ─── Daily Action Plan ───
-  // Build a rich per-topic map: { id, name, subjectName, pct, done, pdfCount, targetId }
+  // Build a rich per-topic map: { id, name, subjectName, pct, done, pdfCount, targetId, lastRevisionTs }
   const allTopicStats = [];
   subjects.forEach(s => {
     s.topics.forEach(t => {
@@ -280,22 +280,36 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
       const max = pdfCount * 5;
       const pct = max > 0 ? Math.round((done / max) * 100) : 0;
       const targetId = t.chapters && t.chapters.length > 0 ? t.chapters[0].id : t.id;
-      // Count how many PDFs have been touched (≥1 rev)
+      
       let touchedPdfs = 0;
+      let lastRevisionTs = 0;
       if (t.chapters) {
         for (const ch of t.chapters) {
           ch.pdfs.forEach((_, i) => {
-            for (let r = 0; r < 5; r++) if (revisionData[`${ch.id}-${i}-r${r}`]) { touchedPdfs++; break; }
+            for (let r = 0; r < 5; r++) {
+              const ts = revisionData[`${ch.id}-${i}-r${r}`];
+              if (ts) { 
+                touchedPdfs++; 
+                if (ts > lastRevisionTs) lastRevisionTs = ts;
+                break; 
+              }
+            }
           });
         }
       } else if (t.pdfs) {
         t.pdfs.forEach((_, i) => {
-          for (let r = 0; r < 5; r++) if (revisionData[`${t.id}-${i}-r${r}`]) { touchedPdfs++; break; }
+          for (let r = 0; r < 5; r++) {
+            const ts = revisionData[`${t.id}-${i}-r${r}`];
+            if (ts) { 
+              touchedPdfs++; 
+              if (ts > lastRevisionTs) lastRevisionTs = ts;
+              break; 
+            }
+          }
         });
       }
-      // Check if revised today
       const revisedToday = todayList.some(it => it.targetId === (t.chapters?.[0]?.id || t.id));
-      allTopicStats.push({ id: t.id, name: t.name.replace(/^T-?\d+\s*[-–]?\s*/, ''), subjectName: s.name, pct, done, max, pdfCount, touchedPdfs, targetId, revisedToday });
+      allTopicStats.push({ id: t.id, name: t.name.replace(/^T-?\d+\s*[-–]?\s*/, ''), subjectName: s.name, pct, done, max, pdfCount, touchedPdfs, targetId, revisedToday, lastRevisionTs });
     });
   });
 
@@ -309,109 +323,71 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
     }
   });
 
-  // Build daily action plan tasks (priority scored)
+  // Build daily action plan tasks
   const dailyPlan = [];
 
-  // 1. FIX WEAK — lowest accuracy topics from tests (< 80%) not already tested today
+  // 1. FIX WEAK (High Priority)
   weakTopics.filter(w => w.accuracy < 80 && !testedTopicNamesSet.has(w.name)).slice(0, 2).forEach(w => {
     dailyPlan.push({
-      type: 'weak',
-      icon: '🔴',
-      tag: 'Fix Weak',
-      tagColor: '#f85149',
-      tagBg: 'rgba(248,81,73,0.12)',
-      title: w.name,
-      subtitle: `Test accuracy: ${w.accuracy}% (${w.correct}/${w.total}) — Revise & re-test this topic`,
-      targetId: w.topicId,
-      priority: 10 - Math.floor(w.accuracy / 10),
+      type: 'weak', icon: '🔴', tag: 'Fix Weak', tagColor: '#f85149', tagBg: 'rgba(248,81,73,0.12)',
+      title: w.name, subtitle: `Accuracy: ${w.accuracy}% — Revise & re-test this topic`, targetId: w.topicId, priority: 10
     });
   });
 
-  // 2. UNTOUCHED topics — 0% progress, not revised today, pick highest-PDF topics across both subjects
-  const untouched = allTopicStats
-    .filter(t => t.pct === 0 && t.pdfCount > 0 && !t.revisedToday)
-    .sort((a, b) => b.pdfCount - a.pdfCount);
-  // Pick 1 from CS and 1 from GP to ensure variety
-  const untouchedCS = untouched.filter(t => t.subjectName === 'Computer Science')[0];
-  const untouchedGP = untouched.filter(t => t.subjectName === 'General Paper')[0];
-  [untouchedCS, untouchedGP].filter(Boolean).forEach(t => {
+  // 2. SPACED REPETITION (Medium-High Priority)
+  // Topics revised 1, 3, or 7 days ago
+  const oneDayAgo = todayStart - DAY_MS;
+  const threeDaysAgo = todayStart - (3 * DAY_MS);
+  allTopicStats.filter(t => !t.revisedToday && t.lastRevisionTs > 0).forEach(t => {
+    const ageDays = Math.floor((todayStart - t.lastRevisionTs) / DAY_MS);
+    if (ageDays === 1 || ageDays === 3 || ageDays === 7) {
+      dailyPlan.push({
+        type: 'review', icon: '🔄', tag: 'Spaced Review', tagColor: '#f59e0b', tagBg: 'rgba(245,158,11,0.12)',
+        title: t.name, subtitle: `Revised ${ageDays} day${ageDays>1?'s':''} ago — Time for a follow-up!`, targetId: t.targetId, priority: 9
+      });
+    }
+  });
+
+  // 3. SYLLABUS PROGRESS (Medium Priority)
+  // First 2 untouched topics in the whole syllabus
+  allTopicStats.filter(t => t.pct === 0 && !t.revisedToday).slice(0, 2).forEach(t => {
     dailyPlan.push({
-      type: 'start',
-      icon: '🆕',
-      tag: 'Start Fresh',
-      tagColor: '#8b5cf6',
-      tagBg: 'rgba(139,92,246,0.12)',
-      title: t.name,
-      subtitle: `${t.subjectName} · ${t.pdfCount} PDFs — Not started yet, begin R1 now`,
-      targetId: t.targetId,
-      priority: 7,
+      type: 'start', icon: '🚀', tag: 'Up Next', tagColor: '#8b5cf6', tagBg: 'rgba(139,92,246,0.12)',
+      title: t.name, subtitle: `Next in ${t.subjectName} — Start your R1 today`, targetId: t.targetId, priority: 8
     });
   });
 
-  // 3. IN-PROGRESS — started but < 50% and not fully done today, pick 2
-  allTopicStats
-    .filter(t => t.pct > 0 && t.pct < 50 && !t.revisedToday)
-    .sort((a, b) => b.touchedPdfs - a.touchedPdfs)
-    .slice(0, 2)
-    .forEach(t => {
-      dailyPlan.push({
-        type: 'continue',
-        icon: '▶️',
-        tag: 'Continue',
-        tagColor: '#3b82f6',
-        tagBg: 'rgba(59,130,246,0.12)',
-        title: t.name,
-        subtitle: `${t.subjectName} · ${t.pct}% done (${t.touchedPdfs}/${t.pdfCount} PDFs) — Keep going!`,
-        targetId: t.targetId,
-        priority: 6,
-      });
+  // 4. CONTINUE IN-PROGRESS (Medium Priority)
+  allTopicStats.filter(t => t.pct > 0 && t.pct < 100 && !t.revisedToday).sort((a, b) => b.pct - a.pct).slice(0, 2).forEach(t => {
+    dailyPlan.push({
+      type: 'continue', icon: '▶️', tag: 'Keep Going', tagColor: '#3b82f6', tagBg: 'rgba(59,130,246,0.12)',
+      title: t.name, subtitle: `${t.pct}% complete — Push this closer to 100%`, targetId: t.targetId, priority: 7
     });
-
-  // 4. TAKE TEST — topics with ≥ 20% revision progress not tested recently
-  const testedTopicIdsRecent = new Set();
-  testHistory.slice(0, 5).forEach(t => {
-    if (t.questionsSnapshot) t.questionsSnapshot.forEach(q => testedTopicIdsRecent.add(q.topicId));
   });
-  allTopicStats
-    .filter(t => t.pct >= 20 && !testedTopicIdsRecent.has(t.id) && !testedTopicNamesSet.has(t.name))
-    .sort((a, b) => b.pct - a.pct)
-    .slice(0, 1)
-    .forEach(t => {
-      dailyPlan.push({
-        type: 'test',
-        icon: '🧪',
-        tag: 'Take Test',
-        tagColor: '#14b8a6',
-        tagBg: 'rgba(20,184,166,0.12)',
-        title: t.name,
-        subtitle: `${t.subjectName} · ${t.pct}% revised — Validate your knowledge with a test`,
-        targetId: 'questionBank',
-        priority: 8,
-      });
-    });
 
-  // 5. REVIEW DONE — topics at ≥ 80%, prompt for next revision cycle
-  allTopicStats
-    .filter(t => t.pct >= 80 && !t.revisedToday)
-    .sort((a, b) => b.pct - a.pct)
-    .slice(0, 1)
-    .forEach(t => {
-      dailyPlan.push({
-        type: 'review',
-        icon: '🔄',
-        tag: 'Review',
-        tagColor: '#f59e0b',
-        tagBg: 'rgba(245,158,11,0.12)',
-        title: t.name,
-        subtitle: `${t.subjectName} · ${t.pct}% — Almost complete! Push to 100% or start next cycle`,
-        targetId: t.targetId,
-        priority: 5,
-      });
+  // 5. TEST READINESS
+  allTopicStats.filter(t => t.pct >= 30 && !testedTopicNamesSet.has(t.name)).sort((a, b) => b.pct - a.pct).slice(0, 1).forEach(t => {
+    dailyPlan.push({
+      type: 'test', icon: '🧪', tag: 'Test Ready', tagColor: '#14b8a6', tagBg: 'rgba(20,184,166,0.12)',
+      title: t.name, subtitle: `${t.pct}% revised — Excellent! Try a test now`, targetId: 'questionBank', priority: 6
     });
+  });
 
-  // Sort by priority desc and cap at 6 cards
+  // 6. FILLER: More untouched topics if we have space
+  if (dailyPlan.length < 6) {
+    allTopicStats.filter(t => t.pct === 0 && !t.revisedToday && !dailyPlan.find(p => p.title === t.name))
+      .slice(0, 6 - dailyPlan.length)
+      .forEach(t => {
+        dailyPlan.push({
+          type: 'start', icon: '🆕', tag: 'New Topic', tagColor: '#94a3b8', tagBg: 'rgba(148,163,184,0.12)',
+          title: t.name, subtitle: `${t.subjectName} · ${t.pdfCount} PDFs — Expand your coverage`, targetId: t.targetId, priority: 5
+        });
+      });
+  }
+
+  // Final sort and slice
   dailyPlan.sort((a, b) => b.priority - a.priority);
-  const topDailyPlan = dailyPlan.slice(0, 6);
+  const topDailyPlan = dailyPlan.slice(0, 8); // Show up to 8 cards now for better "enhancement"
 
   // Today's summary sentence
   const todayDoneTopicNames = [...new Set(todayList.map(i => i.topicName.replace(/^T-?\d+\s*[-–]?\s*/, '')))];
@@ -554,33 +530,40 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
             </div>
           </div>
           <div className="daily-plan-scroll">
-            {topDailyPlan.map((task, i) => (
-              <div
-                key={i}
-                className={`daily-plan-card dp-${task.type}`}
-                onClick={() => task.targetId && onSelectView(task.targetId)}
-                style={{ cursor: task.targetId ? 'pointer' : 'default', animationDelay: `${i * 55}ms` }}
-              >
-                <div className="dp-card-top">
-                  <span className="dp-tag" style={{ color: task.tagColor, background: task.tagBg }}>
-                    {task.icon} {task.tag}
-                  </span>
-                  <span className="dp-arrow">→</span>
+            {topDailyPlan.map((task, i) => {
+              const topic = allTopicStats.find(t => t.name === task.title);
+              const progressPct = task.type === 'weak' ? (weakTopics.find(w => w.name === task.title)?.accuracy || 0)
+                                : topic?.pct || 0;
+              
+              return (
+                <div
+                  key={i}
+                  className={`daily-plan-card dp-${task.type}`}
+                  onClick={() => task.targetId && onSelectView(task.targetId)}
+                  style={{ cursor: task.targetId ? 'pointer' : 'default', animationDelay: `${i * 55}ms` }}
+                >
+                  <div className="dp-card-top">
+                    <span className="dp-tag" style={{ color: task.tagColor, background: task.tagBg }}>
+                      {task.icon} {task.tag}
+                    </span>
+                    <span className="dp-arrow">→</span>
+                  </div>
+                  <div className="dp-card-title">{task.title}</div>
+                  <div className="dp-card-sub">{task.subtitle}</div>
+                  
+                  <div className="dp-card-footer">
+                    <div className="dp-card-bar" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                      <div className="dp-card-bar-fill" style={{
+                        background: task.tagColor,
+                        width: `${progressPct}%`,
+                        boxShadow: `0 0 10px ${task.tagColor}44`
+                      }} />
+                    </div>
+                    <span className="dp-card-pct" style={{ color: task.tagColor }}>{progressPct}%</span>
+                  </div>
                 </div>
-                <div className="dp-card-title">{task.title}</div>
-                <div className="dp-card-sub">{task.subtitle}</div>
-                <div className="dp-card-bar" style={{ background: task.tagBg }}>
-                  <div className="dp-card-bar-fill" style={{
-                    background: task.tagColor,
-                    width: task.type === 'weak' ? `${weakTopics.find(w => w.name === task.title)?.accuracy || 0}%`
-                      : task.type === 'continue' ? `${allTopicStats.find(t => t.name === task.title)?.pct || 0}%`
-                      : task.type === 'review' ? `${allTopicStats.find(t => t.name === task.title)?.pct || 0}%`
-                      : '100%',
-                    opacity: (task.type === 'start' || task.type === 'test') ? 0 : 1
-                  }} />
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}

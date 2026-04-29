@@ -274,23 +274,44 @@ function App() {
 
   // Read data from Firebase real-time and lock orientation
   useEffect(() => {
-    // Try to lock screen orientation to portrait
-    if (window.screen && window.screen.orientation && window.screen.orientation.lock) {
-      window.screen.orientation.lock('portrait').catch(() => {
-        // Ignore errors (not supported on all browsers or requires fullscreen)
-      });
-    }
-
     const docRef = doc(db, 'appData', DOC_ID);
     
     // Set up a real-time listener
     const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      let cloudRevisions = {};
       if (docSnap.exists()) {
-        setRevisionData(docSnap.data().revisions || {});
+        cloudRevisions = docSnap.data().revisions || {};
+        setRevisionData(cloudRevisions);
       } else {
         // Initialize if doc doesn't exist
         setDoc(docRef, { revisions: {} });
       }
+
+      // --- Revision Recovery Logic ---
+      // If cloud is empty or missing data, check localStorage for any legacy revision checks
+      const cloudCount = Object.keys(cloudRevisions).length;
+      if (cloudCount === 0) {
+        const localRevisions = {};
+        let foundLocal = false;
+        // Scan all localStorage keys for our revision pattern (e.g. gp-t7-ch1-0-r0)
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && /-[0-9]+-r[0-4]$/.test(key)) {
+            const val = localStorage.getItem(key);
+            if (val) {
+              localRevisions[key] = parseInt(val) || Date.now();
+              foundLocal = true;
+            }
+          }
+        }
+        
+        if (foundLocal) {
+          console.log("🚀 Found local revisions! Migrating to cloud...");
+          setRevisionData(localRevisions);
+          setDoc(docRef, { revisions: localRevisions }, { merge: true });
+        }
+      }
+
       setIsLoading(false);
     }, (error) => {
       console.error("Error fetching data:", error);
