@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import {
     BookOpen, MapPin, Users, History, HelpCircle,
     Menu, X, CheckCircle2, XCircle, Clock,
@@ -315,7 +316,13 @@ export default function BiharNotes({ embedded = false }) {
             <main className={`w-full p-4 sm:p-6 md:p-8 lg:p-10 ${embedded ? 'pt-4' : 'pt-24 md:pt-32'} space-y-16`}>
 
                 {/* Header Section */}
-                <header id="overview" className="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-slate-200 relative overflow-hidden scroll-mt-28 md:scroll-mt-32">
+                <motion.header 
+                    id="overview" 
+                    className="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-slate-200 relative overflow-hidden scroll-mt-28 md:scroll-mt-32"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                >
                     <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50 rounded-bl-full -z-10 opacity-60"></div>
 
                     <div className="inline-block bg-indigo-100 text-indigo-800 px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase mb-6 shadow-sm">
@@ -327,7 +334,7 @@ export default function BiharNotes({ embedded = false }) {
                     <p className="text-slate-500 text-lg md:text-xl max-w-2xl leading-relaxed">
                         An exhaustive, integrated guide covering the geography, administration, historical timelines, modern movements, and culture of Bihar. Contains minute high-yield details tailored for BPSC TRE 4.0.
                     </p>
-                </header>
+                </motion.header>
 
                 {/* EXAM FOCUS: BPSC TRE 4.0 */}
                 <section id="bpsc-tre" className="scroll-mt-28 md:scroll-mt-32">
@@ -669,7 +676,13 @@ export default function BiharNotes({ embedded = false }) {
                 </section>
 
                 {/* 2. Historical Timeline */}
-                <section id="timeline" className="scroll-mt-28 md:scroll-mt-32">
+                <motion.section 
+                    id="timeline" 
+                    className="scroll-mt-28 md:scroll-mt-32"
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    viewport={{ once: true }}
+                >
                     <div className="flex items-center gap-3 mb-8 border-b border-slate-200 pb-4">
                         <div className="bg-purple-100 p-2.5 rounded-xl text-purple-600 shadow-sm">
                             <Clock size={24} />
@@ -692,7 +705,15 @@ export default function BiharNotes({ embedded = false }) {
                                 const isActive = timelineProgress > (i / (TIMELINE.length - 1)) * 100 - 5;
                                 
                                 return (
-                                <div key={i} id={item.id} className="relative pl-8 md:pl-12 group scroll-mt-40">
+                                <motion.div 
+                                    key={i} 
+                                    id={item.id} 
+                                    className="relative pl-8 md:pl-12 group scroll-mt-40"
+                                    initial={{ opacity: 0, x: -20 }}
+                                    whileInView={{ opacity: 1, x: 0 }}
+                                    viewport={{ once: true }}
+                                    transition={{ delay: 0.1 }}
+                                >
                                     {/* The Connecting Dot */}
                                     <div className={`absolute left-0 top-1.5 w-4 h-4 rounded-full ring-4 ring-white transition-all duration-500 shadow-sm -translate-x-1/2
                                         ${isActive ? 'bg-purple-600 scale-110' : 'bg-slate-300'} 
@@ -703,11 +724,11 @@ export default function BiharNotes({ embedded = false }) {
                                         <h3 className={`text-xl font-bold transition-colors duration-500 ${isActive ? 'text-slate-800' : 'text-slate-600'}`}>{item.title}</h3>
                                     </div>
                                     <p className={`text-base leading-relaxed max-w-3xl transition-all duration-500 ${isActive ? 'text-slate-600 opacity-100' : 'text-slate-400 opacity-60'}`}>{item.desc}</p>
-                                </div>
+                                </motion.div>
                             )})}
                         </div>
                     </div>
-                </section>
+                </motion.section>
 
                 {/* 3. Modern History & Movements */}
                 <section id="movements" className="scroll-mt-28 md:scroll-mt-32">

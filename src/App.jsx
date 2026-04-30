@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { SUBJECTS } from './data';
 import { db } from './firebase';
 import { doc, getDoc, setDoc, onSnapshot, updateDoc } from 'firebase/firestore';
@@ -707,24 +708,42 @@ function App() {
             </div>
             {/* Breadcrumb navigation */}
             <nav className="breadcrumbs" aria-label="Breadcrumb">
-              {breadcrumbs.map((crumb, i) => (
-                <span key={i} className="breadcrumb-item">
-                  {i > 0 && <span className="breadcrumb-sep">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-                  </span>}
-                  {crumb.view ? (
-                    <button className="breadcrumb-link" onClick={() => navigateTo(crumb.view)}>{crumb.label}</button>
-                  ) : (
-                    <span className="breadcrumb-current">{crumb.label}</span>
-                  )}
-                </span>
-              ))}
+              <AnimatePresence mode="popLayout">
+                {breadcrumbs.map((crumb, i) => (
+                  <motion.span 
+                    key={crumb.label + i} 
+                    className="breadcrumb-item"
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 10 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {i > 0 && <span className="breadcrumb-sep">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </span>}
+                    {crumb.view ? (
+                      <button className="breadcrumb-link" onClick={() => navigateTo(crumb.view)}>{crumb.label}</button>
+                    ) : (
+                      <span className="breadcrumb-current">{crumb.label}</span>
+                    )}
+                  </motion.span>
+                ))}
+              </AnimatePresence>
             </nav>
           </header>
           <div className={`content-area ${activeView === 'historical-timeline' ? 'no-padding' : ''}`}>
-            <div key={activeView} className="page-transition">
-              {content}
-            </div>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeView}
+                initial={{ opacity: 0, y: 10, filter: 'blur(4px)' }}
+                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                exit={{ opacity: 0, y: -10, filter: 'blur(4px)' }}
+                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                className="page-transition"
+              >
+                {content}
+              </motion.div>
+            </AnimatePresence>
           </div>
         </main>
       </div>

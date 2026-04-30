@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import { db } from '../firebase';
 import { collection, onSnapshot, query, orderBy, limit } from 'firebase/firestore';
 import ProgressBar from './ProgressBar';
@@ -407,11 +408,34 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
   const ringCirc = 2 * Math.PI * ringRadius;
   const ringOffset = ringCirc - (goalPct / 100) * ringCirc;
 
-  return (
-    <div className="dashboard">
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.05
+      }
+    }
+  };
 
+  const itemVariants = {
+    hidden: { opacity: 0, y: 15 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
+    }
+  };
+
+  return (
+    <motion.div
+      className="dashboard"
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+    >
       {/* ══ HERO HEADER ══ */}
-      <div className="db-hero animate-slide-up">
+      <motion.div className="db-hero" variants={itemVariants}>
         <div className="db-hero-center">
           <div className="db-hero-greeting">
             {todayRevisions === 0 ? '👋 Hey, ready to study?' : dailyGoalMet ? '🎉 Goal crushed today!' : `💪 ${dailyGoal - todayRevisions} more to go`}
@@ -432,11 +456,13 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
           <div className="db-hero-pill goal-pill" onClick={() => { setGoalInput(dailyGoal); setShowGoalEditor(s => !s); }} style={{ cursor: 'pointer' }}>
             <svg width="44" height="44" viewBox="0 0 44 44">
               <circle cx="22" cy="22" r="18" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="4"/>
-              <circle cx="22" cy="22" r="18" fill="none"
-                stroke={dailyGoalMet ? '#22c55e' : '#8b5cf6'} strokeWidth="4" strokeLinecap="round"
+              <motion.circle cx="22" cy="22" r="18" fill="none"
+                stroke={dailyGoalMet ? '#22c55e' : '#0071e3'} strokeWidth="4" strokeLinecap="round"
                 strokeDasharray={2 * Math.PI * 18}
-                strokeDashoffset={2 * Math.PI * 18 - (goalPct / 100) * 2 * Math.PI * 18}
-                style={{ transform: 'rotate(-90deg)', transformOrigin: '22px 22px', transition: 'stroke-dashoffset 0.8s cubic-bezier(0.34,1.56,0.64,1)' }}
+                initial={{ strokeDashoffset: 2 * Math.PI * 18 }}
+                animate={{ strokeDashoffset: 2 * Math.PI * 18 - (goalPct / 100) * 2 * Math.PI * 18 }}
+                transition={{ duration: 1, ease: "easeOut" }}
+                style={{ transform: 'rotate(-90deg)', transformOrigin: '22px 22px' }}
               />
               <text x="22" y="26" textAnchor="middle" fill={dailyGoalMet ? '#22c55e' : '#e2e8f0'} fontSize="11" fontWeight="800" fontFamily="Inter,sans-serif">{todayRevisions}</text>
             </svg>
@@ -446,78 +472,74 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
             </div>
           </div>
           {showGoalEditor && (
-            <div className="hero-goal-editor">
+            <motion.div
+              className="hero-goal-editor"
+              initial={{ opacity: 0, scale: 0.9, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+            >
               <input type="number" min="1" max="50" value={goalInput} onChange={e => setGoalInput(e.target.value)} className="goal-input" />
               <button onClick={saveGoal} className="goal-save-btn">Set</button>
-            </div>
+            </motion.div>
           )}
         </div>
-      </div>
+      </motion.div>
 
       {/* ══ QUICK STATS ROW ══ */}
-      <div className="db-quick-stats animate-slide-up delay-1">
-        <div className="qs-card purple" onClick={() => onSelectView('questionBank')} style={{ cursor: 'pointer' }}>
+      <motion.div className="db-quick-stats" variants={itemVariants}>
+        <motion.div className="qs-card purple" onClick={() => onSelectView('questionBank')} style={{ cursor: 'pointer' }} whileHover={{ scale: 1.02, y: -2 }}>
           <div className="qs-val"><AnimatedNumber value={qbStats.total} /></div>
           <div className="qs-lbl">Questions</div>
-        </div>
-        <div className="qs-card teal" onClick={() => onSelectView('testDashboard')} style={{ cursor: 'pointer' }}>
+        </motion.div>
+        <motion.div className="qs-card teal" onClick={() => onSelectView('testDashboard')} style={{ cursor: 'pointer' }} whileHover={{ scale: 1.02, y: -2 }}>
           <div className="qs-val"><AnimatedNumber value={totalTests} /></div>
           <div className="qs-lbl">Tests Done</div>
-        </div>
-        <div className="qs-card blue">
+        </motion.div>
+        <motion.div className="qs-card blue" whileHover={{ scale: 1.02, y: -2 }}>
           <div className="qs-val"><AnimatedNumber value={totalCovered} /><span className="qs-denom">/{totalPdfs}</span></div>
           <div className="qs-lbl">PDFs Covered</div>
-        </div>
-        <div className="qs-card amber" onClick={() => onSelectView('testDashboard')} style={{ cursor: 'pointer' }}>
+        </motion.div>
+        <motion.div className="qs-card amber" onClick={() => onSelectView('testDashboard')} style={{ cursor: 'pointer' }} whileHover={{ scale: 1.02, y: -2 }}>
           <div className="qs-val"><AnimatedNumber value={avgTestAccuracy} /><span className="qs-denom">%</span></div>
           <div className="qs-lbl">Avg Accuracy</div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {/* ══ QUICK ACCESS SHORTCUTS ══ */}
-      <div className="db-quick-actions animate-slide-up delay-1">
-        <button className="qa-btn qa-purple" onClick={() => onSelectView('questionBank')}>
-          <span className="qa-icon">📝</span>
-          <span className="qa-label">Question Bank</span>
-        </button>
-        <button className="qa-btn qa-teal" onClick={() => onSelectView('notesHub')}>
-          <span className="qa-icon">📖</span>
-          <span className="qa-label">Notes Hub</span>
-        </button>
-        <button className="qa-btn qa-blue" onClick={() => onSelectView('pyq')}>
-          <span className="qa-icon">🔍</span>
-          <span className="qa-label">PYQ Papers</span>
-        </button>
-        <button className="qa-btn qa-indigo" onClick={() => onSelectView('historical-timeline')}>
-          <span className="qa-icon">⏳</span>
-          <span className="qa-label">Timeline</span>
-        </button>
-        <button className="qa-btn qa-amber" onClick={() => onSelectView('testDashboard')}>
-          <span className="qa-icon">📊</span>
-          <span className="qa-label">Analytics</span>
-        </button>
-        <button className="qa-btn qa-green" onClick={() => onSelectView('cs')}>
-          <span className="qa-icon">💻</span>
-          <span className="qa-label">Comp Science</span>
-        </button>
-        <button className="qa-btn qa-pink" onClick={() => onSelectView('gp')}>
-          <span className="qa-icon">📚</span>
-          <span className="qa-label">General Paper</span>
-        </button>
-      </div>
+      <motion.div className="db-quick-actions" variants={itemVariants}>
+        {[
+          { id: 'questionBank', icon: '📝', label: 'Question Bank', color: 'qa-purple' },
+          { id: 'notesHub', icon: '📖', label: 'Notes Hub', color: 'qa-teal' },
+          { id: 'pyq', icon: '🔍', label: 'PYQ Papers', color: 'qa-blue' },
+          { id: 'historical-timeline', icon: '⏳', label: 'Timeline', color: 'qa-indigo' },
+          { id: 'testDashboard', icon: '📊', label: 'Analytics', color: 'qa-amber' },
+          { id: 'cs', icon: '💻', label: 'Comp Science', color: 'qa-green' },
+          { id: 'gp', icon: '📚', label: 'General Paper', color: 'qa-pink' }
+        ].map(action => (
+          <motion.button
+            key={action.id}
+            className={`qa-btn ${action.color}`}
+            onClick={() => onSelectView(action.id)}
+            whileHover={{ y: -4, scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <span className="qa-icon">{action.icon}</span>
+            <span className="qa-label">{action.label}</span>
+          </motion.button>
+        ))}
+      </motion.div>
 
       {/* ══ OVERALL PROGRESS BAR ══ */}
-      <div className="db-progress-bar-row animate-slide-up delay-1">
+      <motion.div className="db-progress-bar-row" variants={itemVariants}>
         <div className="db-progress-labels">
           <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem' }}>Revision Coverage</span>
           <span style={{ color: 'var(--accent-teal)', fontSize: '0.78rem', fontWeight: 700 }}>{totalRevDone} / {totalRevMax} revisions · {totalCovered}/{totalPdfs} PDFs started</span>
         </div>
         <ProgressBar value={totalRevDone} max={totalRevMax} size="md" />
-      </div>
+      </motion.div>
 
       {/* ══ WHAT TO DO TODAY ══ */}
       {topDailyPlan.length > 0 && (
-        <div className="daily-plan-section animate-slide-up delay-2">
+        <motion.div className="daily-plan-section" variants={itemVariants}>
           <div className="daily-plan-header">
             <div className="daily-plan-title-row">
               <span className="daily-plan-icon">📋</span>
@@ -536,11 +558,12 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
                                 : topic?.pct || 0;
               
               return (
-                <div
+                <motion.div
                   key={i}
                   className={`daily-plan-card dp-${task.type}`}
                   onClick={() => task.targetId && onSelectView(task.targetId)}
-                  style={{ cursor: task.targetId ? 'pointer' : 'default', animationDelay: `${i * 55}ms` }}
+                  style={{ cursor: task.targetId ? 'pointer' : 'default' }}
+                  whileHover={{ y: -6, scale: 1.02 }}
                 >
                   <div className="dp-card-top">
                     <span className="dp-tag" style={{ color: task.tagColor, background: task.tagBg }}>
@@ -553,23 +576,28 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
                   
                   <div className="dp-card-footer">
                     <div className="dp-card-bar" style={{ background: 'rgba(255,255,255,0.05)' }}>
-                      <div className="dp-card-bar-fill" style={{
-                        background: task.tagColor,
-                        width: `${progressPct}%`,
-                        boxShadow: `0 0 10px ${task.tagColor}44`
-                      }} />
+                      <motion.div 
+                        className="dp-card-bar-fill" 
+                        initial={{ width: 0 }}
+                        animate={{ width: `${progressPct}%` }}
+                        transition={{ duration: 0.8, delay: 0.2 + i * 0.1 }}
+                        style={{
+                          background: task.tagColor,
+                          boxShadow: `0 0 10px ${task.tagColor}44`
+                        }} 
+                      />
                     </div>
                     <span className="dp-card-pct" style={{ color: task.tagColor }}>{progressPct}%</span>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
           </div>
-        </div>
+        </motion.div>
       )}
 
       {/* ══ ANALYTICS GRID ══ */}
-      <div className="db-analytics-grid animate-slide-up delay-3">
+      <motion.div className="db-analytics-grid" variants={itemVariants}>
 
         {/* Row 1: Activity Chart + Subject Progress */}
         <div className="db-panel glass-card activity-chart-panel" style={{ overflow: 'visible' }}>
@@ -732,13 +760,13 @@ export default function Dashboard({ subjects, revisionData, onSelectView }) {
           </div>
         </div>
 
-      </div>
+      </motion.div>
 
       {/* ── Test Review Modal ── */}
       {selectedTest && (
         <TestReviewModal test={selectedTest} onClose={() => setSelectedTest(null)} />
       )}
-    </div>
+    </motion.div>
   );
 }
 

@@ -1,3 +1,5 @@
+import { motion } from 'framer-motion';
+
 export default function PDFList({ title, pdfs, idPrefix, revisionData, onToggle, onOpenPdf }) {
   return (
     <div className="pdf-list">
@@ -17,62 +19,86 @@ export default function PDFList({ title, pdfs, idPrefix, revisionData, onToggle,
           <span className="col-progress">Progress</span>
         </div>
 
-        {pdfs.map((pdf, i) => {
-          const key = `${idPrefix}-${i}`;
-          let doneCount = 0;
-          for (let r = 0; r < 5; r++) if (revisionData[`${key}-r${r}`]) doneCount++;
-          const allDone = doneCount === 5;
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: { opacity: 0 },
+            visible: {
+              opacity: 1,
+              transition: { staggerChildren: 0.05 }
+            }
+          }}
+        >
+          {pdfs.map((pdf, i) => {
+            const key = `${idPrefix}-${i}`;
+            let doneCount = 0;
+            for (let r = 0; r < 5; r++) if (revisionData[`${key}-r${r}`]) doneCount++;
+            const allDone = doneCount === 5;
 
-          return (
-            <div key={key} className={`pdf-row ${allDone ? 'completed' : ''}`}>
-              <span 
-                className="col-name pdf-name" 
-                onClick={() => onOpenPdf && onOpenPdf(pdf)}
-                style={{ cursor: onOpenPdf ? 'pointer' : 'default' }}
-                title={onOpenPdf ? "View PDF" : ""}
+            return (
+              <motion.div 
+                key={key} 
+                className={`pdf-row ${allDone ? 'completed' : ''}`}
+                variants={{
+                  hidden: { opacity: 0, y: 10 },
+                  visible: { opacity: 1, y: 0 }
+                }}
               >
-                <span className="pdf-icon">{allDone ? '✅' : '📄'}</span>
-                <span className="pdf-text-link" style={onOpenPdf ? { color: '#60a5fa' } : {}}>{pdf}</span>
-              </span>
-              <span className="col-revisions">
-                {[0, 1, 2, 3, 4].map(r => {
-                  const timestamp = revisionData[`${key}-r${r}`];
-                  const checked = !!timestamp;
-                  
-                  // Calculate days from previous revision if both exist
-                  let daysLabel = null;
-                  if (r > 0 && checked) {
-                    const prevTimestamp = revisionData[`${key}-r${r-1}`];
-                    if (prevTimestamp) {
-                      const diffMs = timestamp - prevTimestamp;
-                      // Only show if positive (in case they were clicked out of order)
-                      if (diffMs > 0) {
-                        const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-                        daysLabel = days === 0 ? 'Today' : `${days}d`;
+                <span 
+                  className="col-name pdf-name" 
+                  onClick={() => onOpenPdf && onOpenPdf(pdf)}
+                  style={{ cursor: onOpenPdf ? 'pointer' : 'default' }}
+                  title={onOpenPdf ? "View PDF" : ""}
+                >
+                  <span className="pdf-icon">{allDone ? '✅' : '📄'}</span>
+                  <span className="pdf-text-link" style={onOpenPdf ? { color: '#60a5fa' } : {}}>{pdf}</span>
+                </span>
+                <span className="col-revisions">
+                  {[0, 1, 2, 3, 4].map(r => {
+                    const timestamp = revisionData[`${key}-r${r}`];
+                    const checked = !!timestamp;
+                    
+                    // Calculate days from previous revision if both exist
+                    let daysLabel = null;
+                    if (r > 0 && checked) {
+                      const prevTimestamp = revisionData[`${key}-r${r-1}`];
+                      if (prevTimestamp) {
+                        const diffMs = timestamp - prevTimestamp;
+                        // Only show if positive (in case they were clicked out of order)
+                        if (diffMs > 0) {
+                          const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                          daysLabel = days === 0 ? 'Today' : `${days}d`;
+                        }
                       }
                     }
-                  }
 
-                  return (
-                    <div key={r} className="rev-wrapper">
-                      <button
-                        className={`rev-circle ${checked ? 'checked' : ''}`}
-                        onClick={() => onToggle(`${key}-r${r}`)}
-                        title={checked ? new Date(timestamp).toLocaleDateString() : `Revision ${r + 1}`}
-                      >
-                        {checked ? '✓' : r + 1}
-                      </button>
-                      {daysLabel && <span className="rev-days">+{daysLabel}</span>}
-                    </div>
-                  );
-                })}
-              </span>
-              <span className="col-progress">
-                <span className={`progress-mini ${allDone ? 'done' : ''}`}>{doneCount}/5</span>
-              </span>
-            </div>
-          );
-        })}
+                    return (
+                      <div key={r} className="rev-wrapper">
+                        <motion.button
+                          className={`rev-circle ${checked ? 'checked' : ''}`}
+                          onClick={() => onToggle(`${key}-r${r}`)}
+                          title={checked ? new Date(timestamp).toLocaleDateString() : `Revision ${r + 1}`}
+                          whileTap={{ scale: 0.9 }}
+                          animate={{ 
+                            scale: checked ? [1, 1.2, 1] : 1,
+                            backgroundColor: checked ? 'var(--accent-teal)' : 'rgba(255,255,255,0.05)'
+                          }}
+                        >
+                          {checked ? '✓' : r + 1}
+                        </motion.button>
+                        {daysLabel && <span className="rev-days">+{daysLabel}</span>}
+                      </div>
+                    );
+                  })}
+                </span>
+                <span className="col-progress">
+                  <span className={`progress-mini ${allDone ? 'done' : ''}`}>{doneCount}/5</span>
+                </span>
+              </motion.div>
+            );
+          })}
+        </motion.div>
       </div>
     </div>
   );

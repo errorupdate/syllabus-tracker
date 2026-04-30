@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { SUBJECTS } from '../data';
 import { PYQ_QUESTIONS } from '../pyqData';
 import * as notesData from '../data/notesData.jsx';
@@ -251,100 +252,133 @@ export default function SearchModal({ isOpen, onClose, onNavigate }) {
     }
   }, [activeIndex]);
 
-  if (!isOpen) return null;
-
   return (
-    <div className={`search-overlay ${isDocked ? 'docked' : ''}`} onClick={onClose}>
-      <div 
-        className="search-modal" 
-        onClick={e => e.stopPropagation()}
-        ref={modalRef}
-        style={position ? { 
-          left: `${position.x}px`, 
-          top: `${position.y}px`, 
-          transform: 'none', 
-          transition: isDragging ? 'none' : 'all 0.3s ease',
-          margin: 0
-        } : {}}
-      >
-        <div className="search-header" onMouseDown={handleMouseDown} style={{ cursor: 'grab' }}>
-          <span className="search-modal-icon">🔍</span>
-          <input
-            ref={inputRef}
-            type="text"
-            placeholder="Search anything... (Topic, Note, word)"
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
-            onKeyDown={handleKeyDown}
-          />
-          <button 
-            onClick={onClose} 
-            className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-700 transition-colors dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
-            title="Close Search (ESC)"
+    <AnimatePresence>
+      {isOpen && (
+        <div className={`search-overlay ${isDocked ? 'docked' : ''}`} onClick={onClose}>
+          <motion.div 
+            className="search-modal" 
+            onClick={e => e.stopPropagation()}
+            ref={modalRef}
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ 
+              opacity: 1, 
+              scale: 1, 
+              y: 0,
+              ...(position ? { left: `${position.x}px`, top: `${position.y}px`, margin: 0 } : {})
+            }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            style={position ? { 
+              transform: 'none', 
+              transition: isDragging ? 'none' : 'all 0.3s ease',
+            } : {}}
+            layout
           >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-          </button>
-        </div>
-
-        <div className="search-results" ref={resultsRef}>
-          {searchTerm.length === 0 ? (
-            <div className="search-empty">
-              <div className="search-hint-icon">⚡</div>
-              <p>Type at least 2 characters to start searching</p>
-              <div className="search-tips">
-                <span>Try "Bihar"</span>
-                <span>"Article 14"</span>
-                <span>"CPU"</span>
-                <span>"Network"</span>
-              </div>
-            </div>
-          ) : results.length === 0 ? (
-            <div className="search-empty">
-              <div className="search-hint-icon">😕</div>
-              <p>No results found for "{searchTerm}"</p>
-            </div>
-          ) : (
-            results.map((item, index) => (
-              <div
-                key={`${item.id}-${item.anchorId}-${index}`}
-                className={`search-item ${index === activeIndex ? 'active' : ''}`}
-                onClick={() => handleSelect(item)}
-                onMouseEnter={() => setActiveIndex(index)}
+            <div className="search-header" onMouseDown={handleMouseDown} style={{ cursor: 'grab' }}>
+              <span className="search-modal-icon">🔍</span>
+              <input
+                ref={inputRef}
+                type="text"
+                placeholder="Search anything... (Topic, Note, word)"
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+                onKeyDown={handleKeyDown}
+              />
+              <button 
+                onClick={onClose} 
+                className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-700 transition-colors dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+                title="Close Search (ESC)"
               >
-                <div className="item-icon">{item.icon}</div>
-                <div className="item-info">
-                  <div className="item-name">
-                    {item.name.split(new RegExp(`(${searchTerm})`, 'gi')).map((part, i) => 
-                      part.toLowerCase() === searchTerm.toLowerCase() 
-                        ? <mark key={i}>{part}</mark> 
-                        : part
-                    )}
-                  </div>
-                  <div className="item-meta">
-                    <span className="item-category">{item.category}</span>
-                    {item.subcategory && <span className="item-subcategory">• {item.subcategory}</span>}
-                  </div>
-                </div>
-                <div className="item-action">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
 
-        <div className="search-footer">
-          <div className="footer-tip">
-            <kbd>↑↓</kbd> to navigate
-          </div>
-          <div className="footer-tip">
-            <kbd>ENTER</kbd> to open
-          </div>
-          <div className="footer-tip">
-             Found {results.length} results
-          </div>
+            <div className="search-results" ref={resultsRef}>
+              {searchTerm.length === 0 ? (
+                <motion.div 
+                  className="search-empty"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                >
+                  <div className="search-hint-icon">⚡</div>
+                  <p>Type at least 2 characters to start searching</p>
+                  <div className="search-tips">
+                    <span>Try "Bihar"</span>
+                    <span>"Article 14"</span>
+                    <span>"CPU"</span>
+                    <span>"Network"</span>
+                  </div>
+                </motion.div>
+              ) : results.length === 0 ? (
+                <motion.div 
+                  className="search-empty"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                >
+                  <div className="search-hint-icon">😕</div>
+                  <p>No results found for "{searchTerm}"</p>
+                </motion.div>
+              ) : (
+                <motion.div
+                  initial="hidden"
+                  animate="visible"
+                  variants={{
+                    hidden: { opacity: 0 },
+                    visible: {
+                      opacity: 1,
+                      transition: { staggerChildren: 0.03 }
+                    }
+                  }}
+                >
+                  {results.map((item, index) => (
+                    <motion.div
+                      key={`${item.id}-${item.anchorId}-${index}`}
+                      className={`search-item ${index === activeIndex ? 'active' : ''}`}
+                      onClick={() => handleSelect(item)}
+                      onMouseEnter={() => setActiveIndex(index)}
+                      variants={{
+                        hidden: { opacity: 0, x: -10 },
+                        visible: { opacity: 1, x: 0 }
+                      }}
+                    >
+                      <div className="item-icon">{item.icon}</div>
+                      <div className="item-info">
+                        <div className="item-name">
+                          {item.name.split(new RegExp(`(${searchTerm})`, 'gi')).map((part, i) => 
+                            part.toLowerCase() === searchTerm.toLowerCase() 
+                              ? <mark key={i}>{part}</mark> 
+                              : part
+                          )}
+                        </div>
+                        <div className="item-meta">
+                          <span className="item-category">{item.category}</span>
+                          {item.subcategory && <span className="item-subcategory">• {item.subcategory}</span>}
+                        </div>
+                      </div>
+                      <div className="item-action">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                      </div>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              )}
+            </div>
+
+            <div className="search-footer">
+              <div className="footer-tip">
+                <kbd>↑↓</kbd> to navigate
+              </div>
+              <div className="footer-tip">
+                <kbd>ENTER</kbd> to open
+              </div>
+              <div className="footer-tip">
+                 Found {results.length} results
+              </div>
+            </div>
+          </motion.div>
         </div>
-      </div>
-    </div>
+      )}
+    </AnimatePresence>
   );
 }

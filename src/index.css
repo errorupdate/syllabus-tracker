@@ -6,45 +6,45 @@
 @tailwind utilities;
 
 :root {
-  --bg-primary: #f8fafc;
+  --bg-primary: #f5f5f7; /* Apple's off-white */
   --bg-secondary: #ffffff;
-  --bg-card: rgba(255, 255, 255, 0.95);
-  --bg-card-hover: #f1f5f9;
-  --bg-sidebar: #ffffff;
-  --bg-input: #f8fafc;
-  --border: #e2e8f0;
-  --border-bright: #cbd5e1;
-  --text-primary: #1e293b;
-  --text-secondary: #475569;
-  --text-muted: #64748b;
-  --accent-purple: #3b82f6; /* Ocean Blue */
-  --accent-purple-glow: rgba(59, 130, 246, 0.15);
-  --accent-teal: #0d9488; /* Calm Teal */
-  --accent-teal-glow: rgba(13, 148, 136, 0.15);
-  --accent-amber: #f59e0b; /* Sunny Amber */
-  --accent-amber-glow: rgba(245, 158, 11, 0.15);
-  --accent-green: #10b981; /* Mint Green */
-  --accent-green-glow: rgba(16, 185, 129, 0.15);
-  --accent-blue: #0ea5e9; /* Sky Blue */
-  --sidebar-width: 300px;
-  --glass-bg: rgba(255, 255, 255, 0.85);
-  --glass-border: rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
-  --radius: 14px;
-  --radius-sm: 10px;
-  --font-display: 'Outfit', 'Inter', system-ui, sans-serif;
-  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --bg-card: rgba(255, 255, 255, 0.75);
+  --bg-card-hover: rgba(255, 255, 255, 0.9);
+  --bg-sidebar: rgba(255, 255, 255, 0.8);
+  --bg-input: #f2f2f7;
+  --border: rgba(0, 0, 0, 0.08);
+  --border-bright: rgba(0, 0, 0, 0.12);
+  --text-primary: #1d1d1f; /* Apple's primary text color */
+  --text-secondary: #48484a;
+  --text-muted: #86868b;
+  --accent-purple: #0071e3; /* Apple Blue */
+  --accent-purple-glow: rgba(0, 113, 227, 0.15);
+  --accent-teal: #1db954; 
+  --accent-teal-glow: rgba(29, 185, 84, 0.15);
+  --accent-amber: #f56300;
+  --accent-amber-glow: rgba(245, 99, 0, 0.15);
+  --accent-green: #34c759;
+  --accent-green-glow: rgba(52, 199, 89, 0.15);
+  --accent-blue: #007aff;
+  --sidebar-width: 280px;
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.3);
+  --shadow-lg: 0 8px 32px 0 rgba(0, 0, 0, 0.04);
+  --radius: 20px;
+  --radius-sm: 12px;
+  --font-display: 'Outfit', 'SF Pro Display', -apple-system, system-ui, sans-serif;
+  --font-body: 'SF Pro Text', 'Inter', -apple-system, system-ui, sans-serif;
 
   /* Component-friendly aliases */
   --text: var(--text-primary);
   --accent: var(--accent-purple);
-  --accent-bg: rgba(59, 130, 246, 0.08);
+  --accent-bg: rgba(0, 113, 227, 0.08);
   --bg: var(--bg-primary);
   --surface: var(--bg-secondary);
   --surface-hover: var(--bg-card-hover);
   --border-color: var(--border);
   --primary-color: var(--accent-purple);
-  --primary-hover: #2563eb;
+  --primary-hover: #0077ed;
   --bg-dark: var(--bg-primary);
 }
 
@@ -223,15 +223,16 @@ h1, h2, h3,
   top: 0;
   left: 0;
   bottom: 0;
-  z-index: 200; /* Higher z-index for mobile overlap */
+  z-index: 200;
   overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(59, 130, 246, 0.2) transparent;
-  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s;
+  scrollbar-width: none;
+  backdrop-filter: blur(25px) saturate(1.8);
+  -webkit-backdrop-filter: blur(25px) saturate(1.8);
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .sidebar::-webkit-scrollbar {
-  width: 3px;
+  width: 0px;
 }
 
 .sidebar::-webkit-scrollbar-thumb {
@@ -331,12 +332,14 @@ h1, h2, h3,
 @keyframes stagger-fade-in {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(10px);
+    filter: blur(4px);
   }
 
   to {
     opacity: 1;
     transform: translateY(0);
+    filter: blur(0);
   }
 }
 
@@ -531,8 +534,8 @@ h1, h2, h3,
   padding: 0 24px;
   gap: 16px;
   background: var(--glass-bg);
-  backdrop-filter: blur(20px) saturate(1.4);
-  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  backdrop-filter: blur(30px) saturate(2);
+  -webkit-backdrop-filter: blur(30px) saturate(2);
   position: sticky;
   top: 0;
   z-index: 50;
@@ -657,18 +660,18 @@ h1, h2, h3,
 
 /* Page transition animation */
 .page-transition {
-  animation: pageTransition 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  width: 100%;
 }
 
 @keyframes pageTransition {
   from {
     opacity: 0;
-    transform: translateY(16px) scale(0.99);
-    filter: blur(2px);
+    transform: translateY(8px);
+    filter: blur(4px);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
     filter: blur(0);
   }
 }
