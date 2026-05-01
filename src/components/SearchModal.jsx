@@ -11,6 +11,8 @@ const STUDY_NOTES = [
   { id: 'land-revenue', name: 'Land Revenue Systems', type: 'note', icon: '🌾', source: 'LAND_REVENUE' },
   { id: 'education-india', name: 'Development of Education', type: 'note', icon: '🎓', source: 'EDUCATION' },
   { id: 'tribal-movements', name: 'Tribal & Peasant Movements', type: 'note', icon: '🏹', source: 'TRIBAL' },
+  { id: 'os-notes', name: 'Operating System Architecture', type: 'note', icon: '⚙️', source: 'OS' },
+  { id: 'dsa-notes', name: 'Data Structure and Algorithm', type: 'note', icon: '🌳', source: 'DSA' },
   { id: 'emerging-trends', name: 'Emerging Trends in CS', type: 'note', icon: '🚀', source: 'EMERGING' },
   { id: 'historical-timeline', name: 'Historical Timeline', type: 'note', icon: '⏳', source: 'TIMELINE' },
 ];
@@ -125,6 +127,10 @@ export default function SearchModal({ isOpen, onClose, onNavigate }) {
             mapping = { id: 'tribal-movements', category: 'History', icon: '🏹' };
         } else if (key === 'LAND_REVENUE_SYSTEMS') {
             mapping = { id: 'land-revenue', category: 'History', icon: '🌾' };
+        } else if (key === 'OS_NOTES') {
+            mapping = { id: 'os-notes', category: 'Computer Science', icon: '⚙️' };
+        } else if (key === 'DSA_NOTES') {
+            mapping = { id: 'dsa-notes', category: 'Computer Science', icon: '🌳' };
         } else if (key === 'EMERGING_TRENDS') {
             mapping = { id: 'emerging-trends', category: 'Computer Science', icon: '🚀' };
         }

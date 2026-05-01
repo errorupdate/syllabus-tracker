@@ -7,6 +7,8 @@ const INTERACTIVE_NOTES_MAP = {
   'gp-t7-ch3': { view: 'land-revenue', icon: '📜' },
   'gp-t7-ch4': { view: 'education-india', icon: '🏫' },
   'gp-t7-ch5': { view: 'tribal-movements', icon: '🌾' },
+  'cs-t1': { view: 'os-notes', icon: '⚙️' },
+  'cs-t4': { view: 'dsa-notes', icon: '🌳' },
   'cs-t9': { view: 'emerging-trends', icon: '💻' }
 };
 

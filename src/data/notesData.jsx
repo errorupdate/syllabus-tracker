@@ -293,3 +293,15 @@ export const BIHAR_BPSC_CATCHES = [
         desc: 'While Mazharul Haque was the first president of the reorganized BPCC in 1921, Syed Ali Imam presided over the very first Provincial Conference in 1908.'
     },
 ];
+
+// --- OS DATA ---
+export const OS_NOTES = [
+    { topic: "Foundations & System Architecture", concepts: "Definition & Core Functions, OS Typology Matrix, Single-user, Multi-user, Real-Time Operating Systems (RTOS)." },
+    { topic: "The Bootstrapping Paradigm", concepts: "BIOS/UEFI, MBR/GPT, Bootloader (GRUB), Kernel Initialization." },
+];
+
+// --- DSA DATA ---
+export const DSA_NOTES = [
+    { topic: "Algorithm Basics & Control Flow", concepts: "Python Loop Structures, Prime Number Algorithm Optimization." },
+    { topic: "Asymptotic Notations & Complexity", concepts: "Big-O Notation, Omega Notation, Theta Notation." },
+];

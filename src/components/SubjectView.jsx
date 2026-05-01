@@ -56,12 +56,12 @@ export default function SubjectView({ subject, revisionData, onSelectView, onOpe
             <span style={{ fontSize: '1.8rem' }}>📘</span> 
             {subject.name}
           </h1>
-          <p className="subtitle" style={{ fontSize: '1.05rem', marginTop: '8px', marginBottom: 0 }}>
+          <div className="subtitle" style={{ fontSize: '1.05rem', marginTop: '8px', marginBottom: 0 }}>
             <div className="sv-meta">
               <span>📚 {overallPdfs} PDF Notes</span>
               <span>✅ Completed: {overallDone}</span>
             </div>
-          </p>
+          </div>
         </div>
       </div>
 

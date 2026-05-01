@@ -19,6 +19,8 @@ import LandRevenueSystem from './components/notes/LandRevenueSytem';
 import DevelopmentOfEducationInIndia from './components/notes/DevelopmentofEducationinIndia';
 import TribalMovements from './components/notes/TribalMovements';
 import EmergingTrends from './components/notes/EmergingTrends';
+import Dsa from './components/notes/Dsa';
+import OperatingSystem from './components/notes/OperatingSystem';
 import NotesHub from './components/NotesHub';
 import HistoricalTimeline from './components/HistoricalTimeline';
 // ChatBot removed — was API-dependent
@@ -45,6 +47,8 @@ function getBreadcrumbs(activeView, subjects) {
   if (activeView === 'land-revenue') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'General Paper', view: 'gp' }, { label: 'History', view: 'gp-t7' }, { label: 'CH-3 Land Revenue Systems in India', view: 'gp-t7-ch3' }, { label: '📖 Study Notes', icon: '📖' }];
   if (activeView === 'education-india') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'General Paper', view: 'gp' }, { label: 'History', view: 'gp-t7' }, { label: 'CH-4 Development of Education in India', view: 'gp-t7-ch4' }, { label: '📖 Study Notes', icon: '📖' }];
   if (activeView === 'tribal-movements') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'General Paper', view: 'gp' }, { label: 'History', view: 'gp-t7' }, { label: 'CH-5 Major Movements', view: 'gp-t7-ch5' }, { label: '📖 Study Notes', icon: '📖' }];
+  if (activeView === 'dsa-notes') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'Computer Science', view: 'cs' }, { label: 'T-4 Data Structure and Algorithm', view: 'cs-t4' }, { label: '📖 Study Notes', icon: '📖' }];
+  if (activeView === 'os-notes') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'Computer Science', view: 'cs' }, { label: 'T-1 Operating System', view: 'cs-t1' }, { label: '📖 Study Notes', icon: '📖' }];
   if (activeView === 'emerging-trends') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'Computer Science', view: 'cs' }, { label: 'T-9 Emerging Trends', view: 'cs-t9' }, { label: '📖 Study Notes', icon: '📖' }];
   if (activeView === 'notesHub') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'Notes Hub', icon: '📖' }];
   if (activeView === 'historical-timeline') return [{ label: 'Dashboard', view: 'dashboard' }, { label: 'Historical Timeline', icon: '⏳' }];
@@ -531,6 +535,68 @@ function App() {
         />
       </>
     );
+  } else if (activeView === 'cs-t1') {
+    const topic = SUBJECTS.find(s => s.id === 'cs').topics.find(t => t.id === 'cs-t1');
+    content = (
+      <>
+        <div style={{ marginBottom: '16px' }}>
+          <button
+            onClick={() => navigateTo('os-notes')}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: '8px',
+              background: 'linear-gradient(135deg, #0ea5e9, #0284c7)',
+              color: '#fff', border: 'none', borderRadius: '12px',
+              padding: '12px 20px', fontSize: '0.95rem', fontWeight: 700,
+              cursor: 'pointer', boxShadow: '0 4px 12px rgba(14,165,233,0.35)',
+              transition: 'transform 0.15s, box-shadow 0.15s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(14,165,233,0.45)'; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(14,165,233,0.35)'; }}
+          >
+            📖 View Operating System Notes →
+          </button>
+        </div>
+        <PDFList
+          title="T-1 Operating System"
+          pdfs={topic?.pdfs || []}
+          idPrefix="cs-t1"
+          revisionData={revisionData}
+          onToggle={toggleRevision}
+          onOpenPdf={setViewingPdf}
+        />
+      </>
+    );
+  } else if (activeView === 'cs-t4') {
+    const topic = SUBJECTS.find(s => s.id === 'cs').topics.find(t => t.id === 'cs-t4');
+    content = (
+      <>
+        <div style={{ marginBottom: '16px' }}>
+          <button
+            onClick={() => navigateTo('dsa-notes')}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: '8px',
+              background: 'linear-gradient(135deg, #0ea5e9, #0284c7)',
+              color: '#fff', border: 'none', borderRadius: '12px',
+              padding: '12px 20px', fontSize: '0.95rem', fontWeight: 700,
+              cursor: 'pointer', boxShadow: '0 4px 12px rgba(14,165,233,0.35)',
+              transition: 'transform 0.15s, box-shadow 0.15s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(14,165,233,0.45)'; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(14,165,233,0.35)'; }}
+          >
+            📖 View DSA Notes →
+          </button>
+        </div>
+        <PDFList
+          title="T-4 Data Structure and Algorithm"
+          pdfs={topic?.pdfs || []}
+          idPrefix="cs-t4"
+          revisionData={revisionData}
+          onToggle={toggleRevision}
+          onOpenPdf={setViewingPdf}
+        />
+      </>
+    );
   } else if (activeView === 'cs-t9') {
     const topic = SUBJECTS.find(s => s.id === 'cs').topics.find(t => t.id === 'cs-t9');
     content = (
@@ -572,6 +638,10 @@ function App() {
     content = <DevelopmentOfEducationInIndia />;
   } else if (activeView === 'tribal-movements') {
     content = <TribalMovements />;
+  } else if (activeView === 'dsa-notes') {
+    content = <Dsa />;
+  } else if (activeView === 'os-notes') {
+    content = <OperatingSystem />;
   } else if (activeView === 'emerging-trends') {
     content = <EmergingTrends />;
   } else if (activeView === 'notesHub') {
