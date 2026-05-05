@@ -1,26 +1,187 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 const DevelopmentOfEducation = () => {
-    return (
-        <div className="font-sans text-slate-800 antialiased leading-relaxed w-full bg-[#f8fafc] min-h-screen pt-8 pb-16">
-            <div className="w-full px-4 sm:px-6 lg:px-8">
-                <div className="w-full">
+    const [activeSection, setActiveSection] = useState('');
+    const [isScrolled, setIsScrolled] = useState(false);
+    const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
-                                    {/*  Header Section  */}
-                                    <header className="text-center mb-16 relative">
-                                        <div className="inline-block px-4 py-1 rounded-full bg-teal-100 text-teal-800 font-bold text-sm tracking-widest mb-4 border border-teal-500/30 uppercase">
-                                            BPSC TRE 4.0 Exclusive Study Material
-                                        </div>
-                                        <h1 className="font-merriweather text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 mb-6 leading-tight">
-                                            Development of <br /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-900 to-amber-600">Education in India</span>
-                                        </h1>
-                                        <p className="text-lg text-slate-600 max-w-2xl mx-auto font-medium">
-                                            A comprehensive, deeply researched module mapping the evolution from indigenous Gurukuls to Modern Education Policies, specifically curated for Bihar Teacher Recruitment Examinations.
-                                        </p>
-                                    </header>
+    const navItems = [
+        { id: 'pre-british', label: 'Pre-British', icon: '📜' },
+        { id: 'british', label: 'British Era', icon: '🏛️' },
+        { id: 'commissions', label: 'Commissions', icon: '⚖️' },
+        { id: 'nationalist', label: 'Nationalist', icon: '🇮🇳' },
+        { id: 'post-independence', label: 'Post-Ind', icon: '📈' },
+        { id: 'strategy', label: 'Strategy', icon: '🎯' },
+    ];
+
+    const scrollToSection = (e, id) => {
+        e.preventDefault();
+        const element = document.getElementById(id);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+            window.history.pushState(null, '', `#${id}`);
+        }
+    };
+
+    useEffect(() => {
+        const observerOptions = { root: null, rootMargin: '0px 0px -80px 0px', threshold: 0.08 };
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    const children = entry.target.querySelectorAll('.os-stagger');
+                    children.forEach((child, i) => {
+                        child.style.transitionDelay = `${i * 0.08}s`;
+                        child.classList.add('is-visible');
+                    });
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.os-reveal').forEach(el => observer.observe(el));
+
+        const sectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    setActiveSection(entry.target.id);
+                }
+            });
+        }, { root: null, rootMargin: '-30% 0px -60% 0px', threshold: 0 });
+
+        document.querySelectorAll('section[id]').forEach(el => sectionObserver.observe(el));
+
+        const handleScroll = () => setIsScrolled(window.scrollY > 60);
+        window.addEventListener('scroll', handleScroll, { passive: true });
+
+        return () => {
+            observer.disconnect();
+            sectionObserver.disconnect();
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, []);
+
+    return (
+        <div className="font-sans text-slate-800 antialiased leading-relaxed w-full bg-[#f8fafc] min-h-screen">
+            {/* ═══ STICKY GLASS HEADER ═══ */}
+            <header className={`os-glass-header fixed top-0 w-full z-50 text-white py-3 px-4 md:px-6 ${isScrolled ? 'scrolled' : ''}`}>
+                <div className="w-full mx-auto flex justify-between items-center px-2 lg:px-4">
+                    <div className="flex items-center gap-3 shrink-0">
+                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-rose-500 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-rose-500/25">
+                            EDU
+                        </div>
+                        <div className="hidden sm:block">
+                            <h1 className="text-sm font-bold tracking-wide leading-none">History of Education</h1>
+                            <p className="text-[11px] text-slate-400 font-medium mt-0.5">BPSC TRE 4.0</p>
+                        </div>
+                    </div>
+
+                    <nav className="hidden lg:flex items-center gap-1">
+                        {navItems.map(item => (
+                            <a
+                                key={item.id}
+                                href={`#${item.id}`}
+                                className={`os-nav-pill os-focus-ring ${activeSection === item.id ? 'os-nav-pill-active' : ''}`}
+                                onClick={(e) => {
+                                    scrollToSection(e, item.id);
+                                    setMobileNavOpen(false);
+                                }}
+                            >
+                                <span className="mr-1.5 text-xs">{item.icon}</span>
+                                {item.label}
+                            </a>
+                        ))}
+                    </nav>
+
+                    <button
+                        className="lg:hidden p-2 rounded-lg hover:bg-white/10 transition-colors"
+                        onClick={() => setMobileNavOpen(!mobileNavOpen)}
+                        aria-label="Toggle navigation"
+                    >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            {mobileNavOpen
+                                ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                            }
+                        </svg>
+                    </button>
+                </div>
+
+                {mobileNavOpen && (
+                    <div className="lg:hidden mt-3 pb-3 border-t border-white/10 pt-3">
+                        <div className="grid grid-cols-3 gap-2 max-w-md mx-auto">
+                            {navItems.map(item => (
+                                <a
+                                    key={item.id}
+                                    href={`#${item.id}`}
+                                    className="flex flex-col items-center gap-1 p-3 rounded-xl hover:bg-white/10 transition-colors text-center"
+                                    onClick={(e) => {
+                                        scrollToSection(e, item.id);
+                                        setMobileNavOpen(false);
+                                    }}
+                                >
+                                    <span className="text-lg">{item.icon}</span>
+                                    <span className="text-[11px] font-medium text-slate-300">{item.label}</span>
+                                </a>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </header>
+
+            {/* ═══ HERO SECTION ═══ */}
+            <section className="os-hero-gradient os-grid-pattern pt-28 pb-20 md:pt-36 md:pb-28 px-4 sm:px-6 lg:px-8 relative">
+                <div className="absolute top-16 right-[10%] w-72 h-72 bg-amber-400/10 rounded-full blur-3xl animate-os-float pointer-events-none"></div>
+                <div className="absolute bottom-10 left-[5%] w-56 h-56 bg-rose-500/10 rounded-full blur-3xl animate-os-float-delayed pointer-events-none"></div>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-sky-500/5 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div className="w-full mx-auto relative z-10 lg:px-8">
+                    <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-5 py-2 mb-8 backdrop-blur-sm">
+                        <span className="w-2 h-2 bg-rose-400 rounded-full animate-pulse"></span>
+                        <span className="text-sm font-medium text-slate-300">BPSC TRE 4.0 — Exclusive Study Material</span>
+                    </div>
+
+                    <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white leading-[1.1] mb-6 tracking-tight">
+                        Development of
+                        <br />
+                        <span className="bg-gradient-to-r from-amber-400 via-rose-400 to-orange-400 bg-clip-text text-transparent">
+                            Education in India
+                        </span>
+                        <span className="os-cursor"></span>
+                    </h2>
+
+                    <p className="text-lg md:text-xl text-slate-400 max-w-2xl leading-relaxed mb-10 font-jakarta">
+                        A comprehensive, deeply researched module mapping the evolution from indigenous Gurukuls to Modern Education Policies, specifically curated for Bihar Teacher Recruitment Examinations.
+                    </p>
+
+                    <div className="flex flex-wrap gap-4 items-center mb-12">
+                        <a href="#pre-british" onClick={(e) => scrollToSection(e, 'pre-british')} className="inline-flex items-center gap-3 bg-gradient-to-r from-amber-500 to-rose-600 text-white text-base font-bold px-8 py-4 rounded-xl shadow-xl shadow-amber-500/25 hover:shadow-amber-500/40 hover:-translate-y-1 transition-all duration-300 group os-pulse-glow">
+                            Start Learning
+                            <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                        </a>
+                    </div>
+
+                    <div className="flex flex-wrap gap-6 text-sm">
+                        <div className="flex items-center gap-2 text-slate-400">
+                            <span className="w-8 h-8 rounded-lg bg-amber-500/15 flex items-center justify-center text-amber-400 text-base">📚</span>
+                            <span><strong className="text-white">5</strong> Eras Covered</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-slate-400">
+                            <span className="w-8 h-8 rounded-lg bg-rose-500/15 flex items-center justify-center text-rose-400 text-base">⚡</span>
+                            <span><strong className="text-white">Exam</strong> Traps Decoded</span>
+                        </div>
+                    </div>
+
+                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 os-scroll-indicator hidden md:block">
+                        <svg className="w-6 h-6 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                    </div>
+                </div>
+            </section>
+
+            <main className="w-full mx-auto pb-16 px-4 sm:px-6 lg:px-8 xl:px-12 space-y-24 pt-16">
 
                                     {/*  Phase 1: Pre-British Era  */}
-                                    <section className="mb-16">
+                                    <section id="pre-british" className="scroll-mt-32 os-reveal">
                                         <h2 className="font-merriweather text-3xl font-bold text-slate-900 mb-8 border-b-4 border-teal-500 pb-2 inline-block">1. The Pre-British Indigenous System</h2>
                                         <div className="bg-white shadow-xl shadow-slate-200/50 border border-slate-200 rounded-2xl p-8 hover:shadow-2xl transition-shadow duration-300">
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -46,7 +207,7 @@ const DevelopmentOfEducation = () => {
                                     </section>
 
                                     {/*  Phase 2: British Intervention  */}
-                                    <section className="mb-16">
+                                    <section id="british" className="mb-16 scroll-mt-32 os-reveal">
                                         <h2 className="font-merriweather text-3xl font-bold text-slate-900 mb-8 border-b-4 border-teal-500 pb-2 inline-block">2. The British Intervention & Early Policies</h2>
 
                                         <div className="relative border-l-2 border-teal-200 ml-3 md:ml-6 pl-8 pb-4 space-y-12">
@@ -147,7 +308,7 @@ const DevelopmentOfEducation = () => {
                                     </section>
 
                                     {/*  Phase 3: Major Reforms Grid  */}
-                                    <section className="mb-16">
+                                    <section id="commissions" className="mb-16 scroll-mt-32 os-reveal">
                                         <h2 className="font-merriweather text-3xl font-bold text-slate-900 mb-8 border-b-4 border-teal-500 pb-2 inline-block">3. Major Commissions & Institutional Reforms</h2>
 
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -214,7 +375,7 @@ const DevelopmentOfEducation = () => {
                                     </section>
 
                                     {/*  Phase 4: Nationalist Education  */}
-                                    <section className="mb-16">
+                                    <section id="nationalist" className="mb-16 scroll-mt-32 os-reveal">
                                         <h2 className="font-merriweather text-3xl font-bold text-slate-900 mb-8 border-b-4 border-teal-500 pb-2 inline-block">4. Freedom Struggle & Nationalist Education</h2>
                                         <div className="bg-white shadow-xl shadow-slate-200/50 border border-slate-200 rounded-2xl p-8 bg-gradient-to-br from-white to-orange-50">
                                             <div className="grid md:grid-cols-2 gap-8">
@@ -245,7 +406,7 @@ const DevelopmentOfEducation = () => {
                                     </section>
 
                                     {/*  Phase 5: Post-Independence Era  */}
-                                    <section className="mb-16">
+                                    <section id="post-independence" className="mb-16 scroll-mt-32 os-reveal">
                                         <h2 className="font-merriweather text-3xl font-bold text-slate-900 mb-8 border-b-4 border-teal-500 pb-2 inline-block">5. Post-Independence Commissions</h2>
                                         <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
                                             <table className="w-full text-left border-collapse">
@@ -284,7 +445,7 @@ const DevelopmentOfEducation = () => {
                                     </section>
 
                                     {/*  MANDATORY SECTION: BPSC Exam Strategy  */}
-                                    <section className="mt-20 pt-10 border-t-4 border-dashed border-slate-300">
+                                    <section id="strategy" className="mt-20 pt-10 border-t-4 border-dashed border-slate-300 scroll-mt-32 os-reveal">
                                         <div className="bg-slate-900 rounded-3xl p-8 md:p-12 text-white shadow-2xl relative overflow-hidden">
                                             {/*  Decorative background circles  */}
                                             <div className="absolute -top-24 -right-24 w-64 h-64 bg-teal-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
@@ -380,9 +541,8 @@ const DevelopmentOfEducation = () => {
                                         <p>Designed for academic excellence. BPSC TRE 4.0 Preparation Module.</p>
                                     </footer>
 
-                                </div>
+                                </main>
             </div>
-        </div>
     );
 };
 

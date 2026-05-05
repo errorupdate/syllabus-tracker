@@ -1,68 +1,214 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 
 const OperatingSystem = () => {
+    const [activeSection, setActiveSection] = useState('');
+    const [isScrolled, setIsScrolled] = useState(false);
+    const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
+    const navItems = [
+        { id: 'foundations', label: 'Foundations', icon: '⚙️' },
+        { id: 'process', label: 'Process Mgt', icon: '🔄' },
+        { id: 'scheduling', label: 'Scheduling', icon: '📊' },
+        { id: 'synchronization', label: 'Sync', icon: '🔐' },
+        { id: 'memory', label: 'Memory', icon: '🧠' },
+        { id: 'filesystem', label: 'File System', icon: '📁' },
+        { id: 'numericals', label: 'Numericals', icon: '🧮' },
+        { id: 'bpsc-strategy', label: 'Strategy', icon: '🎯' },
+        { id: 'assessment', label: 'Assessment', icon: '✅' },
+    ];
+
+    const scrollToSection = (e, id) => {
+        e.preventDefault();
+        const element = document.getElementById(id);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+            // Update URL hash without jumping
+            window.history.pushState(null, '', `#${id}`);
+        }
+    };
+
     useEffect(() => {
         // Scroll-reveal animation observer
-        const observerOptions = { root: null, rootMargin: '0px 0px -50px 0px', threshold: 0.1 };
+        const observerOptions = { root: null, rootMargin: '0px 0px -80px 0px', threshold: 0.08 };
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    entry.target.classList.add('is-visible', 'active');
+                    entry.target.classList.add('is-visible');
+                    // Add staggered delays to children
+                    const children = entry.target.querySelectorAll('.os-stagger');
+                    children.forEach((child, i) => {
+                        child.style.transitionDelay = `${i * 0.08}s`;
+                        child.classList.add('is-visible');
+                    });
                     observer.unobserve(entry.target);
                 }
             });
         }, observerOptions);
-        
-        document.querySelectorAll('.fade-in-section, .reveal').forEach(el => observer.observe(el));
-        
-        return () => observer.disconnect();
+
+        document.querySelectorAll('.os-reveal').forEach(el => observer.observe(el));
+
+        // Active section tracking
+        const sectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    setActiveSection(entry.target.id);
+                }
+            });
+        }, { root: null, rootMargin: '-30% 0px -60% 0px', threshold: 0 });
+
+        document.querySelectorAll('section[id]').forEach(el => sectionObserver.observe(el));
+
+        // Scroll state for header
+        const handleScroll = () => setIsScrolled(window.scrollY > 60);
+        window.addEventListener('scroll', handleScroll, { passive: true });
+
+        return () => {
+            observer.disconnect();
+            sectionObserver.disconnect();
+            window.removeEventListener('scroll', handleScroll);
+        };
     }, []);
 
     return (
-        <div className="text-slate-800 antialiased font-sans w-full bg-[#f8fafc] min-h-screen pt-8 pb-16">
-            {/*  UX: Z-Pattern Top (Logo -> Navigation)  */}
-                                {/*  30% Color Rule: Secondary Dark Header  */}
-                                <header className="glass-header fixed top-0 w-full z-50 text-white py-4 px-6">
-                                    <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center">
-                                        <div className="flex flex-col">
-                                            <h1 className="text-xl md:text-2xl font-bold tracking-wide font-merriweather">Computer Science Masterclass</h1>
-                                            <p className="text-sm text-slate-300 font-jakarta mt-1">BPSC TRE 4.0 Academic Resource</p>
-                                        </div>
-                                        {/*  IA: Clear logical navigation  */}
-                                        <nav className="hidden lg:flex gap-6 xl:gap-8 text-sm font-semibold mt-4 md:mt-0 items-center">
-                                            <a href="#foundations" className="hover:text-accent-400 transition-colors">Foundations</a>
-                                            <a href="#process" className="hover:text-accent-400 transition-colors">Process Mgt</a>
-                                            <a href="#scheduling" className="hover:text-accent-400 transition-colors">Scheduling</a>
-                                            <a href="#synchronization" className="hover:text-accent-400 transition-colors">Synchronization</a>
-                                            <a href="#memory" className="hover:text-accent-400 transition-colors">Memory Mgt</a>
-                                            <a href="#numericals" className="hover:text-accent-400 transition-colors">Numericals</a>
-                                            <a href="#bpsc-strategy" className="hover:text-accent-400 transition-colors">Exam Strategy</a>
-                                            {/*  Fitts's Law / 10% Rule: Standout, accessible target  */}
-                                            <a href="#assessment" className="bg-accent-500 text-white px-5 py-2.5 rounded-lg hover:bg-accent-600 transition-all shadow-md hover:shadow-lg font-bold">Assessment Simulator</a>
-                                        </nav>
-                                    </div>
-                                </header>
+        <div className="text-slate-800 antialiased font-sans w-full bg-[#f8fafc] min-h-screen">
+            {/* ═══ STICKY GLASS HEADER ═══ */}
+            <header className={`os-glass-header fixed top-0 w-full z-50 text-white py-3 px-4 md:px-6 ${isScrolled ? 'scrolled' : ''}`}>
+                <div className="w-full mx-auto flex justify-between items-center px-2 lg:px-4">
+                    {/* Brand */}
+                    <div className="flex items-center gap-3 shrink-0">
+                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-sky-400 to-indigo-500 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-sky-500/25">
+                            OS
+                        </div>
+                        <div className="hidden sm:block">
+                            <h1 className="text-sm font-bold tracking-wide leading-none">Computer Science</h1>
+                            <p className="text-[11px] text-slate-400 font-medium mt-0.5">BPSC TRE 4.0</p>
+                        </div>
+                    </div>
 
-                                <main className="max-w-7xl mx-auto pt-32 pb-16 px-4 sm:px-6 lg:px-8 space-y-24">
+                    {/* Desktop Navigation */}
+                    <nav className="hidden lg:flex items-center gap-1">
+                        {navItems.map(item => (
+                            <a
+                                key={item.id}
+                                href={`#${item.id}`}
+                                className={`os-nav-pill os-focus-ring ${activeSection === item.id ? 'os-nav-pill-active' : ''}`}
+                                onClick={(e) => {
+                                    scrollToSection(e, item.id);
+                                    setMobileNavOpen(false);
+                                }}
+                            >
+                                <span className="mr-1.5 text-xs">{item.icon}</span>
+                                {item.label}
+                            </a>
+                        ))}
+                    </nav>
 
-                                    {/*  UX: Z-Pattern Middle & Bottom (Hero Image/Text -> Big CTA)  */}
-                                    <section className="flex flex-col items-start max-w-4xl pt-10 reveal active">
-                                        <h2 className="text-5xl md:text-6xl font-extrabold text-secondary leading-tight mb-6">
-                                            Operating Systems Architecture & Process Synchronization
-                                        </h2>
-                                        <p className="text-xl text-slate-600 font-jakarta leading-relaxed mb-10 max-w-3xl">
-                                            A highly academic, deep-dive compendium designed exclusively for the Bihar Teacher Recruitment Examination. Master system foundations, scheduling mathematics, concurrency, and hardware-software interfacing.
-                                        </p>
-                                        {/*  Fitts's Law: Massive, unmissable Call to Action  */}
-                                        <a href="#foundations" className="inline-flex items-center justify-center bg-accent-500 text-white text-lg font-bold px-8 py-4 rounded-xl shadow-xl hover:bg-accent-600 hover:-translate-y-1 transition-all duration-300 gap-3 group">
-                                            Commence Study
-                                            {/*  Micro-interaction: Arrow moves on hover  */}
-                                            <svg className="w-6 h-6 transform group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
-                                        </a>
-                                    </section>
+                    {/* Mobile Hamburger */}
+                    <button
+                        className="lg:hidden p-2 rounded-lg hover:bg-white/10 transition-colors"
+                        onClick={() => setMobileNavOpen(!mobileNavOpen)}
+                        aria-label="Toggle navigation"
+                    >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            {mobileNavOpen
+                                ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                            }
+                        </svg>
+                    </button>
+                </div>
+
+                {/* Mobile Nav Dropdown */}
+                {mobileNavOpen && (
+                    <div className="lg:hidden mt-3 pb-3 border-t border-white/10 pt-3">
+                        <div className="grid grid-cols-3 gap-2 max-w-md mx-auto">
+                            {navItems.map(item => (
+                                <a
+                                    key={item.id}
+                                    href={`#${item.id}`}
+                                    className="flex flex-col items-center gap-1 p-3 rounded-xl hover:bg-white/10 transition-colors text-center"
+                                    onClick={(e) => {
+                                        scrollToSection(e, item.id);
+                                        setMobileNavOpen(false);
+                                    }}
+                                >
+                                    <span className="text-lg">{item.icon}</span>
+                                    <span className="text-[11px] font-medium text-slate-300">{item.label}</span>
+                                </a>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </header>
+
+            {/* ═══ HERO SECTION ═══ */}
+            <section className="os-hero-gradient os-grid-pattern pt-28 pb-20 md:pt-36 md:pb-28 px-4 sm:px-6 lg:px-8 relative">
+                {/* Animated decorative orbs */}
+                <div className="absolute top-16 right-[10%] w-72 h-72 bg-sky-400/10 rounded-full blur-3xl animate-os-float pointer-events-none"></div>
+                <div className="absolute bottom-10 left-[5%] w-56 h-56 bg-indigo-500/10 rounded-full blur-3xl animate-os-float-delayed pointer-events-none"></div>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-sky-500/5 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div className="w-full mx-auto relative z-10 lg:px-8">
+                    {/* Badge */}
+                    <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-5 py-2 mb-8 backdrop-blur-sm">
+                        <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+                        <span className="text-sm font-medium text-slate-300">BPSC TRE 4.0 — Complete OS Masterclass</span>
+                    </div>
+
+                    {/* Title */}
+                    <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white leading-[1.1] mb-6 tracking-tight">
+                        Operating Systems
+                        <br />
+                        <span className="bg-gradient-to-r from-sky-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent">
+                            Architecture &amp; Design
+                        </span>
+                        <span className="os-cursor"></span>
+                    </h2>
+
+                    {/* Subtitle */}
+                    <p className="text-lg md:text-xl text-slate-400 max-w-2xl leading-relaxed mb-10 font-jakarta">
+                        Master system foundations, scheduling algorithms, memory management, and synchronization — all engineered for competitive exam domination.
+                    </p>
+
+                    {/* CTA Row */}
+                    <div className="flex flex-wrap gap-4 items-center mb-12">
+                        <a href="#foundations" onClick={(e) => scrollToSection(e, 'foundations')} className="inline-flex items-center gap-3 bg-gradient-to-r from-sky-500 to-blue-600 text-white text-base font-bold px-8 py-4 rounded-xl shadow-xl shadow-sky-500/25 hover:shadow-sky-500/40 hover:-translate-y-1 transition-all duration-300 group os-pulse-glow">
+                            Start Learning
+                            <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                        </a>
+                        <a href="#assessment" onClick={(e) => scrollToSection(e, 'assessment')} className="inline-flex items-center gap-2 border border-white/20 text-white text-base font-semibold px-6 py-3.5 rounded-xl hover:bg-white/5 transition-all duration-300 backdrop-blur-sm">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                            Take Assessment
+                        </a>
+                    </div>
+
+                    {/* Quick Stats */}
+                    <div className="flex flex-wrap gap-6 text-sm">
+                        <div className="flex items-center gap-2 text-slate-400">
+                            <span className="w-8 h-8 rounded-lg bg-sky-500/15 flex items-center justify-center text-sky-400 text-base">📚</span>
+                            <span><strong className="text-white">8</strong> Modules</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-slate-400">
+                            <span className="w-8 h-8 rounded-lg bg-emerald-500/15 flex items-center justify-center text-emerald-400 text-base">🧮</span>
+                            <span><strong className="text-white">20</strong> MCQs</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-slate-400">
+                            <span className="w-8 h-8 rounded-lg bg-violet-500/15 flex items-center justify-center text-violet-400 text-base">⚡</span>
+                            <span><strong className="text-white">Exam</strong> Traps Decoded</span>
+                        </div>
+                    </div>
+
+                    {/* Scroll indicator */}
+                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 os-scroll-indicator hidden md:block">
+                        <svg className="w-6 h-6 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                    </div>
+                </div>
+            </section>
+
+            <main className="w-full mx-auto pb-16 px-4 sm:px-6 lg:px-8 xl:px-12 space-y-24 pt-16">
 
                                     {/*  Module 1: OS Foundations (UI: 12-Column Grid & Gestalt Proximity)  */}
-                                    <section id="foundations" className="scroll-mt-32 reveal">
+                                    <section id="foundations" className="scroll-mt-32 os-reveal">
                                         <div className="mb-6 border-b-2 border-slate-200 pb-2 flex items-end gap-3">
                                             <span className="text-4xl font-black text-slate-300">01</span>
                                             <h3 className="text-3xl font-bold text-secondary">Foundations & System Architecture</h3>
@@ -118,12 +264,141 @@ const OperatingSystem = () => {
                                                         <div className="w-full bg-slate-100 py-2 text-center text-base font-bold text-slate-600 rounded-b-lg border border-slate-200">Magnetic/SSD Disk</div>
                                                     </div>
                                                 </div>
+
+                                                {/* System Calls Taxonomy */}
+                                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                                                    <h4 className="text-lg font-bold text-center text-secondary mb-4 font-merriweather">System Call Classification</h4>
+                                                    <p className="text-xs text-slate-500 text-center mb-4">Exam Trigger: "Interface between user program and OS kernel"</p>
+                                                    <div className="space-y-2">
+                                                        <div className="flex items-center gap-3 bg-blue-50 p-3 rounded-lg border border-blue-100 text-sm">
+                                                            <span className="bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded shrink-0">1</span>
+                                                            <div><strong className="text-blue-900">Process Control:</strong> <span className="text-slate-600">fork(), exec(), exit(), wait(), abort()</span></div>
+                                                        </div>
+                                                        <div className="flex items-center gap-3 bg-emerald-50 p-3 rounded-lg border border-emerald-100 text-sm">
+                                                            <span className="bg-emerald-600 text-white text-xs font-bold px-2 py-1 rounded shrink-0">2</span>
+                                                            <div><strong className="text-emerald-900">File Management:</strong> <span className="text-slate-600">open(), read(), write(), close(), delete()</span></div>
+                                                        </div>
+                                                        <div className="flex items-center gap-3 bg-violet-50 p-3 rounded-lg border border-violet-100 text-sm">
+                                                            <span className="bg-violet-600 text-white text-xs font-bold px-2 py-1 rounded shrink-0">3</span>
+                                                            <div><strong className="text-violet-900">Device Management:</strong> <span className="text-slate-600">request(), release(), read(), write()</span></div>
+                                                        </div>
+                                                        <div className="flex items-center gap-3 bg-amber-50 p-3 rounded-lg border border-amber-100 text-sm">
+                                                            <span className="bg-amber-600 text-white text-xs font-bold px-2 py-1 rounded shrink-0">4</span>
+                                                            <div><strong className="text-amber-900">Info Maintenance:</strong> <span className="text-slate-600">getpid(), alarm(), sleep(), time()</span></div>
+                                                        </div>
+                                                        <div className="flex items-center gap-3 bg-rose-50 p-3 rounded-lg border border-rose-100 text-sm">
+                                                            <span className="bg-rose-600 text-white text-xs font-bold px-2 py-1 rounded shrink-0">5</span>
+                                                            <div><strong className="text-rose-900">Communication:</strong> <span className="text-slate-600">pipe(), shmget(), mmap(), socket()</span></div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="mt-4 bg-rose-50 border-l-4 border-rose-500 p-3 rounded-r-lg text-xs text-rose-700">
+                                                        <strong>Examiner's Trap:</strong> System calls are <strong>software interrupts (traps)</strong>, NOT hardware interrupts. The mode bit switches from 1 (User) to 0 (Kernel) when a system call is invoked.
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Interrupt Handling - Full Width */}
+                                        <div className="glass-panel p-8 rounded-2xl border-l-4 border-l-violet-500">
+                                            <h4 className="text-2xl font-bold text-secondary mb-4">Interrupt Handling Mechanism</h4>
+                                            <p className="text-slate-700 mb-6">An interrupt is a signal to the processor that an event needs immediate attention. The CPU halts the current execution, saves state, and transfers control to the Interrupt Service Routine (ISR).</p>
+
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                                <div className="bg-sky-50 p-5 rounded-xl border border-sky-200">
+                                                    <h5 className="font-bold text-sky-900 mb-2 flex items-center gap-2">
+                                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m14-6h2m-2 6h2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path></svg>
+                                                        Hardware Interrupt (External)
+                                                    </h5>
+                                                    <ul className="text-sm text-sky-800 space-y-1">
+                                                        <li>&#8226; Generated by external hardware devices</li>
+                                                        <li>&#8226; Examples: Keyboard press, Timer, Disk I/O completion</li>
+                                                        <li>&#8226; <strong>Asynchronous</strong> (can happen at any time)</li>
+                                                        <li>&#8226; Handled via <strong>Interrupt Request Line (IRQ)</strong></li>
+                                                    </ul>
+                                                </div>
+                                                <div className="bg-violet-50 p-5 rounded-xl border border-violet-200">
+                                                    <h5 className="font-bold text-violet-900 mb-2 flex items-center gap-2">
+                                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                                                        Software Interrupt (Trap)
+                                                    </h5>
+                                                    <ul className="text-sm text-violet-800 space-y-1">
+                                                        <li>&#8226; Generated by software instructions</li>
+                                                        <li>&#8226; Examples: System calls, Division by zero, Page fault</li>
+                                                        <li>&#8226; <strong>Synchronous</strong> (occurs at specific instruction)</li>
+                                                        <li>&#8226; Handled via <strong>Trap Table / IDT</strong></li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+
+                                            {/* Interrupt Flow */}
+                                            <div className="flex flex-col items-center space-y-2 bg-slate-50 p-5 rounded-xl border border-slate-200 text-sm font-semibold">
+                                                <div className="bg-slate-900 text-white px-4 py-2 rounded-lg w-full max-w-md text-center">1. CPU receives interrupt signal</div>
+                                                <div className="text-slate-400 font-bold">&#8595;</div>
+                                                <div className="bg-slate-700 text-white px-4 py-2 rounded-lg w-full max-w-md text-center">2. Save current state (PCB update)</div>
+                                                <div className="text-slate-400 font-bold">&#8595;</div>
+                                                <div className="flow-node w-full max-w-md text-sm border-violet-400 text-violet-800 bg-violet-50">3. Execute ISR (Interrupt Service Routine)</div>
+                                                <div className="text-slate-400 font-bold">&#8595;</div>
+                                                <div className="bg-emerald-800 text-white px-4 py-2 rounded-lg w-full max-w-md text-center">4. Restore state and resume execution</div>
+                                            </div>
+                                        </div>
+
+                                        {/* Batch vs Time-Sharing vs Real-Time Comparison Table */}
+                                        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                                            <div className="p-6 bg-slate-50 border-b border-slate-200">
+                                                <h4 className="text-xl font-bold text-secondary font-merriweather">OS Type Comparison Matrix (High-Yield for MCQ)</h4>
+                                            </div>
+                                            <div className="overflow-x-auto">
+                                                <table className="w-full text-left border-collapse">
+                                                    <thead>
+                                                        <tr className="bg-slate-900 text-white">
+                                                            <th className="p-4 font-bold">Feature</th>
+                                                            <th className="p-4 font-bold">Batch OS</th>
+                                                            <th className="p-4 font-bold">Time-Sharing OS</th>
+                                                            <th className="p-4 font-bold">Real-Time OS</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="text-sm text-slate-700 divide-y divide-slate-100">
+                                                        <tr className="hover:bg-slate-50 transition-colors">
+                                                            <td className="p-4 font-bold text-secondary">User Interaction</td>
+                                                            <td className="p-4">None (jobs submitted in batches)</td>
+                                                            <td className="p-4">Direct interaction via terminal</td>
+                                                            <td className="p-4">Sensor/device driven</td>
+                                                        </tr>
+                                                        <tr className="hover:bg-slate-50 transition-colors">
+                                                            <td className="p-4 font-bold text-secondary">Response Time</td>
+                                                            <td className="p-4">Hours to days</td>
+                                                            <td className="p-4">Seconds (interactive)</td>
+                                                            <td className="p-4"><strong className="text-red-600">Microseconds (deterministic)</strong></td>
+                                                        </tr>
+                                                        <tr className="hover:bg-slate-50 transition-colors">
+                                                            <td className="p-4 font-bold text-secondary">CPU Scheduling</td>
+                                                            <td className="p-4">FCFS / Priority</td>
+                                                            <td className="p-4"><strong className="text-accent-600">Round Robin</strong></td>
+                                                            <td className="p-4">Rate Monotonic / EDF</td>
+                                                        </tr>
+                                                        <tr className="hover:bg-slate-50 transition-colors">
+                                                            <td className="p-4 font-bold text-secondary">Example</td>
+                                                            <td className="p-4">Payroll processing</td>
+                                                            <td className="p-4">UNIX, Linux, Windows</td>
+                                                            <td className="p-4">VxWorks, RTOS in ABS brakes</td>
+                                                        </tr>
+                                                        <tr className="hover:bg-slate-50 transition-colors">
+                                                            <td className="p-4 font-bold text-secondary">Key MCQ Trigger</td>
+                                                            <td className="p-4 text-rose-600 font-bold">"No user interaction"</td>
+                                                            <td className="p-4 text-rose-600 font-bold">"Time quantum / slice"</td>
+                                                            <td className="p-4 text-rose-600 font-bold">"Deadline guarantee"</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div className="p-4 bg-emerald-50 border-t border-emerald-200">
+                                                <p className="text-xs text-emerald-700"><strong>BPSC Catch:</strong> If a question mentions "jobs submitted without user interaction" or "spooling" — the answer is always <strong>Batch OS</strong>. If it mentions "time slice" or "quantum" — it's <strong>Time-Sharing</strong>. If it mentions "strict deadline" — it's <strong>RTOS</strong>.</p>
                                             </div>
                                         </div>
                                     </section>
 
                                     {/*  Module 2: Process Management (UI: 12-Column Grid)  */}
-                                    <section id="process" className="scroll-mt-32 reveal">
+                                    <section id="process" className="scroll-mt-32 os-reveal">
                                         <div className="mb-6 border-b-2 border-slate-200 pb-2 flex items-end gap-3">
                                             <span className="text-4xl font-black text-slate-300">02</span>
                                             <h3 className="text-3xl font-bold text-secondary">Process Management & Dual-Mode</h3>
@@ -218,6 +493,127 @@ const OperatingSystem = () => {
                                                     </div>
                                                 </div>
 
+                                                {/* Process State Diagram */}
+                                                <div className="glass-panel p-8 rounded-2xl border-t-4 border-t-emerald-500">
+                                                    <h4 className="text-2xl font-bold text-secondary mb-4">5-State Process Lifecycle</h4>
+                                                    <p className="text-slate-700 mb-6">Every process transitions through exactly 5 states during its lifetime. Understanding these transitions is critical for BPSC MCQs on process management.</p>
+
+                                                    <div className="flex flex-col items-center space-y-3 bg-slate-50 p-6 rounded-xl border border-slate-200 text-sm font-semibold">
+                                                        <div className="bg-slate-400 text-white px-6 py-2 rounded-lg text-center">New (Created)</div>
+                                                        <div className="flex items-center gap-2 text-xs text-slate-500">
+                                                            <span>&#8595;</span>
+                                                            <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded">Admit (LTS)</span>
+                                                        </div>
+                                                        <div className="bg-amber-500 text-white px-6 py-2 rounded-lg text-center">Ready</div>
+                                                        <div className="flex items-center gap-2 text-xs text-slate-500">
+                                                            <span>&#8595;</span>
+                                                            <span className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded">Dispatch (STS)</span>
+                                                        </div>
+                                                        <div className="bg-emerald-600 text-white px-6 py-3 rounded-lg text-center font-bold text-base shadow-md">Running</div>
+                                                        <div className="w-full flex justify-between px-8 text-xs">
+                                                            <div className="flex flex-col items-center gap-1">
+                                                                <span className="bg-rose-100 text-rose-700 px-2 py-0.5 rounded">I/O or Event Wait</span>
+                                                                <span>&#8595;</span>
+                                                                <div className="bg-rose-500 text-white px-4 py-2 rounded-lg text-center">Waiting (Blocked)</div>
+                                                                <span>&#8595;</span>
+                                                                <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded">I/O Complete → Ready</span>
+                                                            </div>
+                                                            <div className="flex flex-col items-center gap-1">
+                                                                <span className="bg-slate-200 text-slate-700 px-2 py-0.5 rounded">Exit / abort()</span>
+                                                                <span>&#8595;</span>
+                                                                <div className="bg-slate-800 text-white px-4 py-2 rounded-lg text-center">Terminated</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="mt-4 bg-rose-50 border-l-4 border-rose-500 p-4 rounded-r-lg text-sm text-rose-700">
+                                                        <strong>Examiner's Trap:</strong> A process in the <strong>Waiting</strong> state CANNOT directly go to <strong>Running</strong>. It must always return to the <strong>Ready</strong> queue first. This is the most common MCQ distractor.
+                                                    </div>
+                                                </div>
+
+                                                {/* Context Switch Deep-Dive */}
+                                                <div className="bg-indigo-50 p-6 rounded-2xl border border-indigo-100 shadow-sm">
+                                                    <h4 className="text-xl font-bold text-indigo-900 mb-3 font-merriweather">Context Switch: The Hidden Overhead</h4>
+                                                    <p className="text-sm text-indigo-800 mb-4">A context switch occurs when the CPU switches from one process to another. The system must save the state of the old process and load the saved state of the new one from its PCB.</p>
+                                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+                                                        <div className="bg-white p-3 rounded-lg border border-indigo-200 text-center">
+                                                            <strong className="text-indigo-700 block text-sm">Step 1</strong>
+                                                            <span className="text-xs text-slate-600">Save state of Process A into PCB_A</span>
+                                                        </div>
+                                                        <div className="bg-white p-3 rounded-lg border border-indigo-200 text-center">
+                                                            <strong className="text-indigo-700 block text-sm">Step 2</strong>
+                                                            <span className="text-xs text-slate-600">Load state of Process B from PCB_B</span>
+                                                        </div>
+                                                        <div className="bg-white p-3 rounded-lg border border-indigo-200 text-center">
+                                                            <strong className="text-indigo-700 block text-sm">Step 3</strong>
+                                                            <span className="text-xs text-slate-600">Resume Process B execution</span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="bg-rose-50 border-l-4 border-rose-500 p-3 rounded-r-lg text-xs text-rose-700">
+                                                        <strong>Key Point:</strong> Context switch time is <strong>pure overhead</strong> — the system does NO useful work during this time. It depends on hardware speed (memory, register set count). Threads have faster context switches than processes because they share memory.
+                                                    </div>
+                                                </div>
+
+                                                {/* fork() System Call */}
+                                                <div className="bg-slate-900 p-6 rounded-2xl border border-slate-700 shadow-md text-white">
+                                                    <h4 className="text-xl font-bold text-emerald-400 mb-4 font-merriweather flex items-center gap-2">
+                                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                                                        fork() System Call (BPSC Favorite Numerical)
+                                                    </h4>
+                                                    <p className="text-sm text-slate-300 mb-4">The <code className="bg-slate-800 px-1.5 py-0.5 rounded text-emerald-300">fork()</code> system call creates a new child process that is an exact copy of the parent. The child gets a return value of <strong className="text-white">0</strong>, while the parent gets the <strong className="text-white">child's PID</strong>.</p>
+
+                                                    <div className="bg-black/40 p-4 rounded-xl border border-slate-600 font-mono text-sm mb-4">
+                                                        <span className="text-slate-400">// How many processes after n fork() calls?</span><br />
+                                                        <span className="text-pink-400">int</span> main() {"{"}<br />
+                                                        {"  "}fork();{"  "}<span className="text-slate-500">// 2 processes</span><br />
+                                                        {"  "}fork();{"  "}<span className="text-slate-500">// 4 processes</span><br />
+                                                        {"  "}fork();{"  "}<span className="text-slate-500">// 8 processes</span><br />
+                                                        {"}"}<br />
+                                                        <span className="text-emerald-400">// Formula: Total = 2^n (where n = number of fork calls)</span>
+                                                    </div>
+
+                                                    <div className="grid grid-cols-3 gap-3 text-center text-sm mb-4">
+                                                        <div className="bg-black/30 p-3 rounded-lg border border-slate-600">
+                                                            <span className="block text-slate-400 text-xs mb-1">1 fork()</span>
+                                                            <span className="font-bold text-lg text-emerald-400">2<sup>1</sup> = 2</span>
+                                                        </div>
+                                                        <div className="bg-black/30 p-3 rounded-lg border border-slate-600">
+                                                            <span className="block text-slate-400 text-xs mb-1">3 fork()</span>
+                                                            <span className="font-bold text-lg text-emerald-400">2<sup>3</sup> = 8</span>
+                                                        </div>
+                                                        <div className="bg-black/30 p-3 rounded-lg border border-rose-500/50">
+                                                            <span className="block text-slate-400 text-xs mb-1">5 fork()</span>
+                                                            <span className="font-bold text-lg text-rose-300">2<sup>5</sup> = 32</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="bg-emerald-900/40 border-l-4 border-emerald-500 p-3 rounded-r-lg text-xs text-emerald-200">
+                                                        <strong className="text-white">Trap Alert:</strong> If fork() is inside a loop or has conditionals (if/else), the total count changes! Only the straightforward n-sequential-forks formula gives 2<sup>n</sup>. Examiners love placing fork() inside for-loops.
+                                                    </div>
+                                                </div>
+
+                                                {/* Orphan vs Zombie */}
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <div className="bg-amber-50 p-5 rounded-xl border border-amber-200 hover:-translate-y-1 transition-transform duration-300">
+                                                        <h5 className="font-bold text-amber-900 mb-2 flex items-center gap-2">
+                                                            <span className="text-xl">👶</span> Orphan Process
+                                                        </h5>
+                                                        <p className="text-sm text-amber-800 mb-2">A child process whose parent has terminated before it. The orphan is <strong>adopted by the init process</strong> (PID 1) in UNIX/Linux.</p>
+                                                        <div className="bg-white p-2 rounded-lg border border-amber-100 text-xs text-amber-700 font-bold text-center">
+                                                            Parent dies first → Child becomes Orphan → init adopts it
+                                                        </div>
+                                                    </div>
+                                                    <div className="bg-violet-50 p-5 rounded-xl border border-violet-200 hover:-translate-y-1 transition-transform duration-300">
+                                                        <h5 className="font-bold text-violet-900 mb-2 flex items-center gap-2">
+                                                            <span className="text-xl">🧟</span> Zombie Process
+                                                        </h5>
+                                                        <p className="text-sm text-violet-800 mb-2">A child process that has finished execution but its entry <strong>still exists in the Process Table</strong> because the parent hasn't called wait().</p>
+                                                        <div className="bg-white p-2 rounded-lg border border-violet-100 text-xs text-violet-700 font-bold text-center">
+                                                            Child dies first → Parent hasn't read exit status → Zombie
+                                                        </div>
+                                                    </div>
+                                                </div>
+
                                             </div>
 
                                             <div className="lg:col-span-4">
@@ -240,7 +636,7 @@ const OperatingSystem = () => {
                                     </section>
 
                                     {/*  Module 3: Scheduling Architecture (UI: Full Width Table & Cards)  */}
-                                    <section id="scheduling" className="scroll-mt-32 reveal">
+                                    <section id="scheduling" className="scroll-mt-32 os-reveal">
                                         <div className="mb-6 border-b-2 border-slate-200 pb-2 flex items-end gap-3">
                                             <span className="text-4xl font-black text-slate-300">03</span>
                                             <h3 className="text-3xl font-bold text-secondary">Schedulers & CPU Algorithms</h3>
@@ -347,10 +743,108 @@ const OperatingSystem = () => {
                                                 </ul>
                                             </div>
                                         </div>
+
+                                        {/* SRTF Algorithm Card */}
+                                        <div className="glass-panel p-8 rounded-2xl border-l-4 border-l-rose-500">
+                                            <h4 className="text-2xl font-bold text-secondary mb-4">SRTF: Shortest Remaining Time First</h4>
+                                            <p className="text-slate-700 mb-4">SRTF is the <strong>preemptive version of SJF</strong>. Whenever a new process arrives in the Ready Queue with a CPU burst shorter than the <em>remaining time</em> of the currently executing process, the CPU is preempted.</p>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <div className="bg-emerald-50 p-5 rounded-xl border border-emerald-200">
+                                                    <h5 className="font-bold text-emerald-900 mb-2">Advantages</h5>
+                                                    <ul className="text-sm text-emerald-800 space-y-1">
+                                                        <li>&#8226; <strong>Optimal average waiting time</strong> among all preemptive algorithms</li>
+                                                        <li>&#8226; Better response time for shorter processes</li>
+                                                        <li>&#8226; Maximizes throughput</li>
+                                                    </ul>
+                                                </div>
+                                                <div className="bg-rose-50 p-5 rounded-xl border border-rose-200">
+                                                    <h5 className="font-bold text-rose-900 mb-2">Vulnerabilities</h5>
+                                                    <ul className="text-sm text-rose-800 space-y-1">
+                                                        <li>&#8226; <strong className="text-red-600">Starvation</strong> of long processes (same as SJF)</li>
+                                                        <li>&#8226; Impossible to predict future burst time</li>
+                                                        <li>&#8226; High context-switching overhead</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <div className="mt-4 bg-rose-50 border-l-4 border-rose-500 p-3 rounded-r-lg text-xs text-rose-700">
+                                                <strong>Examiner's Trap:</strong> If the question asks "Which algorithm gives optimal average waiting time?" — Answer is <strong>SJF (Non-Preemptive)</strong> if all processes arrive at time 0. But if arrivals are staggered, <strong>SRTF (Preemptive SJF)</strong> is optimal. Read the question carefully!
+                                            </div>
+                                        </div>
+
+                                        {/* Multilevel Queue Scheduling */}
+                                        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                                            <div className="p-6 bg-gradient-to-r from-indigo-900 to-violet-900 text-white">
+                                                <h4 className="text-xl font-bold font-merriweather">Multilevel Queue Scheduling</h4>
+                                                <p className="text-indigo-200 text-sm mt-1">Processes are permanently assigned to queues based on their type</p>
+                                            </div>
+                                            <div className="p-6 space-y-3">
+                                                <div className="flex items-center gap-3 bg-rose-50 p-4 rounded-lg border-l-4 border-rose-500">
+                                                    <span className="text-lg">🔴</span>
+                                                    <div>
+                                                        <strong className="text-rose-900 block">Highest Priority: System Processes</strong>
+                                                        <span className="text-xs text-rose-700">OS kernel threads — always executed first</span>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-3 bg-amber-50 p-4 rounded-lg border-l-4 border-amber-500">
+                                                    <span className="text-lg">🟡</span>
+                                                    <div>
+                                                        <strong className="text-amber-900 block">Interactive Processes (Foreground)</strong>
+                                                        <span className="text-xs text-amber-700">Use Round Robin for good response time</span>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-3 bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+                                                    <span className="text-lg">🔵</span>
+                                                    <div>
+                                                        <strong className="text-blue-900 block">Batch Processes (Background)</strong>
+                                                        <span className="text-xs text-blue-700">Use FCFS — no user interaction needed</span>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-3 bg-slate-50 p-4 rounded-lg border-l-4 border-slate-400">
+                                                    <span className="text-lg">⚪</span>
+                                                    <div>
+                                                        <strong className="text-slate-900 block">Lowest Priority: Student Processes</strong>
+                                                        <span className="text-xs text-slate-700">Can suffer from starvation if upper queues are always busy</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="p-4 bg-emerald-50 border-t border-emerald-200">
+                                                <p className="text-xs text-emerald-700"><strong>Multilevel Feedback Queue (MLFQ):</strong> Unlike MLQ, processes <strong>can move between queues</strong> based on their behavior. A CPU-bound process that uses too much time gets demoted. An I/O-bound process waiting too long gets promoted (<strong>Aging</strong>).</p>
+                                            </div>
+                                        </div>
+
+                                        {/* Convoy Effect Numerical */}
+                                        <div className="bg-sky-900 rounded-2xl shadow-xl border border-sky-800 overflow-hidden text-white p-8">
+                                            <div className="flex items-center gap-2 mb-4 text-sky-300">
+                                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                                                <h5 className="font-bold text-sm tracking-widest uppercase">Quick Numerical: Convoy Effect</h5>
+                                            </div>
+                                            <h4 className="text-xl font-bold mb-4 font-merriweather">Why FCFS Fails with Mixed Workloads</h4>
+                                            <p className="text-sm text-sky-200 mb-4">Consider processes: P1 (BT=24), P2 (BT=3), P3 (BT=3) arriving at time 0.</p>
+
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                                <div className="bg-black/30 p-4 rounded-xl border border-sky-700">
+                                                    <strong className="text-sky-300 block mb-2">FCFS Order: P1→P2→P3</strong>
+                                                    <div className="text-xs font-mono text-slate-300 space-y-1">
+                                                        <div>WT(P1) = 0, WT(P2) = 24, WT(P3) = 27</div>
+                                                        <div className="text-amber-400 font-bold mt-2">Avg WT = (0+24+27)/3 = <span className="text-lg">17.0</span></div>
+                                                    </div>
+                                                </div>
+                                                <div className="bg-black/30 p-4 rounded-xl border border-emerald-500/50">
+                                                    <strong className="text-emerald-300 block mb-2">SJF Order: P2→P3→P1</strong>
+                                                    <div className="text-xs font-mono text-slate-300 space-y-1">
+                                                        <div>WT(P2) = 0, WT(P3) = 3, WT(P1) = 6</div>
+                                                        <div className="text-emerald-400 font-bold mt-2">Avg WT = (0+3+6)/3 = <span className="text-lg">3.0</span></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="bg-rose-900/40 border-l-4 border-rose-500 p-3 rounded-r-lg text-xs text-rose-200">
+                                                <strong className="text-white">Conclusion:</strong> The <strong>Convoy Effect</strong> in FCFS caused the average waiting time to be 17ms vs just 3ms in SJF — a <strong>5.67x degradation</strong>. This is why FCFS is terrible for mixed CPU-bound + I/O-bound workloads.
+                                            </div>
+                                        </div>
                                     </section>
 
                                     {/*  Module 4: Process Synchronization  */}
-                                    <section id="synchronization" className="scroll-mt-32 reveal">
+                                    <section id="synchronization" className="scroll-mt-32 os-reveal">
                                         <div className="mb-6 border-b-2 border-slate-200 pb-2 flex items-end gap-3">
                                             <span className="text-4xl font-black text-slate-300">04</span>
                                             <h3 className="text-3xl font-bold text-secondary">Process Synchronization & Concurrency</h3>
@@ -474,8 +968,187 @@ const OperatingSystem = () => {
                                                                                                 </div>
                                                                                             </section>
 
+
+                                        {/* Semaphore Deep-Dive - Full Width */}
+                                        <div className="glass-panel p-8 rounded-2xl border-t-4 border-t-cyan-500">
+                                            <h4 className="text-2xl font-bold text-secondary mb-4">Semaphores: The OS-Level Solution</h4>
+                                            <p className="text-slate-700 mb-6">A semaphore is an integer variable that, apart from initialization, is accessed only through two standard <strong>atomic</strong> operations: <code className="bg-slate-100 px-1.5 rounded text-violet-700 font-bold">wait()</code> (also called P or down) and <code className="bg-slate-100 px-1.5 rounded text-violet-700 font-bold">signal()</code> (also called V or up).</p>
+
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                                <div className="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden">
+                                                    <div className="bg-slate-800 px-4 py-2 border-b border-slate-700 text-xs font-bold text-slate-300">
+                                                        Binary Semaphore (Mutex) — Value: 0 or 1
+                                                    </div>
+                                                    <div className="p-4 text-sm text-slate-300">
+                                                        <p className="mb-3">Acts like a <strong className="text-white">lock</strong>. Only ONE process can enter the critical section.</p>
+                                                        <div className="bg-black/40 p-3 rounded-lg font-mono text-xs mb-2">
+                                                            <span className="text-pink-400">wait</span>(S) {"{"}<br />
+                                                            {"  "}<span className="text-slate-500">// If S == 1, set S = 0 and enter CS</span><br />
+                                                            {"  "}<span className="text-slate-500">// If S == 0, block (busy wait)</span><br />
+                                                            {"}"}
+                                                        </div>
+                                                        <div className="bg-black/40 p-3 rounded-lg font-mono text-xs">
+                                                            <span className="text-emerald-400">signal</span>(S) {"{"}<br />
+                                                            {"  "}<span className="text-slate-500">// Set S = 1 (release lock)</span><br />
+                                                            {"}"}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden">
+                                                    <div className="bg-cyan-800 px-4 py-2 border-b border-cyan-700 text-xs font-bold text-white">
+                                                        Counting Semaphore — Value: 0 to N
+                                                    </div>
+                                                    <div className="p-4 text-sm text-slate-300">
+                                                        <p className="mb-3">Controls access to a resource with <strong className="text-white">multiple instances</strong> (e.g., a pool of database connections).</p>
+                                                        <div className="bg-black/40 p-3 rounded-lg font-mono text-xs mb-2">
+                                                            <span className="text-pink-400">wait</span>(S) {"{"}<br />
+                                                            {"  "}S = S - 1;<br />
+                                                            {"  "}<span className="text-slate-500">// If S &lt; 0, block the process</span><br />
+                                                            {"}"}
+                                                        </div>
+                                                        <div className="bg-black/40 p-3 rounded-lg font-mono text-xs">
+                                                            <span className="text-emerald-400">signal</span>(S) {"{"}<br />
+                                                            {"  "}S = S + 1;<br />
+                                                            {"  "}<span className="text-slate-500">// If S &lt;= 0, wake a blocked process</span><br />
+                                                            {"}"}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="bg-rose-50 border-l-4 border-rose-500 p-4 rounded-r-lg text-sm text-rose-700">
+                                                <strong>Examiner's Trap:</strong> The difference between a Mutex and a Binary Semaphore is subtle: A <strong>Mutex</strong> has the concept of <em>ownership</em> (only the thread that locked it can unlock it). A <strong>Binary Semaphore</strong> has no ownership — any process can call signal(). BPSC may ask: "Can any process release a Mutex?" — Answer: <strong>No</strong>.
+                                            </div>
+                                        </div>
+
+                                        {/* Producer-Consumer Problem */}
+                                        <div className="bg-gradient-to-br from-indigo-900 to-slate-900 rounded-3xl shadow-xl border border-indigo-800 overflow-hidden text-white p-8">
+                                            <h4 className="text-2xl font-bold text-indigo-300 mb-4 font-merriweather">Classical Problem: Producer-Consumer (Bounded Buffer)</h4>
+                                            <p className="text-sm text-indigo-200 mb-6">A Producer generates data and places it in a buffer. A Consumer removes data from the buffer. The buffer has a <strong className="text-white">fixed size N</strong>.</p>
+
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                                                <div className="bg-black/30 p-4 rounded-xl border border-indigo-600 text-center">
+                                                    <strong className="text-indigo-300 block text-sm mb-1">Semaphore: mutex</strong>
+                                                    <span className="text-xs text-slate-300">Binary (init = 1)</span>
+                                                    <div className="mt-2 text-xs text-indigo-200">Controls buffer access</div>
+                                                </div>
+                                                <div className="bg-black/30 p-4 rounded-xl border border-emerald-600 text-center">
+                                                    <strong className="text-emerald-300 block text-sm mb-1">Semaphore: empty</strong>
+                                                    <span className="text-xs text-slate-300">Counting (init = N)</span>
+                                                    <div className="mt-2 text-xs text-emerald-200">Tracks empty slots</div>
+                                                </div>
+                                                <div className="bg-black/30 p-4 rounded-xl border border-rose-600 text-center">
+                                                    <strong className="text-rose-300 block text-sm mb-1">Semaphore: full</strong>
+                                                    <span className="text-xs text-slate-300">Counting (init = 0)</span>
+                                                    <div className="mt-2 text-xs text-rose-200">Tracks filled slots</div>
+                                                </div>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                                <div className="bg-black/40 p-4 rounded-xl border border-indigo-500/30 font-mono text-xs">
+                                                    <span className="text-indigo-400 block mb-2 font-sans font-bold text-sm">Producer:</span>
+                                                    <span className="text-pink-400">wait</span>(empty);<br />
+                                                    <span className="text-pink-400">wait</span>(mutex);<br />
+                                                    <span className="text-slate-500">// Add item to buffer</span><br />
+                                                    <span className="text-emerald-400">signal</span>(mutex);<br />
+                                                    <span className="text-emerald-400">signal</span>(full);
+                                                </div>
+                                                <div className="bg-black/40 p-4 rounded-xl border border-indigo-500/30 font-mono text-xs">
+                                                    <span className="text-indigo-400 block mb-2 font-sans font-bold text-sm">Consumer:</span>
+                                                    <span className="text-pink-400">wait</span>(full);<br />
+                                                    <span className="text-pink-400">wait</span>(mutex);<br />
+                                                    <span className="text-slate-500">// Remove item from buffer</span><br />
+                                                    <span className="text-emerald-400">signal</span>(mutex);<br />
+                                                    <span className="text-emerald-400">signal</span>(empty);
+                                                </div>
+                                            </div>
+
+                                            <div className="bg-emerald-900/40 border-l-4 border-emerald-500 p-3 rounded-r-lg text-xs text-emerald-200">
+                                                <strong className="text-white">BPSC Catch:</strong> The <strong>order of wait()</strong> matters! If you swap wait(empty) and wait(mutex) in the Producer, it causes <strong>Deadlock</strong>. Always acquire counting semaphore BEFORE mutex.
+                                            </div>
+                                        </div>
+
+                                        {/* Deadlock Conditions */}
+                                        <div id="deadlock" className="scroll-mt-32">
+                                            <div className="mb-6 flex items-end gap-3">
+                                                <h3 className="text-3xl font-bold text-secondary">Deadlock: The 4 Coffman Conditions</h3>
+                                            </div>
+                                            <p className="text-slate-700 mb-6">A deadlock occurs when a set of processes are blocked because each process is holding a resource and waiting for another resource acquired by another process. <strong>All 4 conditions must hold simultaneously</strong> for a deadlock to occur.</p>
+
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-rose-400 transition-colors group">
+                                                    <div className="flex items-center gap-3 mb-3">
+                                                        <span className="bg-rose-600 text-white w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm">1</span>
+                                                        <h5 className="font-bold text-secondary text-lg">Mutual Exclusion</h5>
+                                                    </div>
+                                                    <p className="text-sm text-slate-600">At least one resource must be held in a non-sharable mode. Only one process can use the resource at any given time.</p>
+                                                </div>
+                                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-rose-400 transition-colors group">
+                                                    <div className="flex items-center gap-3 mb-3">
+                                                        <span className="bg-rose-600 text-white w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm">2</span>
+                                                        <h5 className="font-bold text-secondary text-lg">Hold and Wait</h5>
+                                                    </div>
+                                                    <p className="text-sm text-slate-600">A process holding at least one resource is waiting to acquire additional resources held by other processes.</p>
+                                                </div>
+                                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-rose-400 transition-colors group">
+                                                    <div className="flex items-center gap-3 mb-3">
+                                                        <span className="bg-rose-600 text-white w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm">3</span>
+                                                        <h5 className="font-bold text-secondary text-lg">No Preemption</h5>
+                                                    </div>
+                                                    <p className="text-sm text-slate-600">Resources cannot be forcibly taken away from a process. They must be released voluntarily by the process holding them.</p>
+                                                </div>
+                                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-rose-400 transition-colors group">
+                                                    <div className="flex items-center gap-3 mb-3">
+                                                        <span className="bg-rose-600 text-white w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm">4</span>
+                                                        <h5 className="font-bold text-secondary text-lg">Circular Wait</h5>
+                                                    </div>
+                                                    <p className="text-sm text-slate-600">A chain of processes exists where each process holds a resource needed by the next process in the chain (P0→R1→P1→R2→...→Pn→R0→P0).</p>
+                                                </div>
+                                            </div>
+
+                                            <div className="bg-emerald-50 border-l-4 border-emerald-500 p-5 rounded-r-lg shadow-sm mb-6">
+                                                <h6 className="font-bold text-emerald-800 flex items-center gap-2 text-sm mb-3">
+                                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                                    Revision Trick: Deadlock Prevention
+                                                </h6>
+                                                <p className="text-sm text-emerald-700 mb-3">To <strong>prevent</strong> deadlock, break ANY ONE of the 4 conditions:</p>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-emerald-900 font-semibold">
+                                                    <div className="bg-white p-2 rounded-lg border border-emerald-100">Break Mutual Exclusion → Use sharable resources (read-only files)</div>
+                                                    <div className="bg-white p-2 rounded-lg border border-emerald-100">Break Hold &amp; Wait → Request all resources at once before starting</div>
+                                                    <div className="bg-white p-2 rounded-lg border border-emerald-100">Break No Preemption → Forcibly take resources from waiting processes</div>
+                                                    <div className="bg-white p-2 rounded-lg border border-emerald-100">Break Circular Wait → Impose a total ordering on resource types</div>
+                                                </div>
+                                            </div>
+
+                                            {/* Deadlock vs Starvation */}
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <div className="bg-rose-900 text-white p-6 rounded-2xl shadow-lg">
+                                                    <h5 className="font-bold text-rose-300 text-lg mb-3 flex items-center gap-2">
+                                                        <span className="text-xl">💀</span> Deadlock
+                                                    </h5>
+                                                    <ul className="text-sm text-rose-100 space-y-2">
+                                                        <li>&#8226; <strong>No process</strong> in the set can proceed</li>
+                                                        <li>&#8226; Circular dependency on resources</li>
+                                                        <li>&#8226; All 4 Coffman conditions hold</li>
+                                                        <li>&#8226; Processes are <strong>indefinitely blocked</strong></li>
+                                                    </ul>
+                                                </div>
+                                                <div className="bg-amber-900 text-white p-6 rounded-2xl shadow-lg">
+                                                    <h5 className="font-bold text-amber-300 text-lg mb-3 flex items-center gap-2">
+                                                        <span className="text-xl">⏳</span> Starvation
+                                                    </h5>
+                                                    <ul className="text-sm text-amber-100 space-y-2">
+                                                        <li>&#8226; <strong>Some processes</strong> proceed, others don't</li>
+                                                        <li>&#8226; Not a circular dependency — just unfair scheduling</li>
+                                                        <li>&#8226; Caused by priority scheduling without aging</li>
+                                                        <li>&#8226; Solution: <strong>Aging</strong> (gradually increase priority)</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+
                                                                                             {/*  Module 5: Memory Management & Virtual Memory  */}
-                                                                                            <section id="memory" className="scroll-mt-32 reveal">
+                                                                                            <section id="memory" className="scroll-mt-32 os-reveal">
                                                                                                 <div className="mb-6 border-b-2 border-slate-200 pb-2 flex items-end gap-3">
                                                                                                     <span className="text-4xl font-black text-slate-300">05</span>
                                                                                                     <h3 className="text-3xl font-bold text-secondary">Memory Management & Partitioning</h3>
@@ -601,12 +1274,280 @@ const OperatingSystem = () => {
                                                                                                             </div>
                                                                                                         </div>
                                                                                                     </div>
+
+                                        {/* Page Table Size Calculation - Full Width */}
+                                        <div className="bg-slate-900 rounded-2xl shadow-xl border border-slate-800 overflow-hidden text-white p-8">
+                                            <div className="flex items-center gap-2 mb-4 text-sky-300">
+                                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                                                <h5 className="font-bold text-sm tracking-widest uppercase">Worked Numerical: Page Table Size</h5>
+                                            </div>
+                                            <h4 className="text-xl font-bold mb-4 font-merriweather">How to Calculate Page Table Size</h4>
+
+                                            <div className="bg-black/40 p-5 rounded-xl border border-slate-600 mb-4 text-sm">
+                                                <strong className="text-sky-300 block mb-2">Given:</strong>
+                                                <p className="text-slate-300">Logical Address Space = 32 bits, Page Size = 4 KB (2<sup>12</sup>), Physical Memory = 2 GB (2<sup>31</sup>)</p>
+                                                <strong className="text-emerald-300 block mt-4 mb-2">Step-by-Step:</strong>
+                                                <div className="space-y-2 text-slate-300 font-mono">
+                                                    <div>1. Number of Pages = 2<sup>32</sup> / 2<sup>12</sup> = 2<sup>20</sup> = <strong className="text-white">1,048,576 entries</strong></div>
+                                                    <div>2. Number of Frames = 2<sup>31</sup> / 2<sup>12</sup> = 2<sup>19</sup></div>
+                                                    <div>3. Each page table entry needs 19 bits ≈ <strong className="text-white">3 bytes</strong> (rounded up)</div>
+                                                    <div className="text-emerald-400 font-bold mt-2">4. Page Table Size = 2<sup>20</sup> × 3 = <span className="text-lg">3 MB</span></div>
+                                                </div>
+                                            </div>
+                                            <div className="bg-rose-900/40 border-l-4 border-rose-500 p-3 rounded-r-lg text-xs text-rose-200">
+                                                <strong className="text-white">BPSC Trap:</strong> The number of bits for each page table entry depends on the <strong>physical address space</strong> (number of frames), NOT the logical address space. Many students confuse this and calculate wrong entry sizes.
+                                            </div>
+                                        </div>
+
+                                        {/* Virtual Memory & Demand Paging */}
+                                        <div className="glass-panel p-8 rounded-2xl border-t-4 border-t-violet-500">
+                                            <h4 className="text-2xl font-bold text-secondary mb-4">Virtual Memory &amp; Demand Paging</h4>
+                                            <p className="text-slate-700 mb-6">Virtual memory allows execution of processes that are <strong>not completely in main memory</strong>. Pages are loaded into memory only when they are needed (<strong>lazy loading</strong>). This is called <strong>Demand Paging</strong>.</p>
+
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                                                <div className="bg-violet-50 p-5 rounded-xl border border-violet-200 text-center">
+                                                    <strong className="text-violet-900 block text-sm mb-2">Key Advantage</strong>
+                                                    <p className="text-xs text-violet-700">Programs can be larger than physical memory. Only needed pages are loaded, saving RAM.</p>
+                                                </div>
+                                                <div className="bg-sky-50 p-5 rounded-xl border border-sky-200 text-center">
+                                                    <strong className="text-sky-900 block text-sm mb-2">Page Fault</strong>
+                                                    <p className="text-xs text-sky-700">When a referenced page is NOT in memory, a trap (page fault) occurs. OS loads the page from disk.</p>
+                                                </div>
+                                                <div className="bg-rose-50 p-5 rounded-xl border border-rose-200 text-center">
+                                                    <strong className="text-rose-900 block text-sm mb-2">Valid/Invalid Bit</strong>
+                                                    <p className="text-xs text-rose-700">Each page table entry has a bit: <strong>v</strong> = page in memory, <strong>i</strong> = page not in memory (on disk).</p>
+                                                </div>
+                                            </div>
+
+                                            {/* Page Fault Handling Flow */}
+                                            <div className="flex flex-col items-center space-y-2 bg-slate-50 p-5 rounded-xl border border-slate-200 text-sm font-semibold mb-6">
+                                                <div className="bg-violet-700 text-white px-4 py-2 rounded-lg w-full max-w-md text-center">1. CPU tries to access a page (Valid bit = i)</div>
+                                                <div className="text-slate-400 font-bold">&#8595;</div>
+                                                <div className="bg-rose-600 text-white px-4 py-2 rounded-lg w-full max-w-md text-center">2. Page Fault Trap &#8594; OS takes control</div>
+                                                <div className="text-slate-400 font-bold">&#8595;</div>
+                                                <div className="bg-slate-700 text-white px-4 py-2 rounded-lg w-full max-w-md text-center">3. Find page on disk (backing store)</div>
+                                                <div className="text-slate-400 font-bold">&#8595;</div>
+                                                <div className="bg-sky-700 text-white px-4 py-2 rounded-lg w-full max-w-md text-center">4. Find a free frame (or replace a page)</div>
+                                                <div className="text-slate-400 font-bold">&#8595;</div>
+                                                <div className="bg-emerald-700 text-white px-4 py-2 rounded-lg w-full max-w-md text-center">5. Load page into frame, update page table</div>
+                                                <div className="text-slate-400 font-bold">&#8595;</div>
+                                                <div className="bg-emerald-900 text-white px-4 py-2 rounded-lg w-full max-w-md text-center">6. Restart the instruction that caused the fault</div>
+                                            </div>
+                                        </div>
+
+                                        {/* Page Replacement Algorithms */}
+                                        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                                            <div className="p-6 bg-gradient-to-r from-sky-900 to-indigo-900 text-white">
+                                                <h4 className="text-xl font-bold font-merriweather">Page Replacement Algorithms</h4>
+                                                <p className="text-sky-200 text-sm mt-1">When no free frame is available, the OS must decide which page to evict</p>
+                                            </div>
+                                            <div className="p-6">
+                                                <div className="overflow-x-auto mb-6">
+                                                    <table className="w-full text-left border-collapse">
+                                                        <thead>
+                                                            <tr className="bg-slate-100 text-slate-700">
+                                                                <th className="p-4 font-bold">Algorithm</th>
+                                                                <th className="p-4 font-bold">Strategy</th>
+                                                                <th className="p-4 font-bold">Optimal?</th>
+                                                                <th className="p-4 font-bold">Key Fact</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody className="text-sm text-slate-700 divide-y divide-slate-100">
+                                                            <tr className="hover:bg-slate-50 transition-colors">
+                                                                <td className="p-4 font-bold text-sky-700">FIFO</td>
+                                                                <td className="p-4">Replace the <strong>oldest</strong> page (first-in, first-out)</td>
+                                                                <td className="p-4"><span className="text-rose-600 font-bold">No</span></td>
+                                                                <td className="p-4 text-rose-600 font-semibold">Suffers from Belady&#39;s Anomaly</td>
+                                                            </tr>
+                                                            <tr className="hover:bg-slate-50 transition-colors">
+                                                                <td className="p-4 font-bold text-emerald-700">LRU</td>
+                                                                <td className="p-4">Replace the <strong>Least Recently Used</strong> page</td>
+                                                                <td className="p-4"><span className="text-amber-600 font-bold">Near-optimal</span></td>
+                                                                <td className="p-4">Best practical algorithm (uses past info)</td>
+                                                            </tr>
+                                                            <tr className="hover:bg-slate-50 transition-colors">
+                                                                <td className="p-4 font-bold text-violet-700">Optimal (OPT)</td>
+                                                                <td className="p-4">Replace page that <strong>won&#39;t be used for longest time</strong></td>
+                                                                <td className="p-4"><span className="text-emerald-600 font-bold">Yes (theoretical)</span></td>
+                                                                <td className="p-4">Impossible to implement (requires future knowledge)</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+
+                                                {/* Belady's Anomaly */}
+                                                <div className="bg-rose-50 border-l-4 border-rose-500 p-5 rounded-r-lg mb-4">
+                                                    <h6 className="font-bold text-rose-800 flex items-center gap-2 text-sm mb-2">
+                                                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd"></path></svg>
+                                                        Belady&#39;s Anomaly (BPSC Hot Topic)
+                                                    </h6>
+                                                    <p className="text-sm text-rose-700 mb-2">Counter-intuitive phenomenon: <strong>Increasing the number of frames can INCREASE page faults</strong> in FIFO replacement.</p>
+                                                    <p className="text-xs text-rose-600">This anomaly occurs ONLY in FIFO. LRU and Optimal are <strong>stack algorithms</strong> and are immune to Belady&#39;s Anomaly. If the exam asks &#34;Which algorithm does NOT suffer from Belady&#39;s Anomaly?&#34; &#8212; Answer: <strong>LRU and Optimal</strong>.</p>
+                                                </div>
+
+                                                <div className="bg-emerald-50 border-l-4 border-emerald-500 p-3 rounded-r-lg text-xs text-emerald-700">
+                                                    <strong>Revision Trick:</strong> &#34;FIFO is Fair but Foolish&#34; &#8212; it doesn&#39;t consider page usage frequency. LRU is &#34;Look behind, Replace old&#34; &#8212; always checks historical usage.
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Thrashing */}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div className="bg-gradient-to-br from-rose-900 to-slate-900 text-white p-6 rounded-2xl shadow-lg border border-rose-800">
+                                                <h5 className="font-bold text-rose-300 text-xl mb-3 flex items-center gap-2 font-merriweather">
+                                                    <span className="text-2xl">&#128293;</span> Thrashing
+                                                </h5>
+                                                <p className="text-sm text-rose-100 mb-4">When a process spends <strong>more time paging (swapping) than executing</strong>. High page fault rate causes constant disk I/O.</p>
+                                                <ul className="text-sm text-rose-200 space-y-2 mb-4">
+                                                    <li>&#8226; CPU utilization <strong>drops sharply</strong></li>
+                                                    <li>&#8226; OS thinks it needs more multiprogramming</li>
+                                                    <li>&#8226; Adds more processes &#8594; even more page faults</li>
+                                                    <li>&#8226; Vicious cycle until system grinds to a halt</li>
+                                                </ul>
+                                                <div className="bg-black/30 px-3 py-2 rounded-lg text-xs text-rose-300 font-bold text-center border border-rose-700">
+                                                    MCQ Keyword: &#34;High page fault rate&#34; = Thrashing
+                                                </div>
+                                            </div>
+                                            <div className="bg-emerald-50 p-6 rounded-2xl border border-emerald-200">
+                                                <h5 className="font-bold text-emerald-900 text-xl mb-3 flex items-center gap-2 font-merriweather">
+                                                    <span className="text-2xl">&#128737;&#65039;</span> Solution: Working Set Model
+                                                </h5>
+                                                <p className="text-sm text-emerald-800 mb-4">Track the <strong>working set</strong> of each process &#8212; the set of pages actively being used in a recent time window.</p>
+                                                <ul className="text-sm text-emerald-700 space-y-2 mb-4">
+                                                    <li>&#8226; If total working set size &gt; available frames &#8594; <strong>suspend a process</strong></li>
+                                                    <li>&#8226; Ensures each process has enough frames to avoid excessive paging</li>
+                                                    <li>&#8226; <strong>Locality of Reference</strong> enables working set to be small</li>
+                                                </ul>
+                                                <div className="bg-white px-3 py-2 rounded-lg text-xs text-emerald-700 font-bold text-center border border-emerald-200">
+                                                    Alternative: Page Fault Frequency (PFF) scheme
+                                                </div>
+                                            </div>
+                                        </div>
+
                                                                                             </section>
 
-                                                                                            {/*  Module 6: Numerical Masterclass  */}
-                                                                                            <section id="numericals" className="scroll-mt-32 reveal">
+                                                                                            {/* Module 06: File System & Disk Management */}
+                                    <section id="filesystem" className="scroll-mt-32 os-reveal">
+                                        <div className="mb-6 border-b-2 border-slate-200 pb-2 flex items-end gap-3">
+                                            <span className="text-4xl font-black text-slate-300">06</span>
+                                            <h3 className="text-3xl font-bold text-secondary">File System &amp; Disk Management</h3>
+                                        </div>
+
+                                        <p className="text-slate-600 mb-8 max-w-3xl text-lg">File systems organize data on disk, while disk scheduling algorithms optimize I/O performance. Both are high-yield topics for BPSC MCQs.</p>
+
+                                        {/* Directory Structure Types */}
+                                        <div className="glass-panel p-8 rounded-2xl border-t-4 border-t-amber-500 mb-8">
+                                            <h4 className="text-2xl font-bold text-secondary mb-6">Directory Structure Types</h4>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                                <div className="bg-amber-50 p-5 rounded-xl border border-amber-200">
+                                                    <h5 className="font-bold text-amber-900 mb-2">Single-Level Directory</h5>
+                                                    <p className="text-sm text-amber-800">All files in one directory. Simple but causes <strong>naming collisions</strong>. No grouping possible.</p>
+                                                </div>
+                                                <div className="bg-sky-50 p-5 rounded-xl border border-sky-200">
+                                                    <h5 className="font-bold text-sky-900 mb-2">Two-Level Directory</h5>
+                                                    <p className="text-sm text-sky-800">Separate directory per user. Solves naming collisions but <strong>no sub-grouping</strong> within a user.</p>
+                                                </div>
+                                                <div className="bg-emerald-50 p-5 rounded-xl border border-emerald-200">
+                                                    <h5 className="font-bold text-emerald-900 mb-2">Tree-Structured Directory</h5>
+                                                    <p className="text-sm text-emerald-800">Hierarchical structure with subdirectories. Used by most OS (UNIX, Windows). Supports <strong>absolute and relative paths</strong>.</p>
+                                                </div>
+                                                <div className="bg-violet-50 p-5 rounded-xl border border-violet-200">
+                                                    <h5 className="font-bold text-violet-900 mb-2">Acyclic Graph Directory</h5>
+                                                    <p className="text-sm text-violet-800">Allows <strong>shared files/directories</strong> via links (hard links, symbolic links). No cycles allowed to avoid infinite loops.</p>
+                                                </div>
+                                            </div>
+                                            <div className="bg-rose-50 border-l-4 border-rose-500 p-3 rounded-r-lg text-xs text-rose-700">
+                                                <strong>Exam Trap:</strong> If the question mentions &#34;shared subdirectories&#34; or &#34;links&#34; &#8212; the answer is <strong>Acyclic Graph</strong>, NOT Tree. A tree structure does NOT allow sharing.
+                                            </div>
+                                        </div>
+
+                                        {/* Disk Scheduling Algorithms */}
+                                        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-8">
+                                            <div className="p-6 bg-gradient-to-r from-slate-900 to-sky-900 text-white">
+                                                <h4 className="text-xl font-bold font-merriweather">Disk Scheduling Algorithms</h4>
+                                                <p className="text-sky-200 text-sm mt-1">Optimize the order in which disk I/O requests are serviced to minimize seek time</p>
+                                            </div>
+                                            <div className="p-6">
+                                                <div className="overflow-x-auto mb-6">
+                                                    <table className="w-full text-left border-collapse">
+                                                        <thead>
+                                                            <tr className="bg-slate-100 text-slate-700">
+                                                                <th className="p-4 font-bold">Algorithm</th>
+                                                                <th className="p-4 font-bold">Full Name</th>
+                                                                <th className="p-4 font-bold">Strategy</th>
+                                                                <th className="p-4 font-bold">Key MCQ Trigger</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody className="text-sm text-slate-700 divide-y divide-slate-100">
+                                                            <tr className="hover:bg-slate-50 transition-colors">
+                                                                <td className="p-4 font-bold text-slate-700">FCFS</td>
+                                                                <td className="p-4">First Come First Served</td>
+                                                                <td className="p-4">Service requests in arrival order</td>
+                                                                <td className="p-4 text-rose-600 font-semibold">Fair but highest seek time</td>
+                                                            </tr>
+                                                            <tr className="hover:bg-slate-50 transition-colors">
+                                                                <td className="p-4 font-bold text-sky-700">SSTF</td>
+                                                                <td className="p-4">Shortest Seek Time First</td>
+                                                                <td className="p-4">Service nearest request first</td>
+                                                                <td className="p-4 text-rose-600 font-semibold">Can cause starvation</td>
+                                                            </tr>
+                                                            <tr className="hover:bg-slate-50 transition-colors">
+                                                                <td className="p-4 font-bold text-emerald-700">SCAN</td>
+                                                                <td className="p-4">Elevator Algorithm</td>
+                                                                <td className="p-4">Move head in one direction, service all requests, then reverse</td>
+                                                                <td className="p-4 text-emerald-600 font-semibold">&#34;Elevator&#34; keyword</td>
+                                                            </tr>
+                                                            <tr className="hover:bg-slate-50 transition-colors">
+                                                                <td className="p-4 font-bold text-violet-700">C-SCAN</td>
+                                                                <td className="p-4">Circular SCAN</td>
+                                                                <td className="p-4">Only service in one direction, then jump back to start</td>
+                                                                <td className="p-4 text-violet-600 font-semibold">More uniform wait time</td>
+                                                            </tr>
+                                                            <tr className="hover:bg-slate-50 transition-colors">
+                                                                <td className="p-4 font-bold text-amber-700">LOOK</td>
+                                                                <td className="p-4">LOOK Algorithm</td>
+                                                                <td className="p-4">Like SCAN but reverses at last request (not disk end)</td>
+                                                                <td className="p-4 text-amber-600 font-semibold">Practical version of SCAN</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <div className="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-r-lg">
+                                                    <p className="text-xs text-emerald-700"><strong>BPSC Catch:</strong> If the question mentions &#34;elevator&#34; &#8212; answer is <strong>SCAN</strong>. If it says &#34;services only in one direction&#34; &#8212; answer is <strong>C-SCAN</strong>. If it says &#34;no starvation, fair&#34; &#8212; answer is <strong>SCAN/C-SCAN</strong>. SSTF can starve far-away requests just like SJF starves long processes.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* File Allocation Methods */}
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                                            <div className="bg-sky-50 p-6 rounded-2xl border border-sky-200 hover:-translate-y-1 transition-transform duration-300">
+                                                <h5 className="font-bold text-sky-900 text-lg mb-3">Contiguous Allocation</h5>
+                                                <p className="text-sm text-sky-800 mb-3">Each file occupies a set of <strong>contiguous blocks</strong> on disk. Fast direct access but suffers from <strong>external fragmentation</strong>.</p>
+                                                <div className="bg-white p-2 rounded-lg border border-sky-100 text-xs text-sky-700 font-bold text-center">
+                                                    Fast read &#10004; | Fragmentation &#10008;
+                                                </div>
+                                            </div>
+                                            <div className="bg-emerald-50 p-6 rounded-2xl border border-emerald-200 hover:-translate-y-1 transition-transform duration-300">
+                                                <h5 className="font-bold text-emerald-900 text-lg mb-3">Linked Allocation</h5>
+                                                <p className="text-sm text-emerald-800 mb-3">Each block contains a pointer to the next block. <strong>No fragmentation</strong> but only <strong>sequential access</strong>.</p>
+                                                <div className="bg-white p-2 rounded-lg border border-emerald-100 text-xs text-emerald-700 font-bold text-center">
+                                                    No frag &#10004; | Sequential only &#10008;
+                                                </div>
+                                            </div>
+                                            <div className="bg-violet-50 p-6 rounded-2xl border border-violet-200 hover:-translate-y-1 transition-transform duration-300">
+                                                <h5 className="font-bold text-violet-900 text-lg mb-3">Indexed Allocation</h5>
+                                                <p className="text-sm text-violet-800 mb-3">An <strong>index block</strong> stores pointers to all file blocks. Supports <strong>direct access</strong> without fragmentation.</p>
+                                                <div className="bg-white p-2 rounded-lg border border-violet-100 text-xs text-violet-700 font-bold text-center">
+                                                    Direct access &#10004; | Index overhead &#10008;
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </section>
+
+                                                                                            {/*  Module 7: Numerical Masterclass  */}
+                                                                                            <section id="numericals" className="scroll-mt-32 os-reveal">
                                                                                                 <div className="mb-6 border-b-2 border-slate-200 pb-2 flex items-end gap-3">
-                                                                                                    <span className="text-4xl font-black text-slate-300">06</span>
+                                                                                                    <span className="text-4xl font-black text-slate-300">07</span>
                                                                                                     <h3 className="text-3xl font-bold text-secondary">Numerical Masterclass</h3>
                                                                                                 </div>
 
@@ -798,7 +1739,7 @@ const OperatingSystem = () => {
         </section>
 
         {/*  BPSC EXAM STRATEGY (Moved up before Assessment)  */}
-                                                                                                                    <section id="bpsc-strategy" className="scroll-mt-32 reveal">
+                                                                                                                    <section id="bpsc-strategy" className="scroll-mt-32 os-reveal">
                                                                                                                         <div className="bg-secondary rounded-3xl p-8 md:p-12 shadow-2xl text-white relative overflow-hidden border-t-8 border-accent-500">
                                                                                                                             {/*  Abstract UI shapes for depth  */}
                                                                                                                             <div className="absolute top-0 right-0 -mt-16 -mr-16 w-64 h-64 bg-accent-500 opacity-10 rounded-full blur-3xl animate-float"></div>
@@ -915,10 +1856,10 @@ const OperatingSystem = () => {
                                                                                                                                 </section>
 
                                                                                                                                 {/*  Module 7: Self-Assessment & PYQs (Moved to Bottom & CBT Layout Applied)  */}
-                                                                                                                                <section id="assessment" className="scroll-mt-32 reveal">
+                                                                                                                                <section id="assessment" className="scroll-mt-32 os-reveal">
                                                                                                                                     <div className="mb-8 border-b-2 border-slate-200 pb-4 flex items-end justify-between">
                                                                                                                                         <div className="flex items-end gap-3">
-                                                                                                                                            <span className="text-4xl font-black text-slate-300">07</span>
+                                                                                                                                            <span className="text-4xl font-black text-slate-300">08</span>
                                                                                                                                             <h3 className="text-3xl font-bold text-secondary">Final Assessment: Exam Simulator</h3>
                                                                                                                                         </div>
                                                                                                                                         <span className="hidden md:inline-block bg-accent-100 text-accent-800 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border border-accent-200">CBT Mode</span>
@@ -1444,6 +2385,108 @@ const OperatingSystem = () => {
                                                                                                                                                         </div>
                                                                                                                                                     </details>
                                                                                                                                                 </div>
+                                                                                                                                            </div>
+                                                                                                                                        </div>
+
+                                                                                                                                        {/* Q15 - Deadlock */}
+                                                                                                                                        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden group hover:border-accent-400 transition-all">
+                                                                                                                                            <div className="p-6 md:p-8">
+                                                                                                                                                <h5 className="font-bold text-secondary text-lg mb-6 font-merriweather leading-snug flex gap-3">
+                                                                                                                                                    <span className="text-accent-500 shrink-0">Q15.</span>
+                                                                                                                                                    Which of the following is NOT a necessary condition for deadlock?
+                                                                                                                                                </h5>
+                                                                                                                                                <div className="space-y-3 mb-6">
+                                                                                                                                                    <label className="flex items-center gap-3 p-4 rounded-xl border border-slate-100 bg-slate-50 hover:bg-sky-50 hover:border-sky-200 cursor-pointer transition-colors"><input type="radio" name="q15" className="w-4 h-4 text-accent-500 accent-accent-500 shrink-0" /><span className="text-sm text-slate-700 font-medium">a) Mutual Exclusion</span></label>
+                                                                                                                                                    <label className="flex items-center gap-3 p-4 rounded-xl border border-slate-100 bg-slate-50 hover:bg-sky-50 hover:border-sky-200 cursor-pointer transition-colors"><input type="radio" name="q15" className="w-4 h-4 text-accent-500 accent-accent-500 shrink-0" /><span className="text-sm text-slate-700 font-medium">b) Preemption</span></label>
+                                                                                                                                                    <label className="flex items-center gap-3 p-4 rounded-xl border border-slate-100 bg-slate-50 hover:bg-sky-50 hover:border-sky-200 cursor-pointer transition-colors"><input type="radio" name="q15" className="w-4 h-4 text-accent-500 accent-accent-500 shrink-0" /><span className="text-sm text-slate-700 font-medium">c) Hold and Wait</span></label>
+                                                                                                                                                    <label className="flex items-center gap-3 p-4 rounded-xl border border-slate-100 bg-slate-50 hover:bg-sky-50 hover:border-sky-200 cursor-pointer transition-colors"><input type="radio" name="q15" className="w-4 h-4 text-accent-500 accent-accent-500 shrink-0" /><span className="text-sm text-slate-700 font-medium">d) Circular Wait</span></label>
+                                                                                                                                                </div>
+                                                                                                                                                <div className="md:pl-9"><details className="group/details"><summary className="list-none cursor-pointer inline-block bg-slate-900 text-white text-sm font-bold px-6 py-2.5 rounded-lg hover:bg-slate-800 transition-colors shadow-md">Reveal Solution</summary><div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-xl text-sm text-green-900"><strong className="text-base">Answer: b) Preemption</strong><div className="mt-2 text-green-800 opacity-90 border-t border-green-200 pt-2"><strong>Explanation:</strong> The 4 Coffman conditions are: Mutual Exclusion, Hold and Wait, <strong>No Preemption</strong>, and Circular Wait. &#34;Preemption&#34; is the opposite &#8212; it breaks deadlock, not causes it.</div></div></details></div>
+                                                                                                                                            </div>
+                                                                                                                                        </div>
+
+                                                                                                                                        {/* Q16 - Belady's Anomaly */}
+                                                                                                                                        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden group hover:border-accent-400 transition-all">
+                                                                                                                                            <div className="p-6 md:p-8">
+                                                                                                                                                <h5 className="font-bold text-secondary text-lg mb-6 font-merriweather leading-snug flex gap-3">
+                                                                                                                                                    <span className="text-accent-500 shrink-0">Q16.</span>
+                                                                                                                                                    Belady&#39;s Anomaly is associated with which page replacement algorithm?
+                                                                                                                                                </h5>
+                                                                                                                                                <div className="space-y-3 mb-6">
+                                                                                                                                                    <label className="flex items-center gap-3 p-4 rounded-xl border border-slate-100 bg-slate-50 hover:bg-sky-50 hover:border-sky-200 cursor-pointer transition-colors"><input type="radio" name="q16" className="w-4 h-4 text-accent-500 accent-accent-500 shrink-0" /><span className="text-sm text-slate-700 font-medium">a) LRU</span></label>
+                                                                                                                                                    <label className="flex items-center gap-3 p-4 rounded-xl border border-slate-100 bg-slate-50 hover:bg-sky-50 hover:border-sky-200 cursor-pointer transition-colors"><input type="radio" name="q16" className="w-4 h-4 text-accent-500 accent-accent-500 shrink-0" /><span className="text-sm text-slate-700 font-medium">b) FIFO</span></label>
+                                                                                                                                                    <label className="flex items-center gap-3 p-4 rounded-xl border border-slate-100 bg-slate-50 hover:bg-sky-50 hover:border-sky-200 cursor-pointer transition-colors"><input type="radio" name="q16" className="w-4 h-4 text-accent-500 accent-accent-500 shrink-0" /><span className="text-sm text-slate-700 font-medium">c) Optimal</span></label>
+                                                                                                                                                    <label className="flex items-center gap-3 p-4 rounded-xl border border-slate-100 bg-slate-50 hover:bg-sky-50 hover:border-sky-200 cursor-pointer transition-colors"><input type="radio" name="q16" className="w-4 h-4 text-accent-500 accent-accent-500 shrink-0" /><span className="text-sm text-slate-700 font-medium">d) LFU</span></label>
+                                                                                                                                                </div>
+                                                                                                                                                <div className="md:pl-9"><details className="group/details"><summary className="list-none cursor-pointer inline-block bg-slate-900 text-white text-sm font-bold px-6 py-2.5 rounded-lg hover:bg-slate-800 transition-colors shadow-md">Reveal Solution</summary><div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-xl text-sm text-green-900"><strong className="text-base">Answer: b) FIFO</strong><div className="mt-2 text-green-800 opacity-90 border-t border-green-200 pt-2"><strong>Explanation:</strong> Belady&#39;s Anomaly states that increasing frames can increase page faults. This occurs ONLY in FIFO. LRU and Optimal are stack algorithms, immune to this anomaly.</div></div></details></div>
+                                                                                                                                            </div>
+                                                                                                                                        </div>
+
+                                                                                                                                        {/* Q17 - fork() */}
+                                                                                                                                        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden group hover:border-accent-400 transition-all">
+                                                                                                                                            <div className="p-6 md:p-8">
+                                                                                                                                                <h5 className="font-bold text-secondary text-lg mb-6 font-merriweather leading-snug flex gap-3">
+                                                                                                                                                    <span className="text-accent-500 shrink-0">Q17.</span>
+                                                                                                                                                    How many total processes exist after executing 4 consecutive fork() system calls (including the original parent)?
+                                                                                                                                                </h5>
+                                                                                                                                                <div className="space-y-3 mb-6">
+                                                                                                                                                    <label className="flex items-center gap-3 p-4 rounded-xl border border-slate-100 bg-slate-50 hover:bg-sky-50 hover:border-sky-200 cursor-pointer transition-colors"><input type="radio" name="q17" className="w-4 h-4 text-accent-500 accent-accent-500 shrink-0" /><span className="text-sm text-slate-700 font-medium">a) 4</span></label>
+                                                                                                                                                    <label className="flex items-center gap-3 p-4 rounded-xl border border-slate-100 bg-slate-50 hover:bg-sky-50 hover:border-sky-200 cursor-pointer transition-colors"><input type="radio" name="q17" className="w-4 h-4 text-accent-500 accent-accent-500 shrink-0" /><span className="text-sm text-slate-700 font-medium">b) 8</span></label>
+                                                                                                                                                    <label className="flex items-center gap-3 p-4 rounded-xl border border-slate-100 bg-slate-50 hover:bg-sky-50 hover:border-sky-200 cursor-pointer transition-colors"><input type="radio" name="q17" className="w-4 h-4 text-accent-500 accent-accent-500 shrink-0" /><span className="text-sm text-slate-700 font-medium">c) 16</span></label>
+                                                                                                                                                    <label className="flex items-center gap-3 p-4 rounded-xl border border-slate-100 bg-slate-50 hover:bg-sky-50 hover:border-sky-200 cursor-pointer transition-colors"><input type="radio" name="q17" className="w-4 h-4 text-accent-500 accent-accent-500 shrink-0" /><span className="text-sm text-slate-700 font-medium">d) 32</span></label>
+                                                                                                                                                </div>
+                                                                                                                                                <div className="md:pl-9"><details className="group/details"><summary className="list-none cursor-pointer inline-block bg-slate-900 text-white text-sm font-bold px-6 py-2.5 rounded-lg hover:bg-slate-800 transition-colors shadow-md">Reveal Solution</summary><div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-xl text-sm text-green-900"><strong className="text-base">Answer: c) 16</strong><div className="mt-2 text-green-800 opacity-90 border-t border-green-200 pt-2"><strong>Explanation:</strong> For n consecutive fork() calls, total processes = 2<sup>n</sup>. With n=4: 2<sup>4</sup> = 16 processes (including the original parent).</div></div></details></div>
+                                                                                                                                            </div>
+                                                                                                                                        </div>
+
+                                                                                                                                        {/* Q18 - Semaphore */}
+                                                                                                                                        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden group hover:border-accent-400 transition-all">
+                                                                                                                                            <div className="p-6 md:p-8">
+                                                                                                                                                <h5 className="font-bold text-secondary text-lg mb-6 font-merriweather leading-snug flex gap-3">
+                                                                                                                                                    <span className="text-accent-500 shrink-0">Q18.</span>
+                                                                                                                                                    In the Producer-Consumer problem, what causes deadlock if the order of wait() operations is swapped in the Producer?
+                                                                                                                                                </h5>
+                                                                                                                                                <div className="space-y-3 mb-6">
+                                                                                                                                                    <label className="flex items-center gap-3 p-4 rounded-xl border border-slate-100 bg-slate-50 hover:bg-sky-50 hover:border-sky-200 cursor-pointer transition-colors"><input type="radio" name="q18" className="w-4 h-4 text-accent-500 accent-accent-500 shrink-0" /><span className="text-sm text-slate-700 font-medium">a) Buffer overflow</span></label>
+                                                                                                                                                    <label className="flex items-center gap-3 p-4 rounded-xl border border-slate-100 bg-slate-50 hover:bg-sky-50 hover:border-sky-200 cursor-pointer transition-colors"><input type="radio" name="q18" className="w-4 h-4 text-accent-500 accent-accent-500 shrink-0" /><span className="text-sm text-slate-700 font-medium">b) Mutex acquired before checking buffer fullness</span></label>
+                                                                                                                                                    <label className="flex items-center gap-3 p-4 rounded-xl border border-slate-100 bg-slate-50 hover:bg-sky-50 hover:border-sky-200 cursor-pointer transition-colors"><input type="radio" name="q18" className="w-4 h-4 text-accent-500 accent-accent-500 shrink-0" /><span className="text-sm text-slate-700 font-medium">c) Signal is called before wait</span></label>
+                                                                                                                                                    <label className="flex items-center gap-3 p-4 rounded-xl border border-slate-100 bg-slate-50 hover:bg-sky-50 hover:border-sky-200 cursor-pointer transition-colors"><input type="radio" name="q18" className="w-4 h-4 text-accent-500 accent-accent-500 shrink-0" /><span className="text-sm text-slate-700 font-medium">d) Starvation of the consumer</span></label>
+                                                                                                                                                </div>
+                                                                                                                                                <div className="md:pl-9"><details className="group/details"><summary className="list-none cursor-pointer inline-block bg-slate-900 text-white text-sm font-bold px-6 py-2.5 rounded-lg hover:bg-slate-800 transition-colors shadow-md">Reveal Solution</summary><div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-xl text-sm text-green-900"><strong className="text-base">Answer: b) Mutex acquired before checking buffer fullness</strong><div className="mt-2 text-green-800 opacity-90 border-t border-green-200 pt-2"><strong>Explanation:</strong> If wait(mutex) is called before wait(empty), the producer locks the buffer then blocks on empty. The consumer cannot enter because mutex is held &#8212; classic deadlock.</div></div></details></div>
+                                                                                                                                            </div>
+                                                                                                                                        </div>
+
+                                                                                                                                        {/* Q19 - Disk Scheduling */}
+                                                                                                                                        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden group hover:border-accent-400 transition-all">
+                                                                                                                                            <div className="p-6 md:p-8">
+                                                                                                                                                <h5 className="font-bold text-secondary text-lg mb-6 font-merriweather leading-snug flex gap-3">
+                                                                                                                                                    <span className="text-accent-500 shrink-0">Q19.</span>
+                                                                                                                                                    Which disk scheduling algorithm is also known as the &#34;Elevator Algorithm&#34;?
+                                                                                                                                                </h5>
+                                                                                                                                                <div className="space-y-3 mb-6">
+                                                                                                                                                    <label className="flex items-center gap-3 p-4 rounded-xl border border-slate-100 bg-slate-50 hover:bg-sky-50 hover:border-sky-200 cursor-pointer transition-colors"><input type="radio" name="q19" className="w-4 h-4 text-accent-500 accent-accent-500 shrink-0" /><span className="text-sm text-slate-700 font-medium">a) SSTF</span></label>
+                                                                                                                                                    <label className="flex items-center gap-3 p-4 rounded-xl border border-slate-100 bg-slate-50 hover:bg-sky-50 hover:border-sky-200 cursor-pointer transition-colors"><input type="radio" name="q19" className="w-4 h-4 text-accent-500 accent-accent-500 shrink-0" /><span className="text-sm text-slate-700 font-medium">b) C-SCAN</span></label>
+                                                                                                                                                    <label className="flex items-center gap-3 p-4 rounded-xl border border-slate-100 bg-slate-50 hover:bg-sky-50 hover:border-sky-200 cursor-pointer transition-colors"><input type="radio" name="q19" className="w-4 h-4 text-accent-500 accent-accent-500 shrink-0" /><span className="text-sm text-slate-700 font-medium">c) SCAN</span></label>
+                                                                                                                                                    <label className="flex items-center gap-3 p-4 rounded-xl border border-slate-100 bg-slate-50 hover:bg-sky-50 hover:border-sky-200 cursor-pointer transition-colors"><input type="radio" name="q19" className="w-4 h-4 text-accent-500 accent-accent-500 shrink-0" /><span className="text-sm text-slate-700 font-medium">d) LOOK</span></label>
+                                                                                                                                                </div>
+                                                                                                                                                <div className="md:pl-9"><details className="group/details"><summary className="list-none cursor-pointer inline-block bg-slate-900 text-white text-sm font-bold px-6 py-2.5 rounded-lg hover:bg-slate-800 transition-colors shadow-md">Reveal Solution</summary><div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-xl text-sm text-green-900"><strong className="text-base">Answer: c) SCAN</strong><div className="mt-2 text-green-800 opacity-90 border-t border-green-200 pt-2"><strong>Explanation:</strong> The SCAN algorithm moves the disk head in one direction servicing all requests, then reverses &#8212; just like an elevator. C-SCAN is a variant that only services in one direction.</div></div></details></div>
+                                                                                                                                            </div>
+                                                                                                                                        </div>
+
+                                                                                                                                        {/* Q20 - Thrashing */}
+                                                                                                                                        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden group hover:border-accent-400 transition-all">
+                                                                                                                                            <div className="p-6 md:p-8">
+                                                                                                                                                <h5 className="font-bold text-secondary text-lg mb-6 font-merriweather leading-snug flex gap-3">
+                                                                                                                                                    <span className="text-accent-500 shrink-0">Q20.</span>
+                                                                                                                                                    Thrashing in an operating system is primarily caused by:
+                                                                                                                                                </h5>
+                                                                                                                                                <div className="space-y-3 mb-6">
+                                                                                                                                                    <label className="flex items-center gap-3 p-4 rounded-xl border border-slate-100 bg-slate-50 hover:bg-sky-50 hover:border-sky-200 cursor-pointer transition-colors"><input type="radio" name="q20" className="w-4 h-4 text-accent-500 accent-accent-500 shrink-0" /><span className="text-sm text-slate-700 font-medium">a) Too many CPU-bound processes</span></label>
+                                                                                                                                                    <label className="flex items-center gap-3 p-4 rounded-xl border border-slate-100 bg-slate-50 hover:bg-sky-50 hover:border-sky-200 cursor-pointer transition-colors"><input type="radio" name="q20" className="w-4 h-4 text-accent-500 accent-accent-500 shrink-0" /><span className="text-sm text-slate-700 font-medium">b) High multiprogramming with insufficient frames</span></label>
+                                                                                                                                                    <label className="flex items-center gap-3 p-4 rounded-xl border border-slate-100 bg-slate-50 hover:bg-sky-50 hover:border-sky-200 cursor-pointer transition-colors"><input type="radio" name="q20" className="w-4 h-4 text-accent-500 accent-accent-500 shrink-0" /><span className="text-sm text-slate-700 font-medium">c) Large page sizes</span></label>
+                                                                                                                                                    <label className="flex items-center gap-3 p-4 rounded-xl border border-slate-100 bg-slate-50 hover:bg-sky-50 hover:border-sky-200 cursor-pointer transition-colors"><input type="radio" name="q20" className="w-4 h-4 text-accent-500 accent-accent-500 shrink-0" /><span className="text-sm text-slate-700 font-medium">d) Excessive use of TLB</span></label>
+                                                                                                                                                </div>
+                                                                                                                                                <div className="md:pl-9"><details className="group/details"><summary className="list-none cursor-pointer inline-block bg-slate-900 text-white text-sm font-bold px-6 py-2.5 rounded-lg hover:bg-slate-800 transition-colors shadow-md">Reveal Solution</summary><div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-xl text-sm text-green-900"><strong className="text-base">Answer: b) High multiprogramming with insufficient frames</strong><div className="mt-2 text-green-800 opacity-90 border-t border-green-200 pt-2"><strong>Explanation:</strong> When too many processes compete for too few frames, constant page faults cause the OS to spend more time swapping than executing, causing CPU utilization to plummet.</div></div></details></div>
                                                                                                                                             </div>
                                                                                                                                         </div>
 

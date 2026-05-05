@@ -1,29 +1,186 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 const EmergingTrends = () => {
+    const [activeSection, setActiveSection] = useState('');
+    const [isScrolled, setIsScrolled] = useState(false);
+    const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
+    const navItems = [
+        { id: 'ai', label: 'AI', icon: '🧠' },
+        { id: 'big-data', label: 'Big Data', icon: '📊' },
+        { id: 'iot', label: 'IoT', icon: '🌐' },
+        { id: 'cloud', label: 'Cloud', icon: '☁️' },
+        { id: 'strategy', label: 'Strategy', icon: '🎯' },
+    ];
+
+    const scrollToSection = (e, id) => {
+        e.preventDefault();
+        const element = document.getElementById(id);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+            window.history.pushState(null, '', `#${id}`);
+        }
+    };
+
+    useEffect(() => {
+        const observerOptions = { root: null, rootMargin: '0px 0px -80px 0px', threshold: 0.08 };
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    const children = entry.target.querySelectorAll('.os-stagger');
+                    children.forEach((child, i) => {
+                        child.style.transitionDelay = `${i * 0.08}s`;
+                        child.classList.add('is-visible');
+                    });
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.os-reveal').forEach(el => observer.observe(el));
+
+        const sectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    setActiveSection(entry.target.id);
+                }
+            });
+        }, { root: null, rootMargin: '-30% 0px -60% 0px', threshold: 0 });
+
+        document.querySelectorAll('section[id]').forEach(el => sectionObserver.observe(el));
+
+        const handleScroll = () => setIsScrolled(window.scrollY > 60);
+        window.addEventListener('scroll', handleScroll, { passive: true });
+
+        return () => {
+            observer.disconnect();
+            sectionObserver.disconnect();
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, []);
+
     return (
-        <div className="text-slate-800 antialiased font-sans w-full bg-[#f8fafc] min-h-screen pt-8 pb-16">
-            {/* Header Section */}
-                                <header className="w-full px-4 sm:px-6 lg:px-8 text-center mb-12 py-10 glass-card rounded-3xl relative overflow-hidden">
-                                    <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-800 via-blue-500 to-emerald-600"></div>
-                                    <div className="inline-block bg-blue-100 text-blue-800 font-bold px-4 py-1 rounded-full text-sm mb-4 tracking-wider uppercase">
-                                        BPSC TRE 4.0 • Computer Science
-                                    </div>
-                                    <h1 className="text-4xl md:text-5xl font-serif font-bold text-slate-900 mb-4 px-4">
-                                        Mastering <span className="gradient-text">Emerging Trends</span>
-                                    </h1>
-                                    <p className="text-lg text-slate-600 max-w-2xl mx-auto px-4 font-medium mb-4">
-                                        An advanced, NCERT-aligned academic study guide focusing on Artificial Intelligence, Big Data, IoT, and Cloud Computing.
-                                    </p>
-                                    <div className="inline-block bg-amber-100 text-amber-800 font-bold px-4 py-2 rounded-lg text-sm border border-amber-300 shadow-sm animate-pulse">
-                                        ★ Includes exclusive insights directly from the perspective of a BPSC Question Setter ★
-                                    </div>
-                                </header>
+        <div className="text-slate-800 antialiased font-sans w-full bg-[#f8fafc] min-h-screen">
+            {/* ═══ STICKY GLASS HEADER ═══ */}
+            <header className={`os-glass-header fixed top-0 w-full z-50 text-white py-3 px-4 md:px-6 ${isScrolled ? 'scrolled' : ''}`}>
+                <div className="w-full mx-auto flex justify-between items-center px-2 lg:px-4">
+                    <div className="flex items-center gap-3 shrink-0">
+                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-purple-500/25">
+                            CS
+                        </div>
+                        <div className="hidden sm:block">
+                            <h1 className="text-sm font-bold tracking-wide leading-none">Emerging Trends</h1>
+                            <p className="text-[11px] text-slate-400 font-medium mt-0.5">BPSC TRE 4.0</p>
+                        </div>
+                    </div>
+
+                    <nav className="hidden lg:flex items-center gap-1">
+                        {navItems.map(item => (
+                            <a
+                                key={item.id}
+                                href={`#${item.id}`}
+                                className={`os-nav-pill os-focus-ring ${activeSection === item.id ? 'os-nav-pill-active' : ''}`}
+                                onClick={(e) => {
+                                    scrollToSection(e, item.id);
+                                    setMobileNavOpen(false);
+                                }}
+                            >
+                                <span className="mr-1.5 text-xs">{item.icon}</span>
+                                {item.label}
+                            </a>
+                        ))}
+                    </nav>
+
+                    <button
+                        className="lg:hidden p-2 rounded-lg hover:bg-white/10 transition-colors"
+                        onClick={() => setMobileNavOpen(!mobileNavOpen)}
+                        aria-label="Toggle navigation"
+                    >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            {mobileNavOpen
+                                ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                            }
+                        </svg>
+                    </button>
+                </div>
+
+                {mobileNavOpen && (
+                    <div className="lg:hidden mt-3 pb-3 border-t border-white/10 pt-3">
+                        <div className="grid grid-cols-3 gap-2 max-w-md mx-auto">
+                            {navItems.map(item => (
+                                <a
+                                    key={item.id}
+                                    href={`#${item.id}`}
+                                    className="flex flex-col items-center gap-1 p-3 rounded-xl hover:bg-white/10 transition-colors text-center"
+                                    onClick={(e) => {
+                                        scrollToSection(e, item.id);
+                                        setMobileNavOpen(false);
+                                    }}
+                                >
+                                    <span className="text-lg">{item.icon}</span>
+                                    <span className="text-[11px] font-medium text-slate-300">{item.label}</span>
+                                </a>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </header>
+
+            {/* ═══ HERO SECTION ═══ */}
+            <section className="os-hero-gradient os-grid-pattern pt-28 pb-20 md:pt-36 md:pb-28 px-4 sm:px-6 lg:px-8 relative">
+                <div className="absolute top-16 right-[10%] w-72 h-72 bg-blue-500/10 rounded-full blur-3xl animate-os-float pointer-events-none"></div>
+                <div className="absolute bottom-10 left-[5%] w-56 h-56 bg-purple-500/10 rounded-full blur-3xl animate-os-float-delayed pointer-events-none"></div>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-sky-500/5 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div className="w-full mx-auto relative z-10 lg:px-8">
+                    <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-5 py-2 mb-8 backdrop-blur-sm">
+                        <span className="w-2 h-2 bg-sky-400 rounded-full animate-pulse"></span>
+                        <span className="text-sm font-medium text-slate-300">BPSC TRE 4.0 — Computer Science</span>
+                    </div>
+
+                    <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white leading-[1.1] mb-6 tracking-tight">
+                        Mastering
+                        <br />
+                        <span className="bg-gradient-to-r from-blue-400 via-sky-400 to-emerald-400 bg-clip-text text-transparent">
+                            Emerging Trends
+                        </span>
+                        <span className="os-cursor"></span>
+                    </h2>
+
+                    <p className="text-lg md:text-xl text-slate-400 max-w-2xl leading-relaxed mb-10 font-jakarta">
+                        An advanced, NCERT-aligned academic study guide focusing on Artificial Intelligence, Big Data, IoT, and Cloud Computing. Includes exclusive insights directly from the perspective of a BPSC Question Setter.
+                    </p>
+
+                    <div className="flex flex-wrap gap-4 items-center mb-12">
+                        <a href="#ai" onClick={(e) => scrollToSection(e, 'ai')} className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-600 to-sky-500 text-white text-base font-bold px-8 py-4 rounded-xl shadow-xl shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-1 transition-all duration-300 group os-pulse-glow">
+                            Start Learning
+                            <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                        </a>
+                    </div>
+
+                    <div className="flex flex-wrap gap-6 text-sm">
+                        <div className="flex items-center gap-2 text-slate-400">
+                            <span className="w-8 h-8 rounded-lg bg-blue-500/15 flex items-center justify-center text-blue-400 text-base">🤖</span>
+                            <span><strong className="text-white">AI & Tech</strong> Deep Dive</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-slate-400">
+                            <span className="w-8 h-8 rounded-lg bg-emerald-500/15 flex items-center justify-center text-emerald-400 text-base">⚡</span>
+                            <span><strong className="text-white">BPSC</strong> Exam Insights</span>
+                        </div>
+                    </div>
+
+                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 os-scroll-indicator hidden md:block">
+                        <svg className="w-6 h-6 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                    </div>
+                </div>
+            </section>
 
                                 <main className="w-full px-4 sm:px-6 lg:px-8 space-y-12">
 
                                     {/* MODULE 1: Artificial Intelligence & Future Tech */}
-                                    <section className="bg-white shadow-xl shadow-slate-200/50 border border-slate-200 rounded-2xl p-6 md:p-10 border-t-4 border-t-purple-600 hover-lift">
+                                    <section id="ai" className="scroll-mt-32 os-reveal bg-white shadow-xl shadow-slate-200/50 border border-slate-200 rounded-2xl p-6 md:p-10 border-t-4 border-t-purple-600 hover-lift">
                                         <h2 className="text-2xl md:text-3xl font-serif font-bold text-slate-800 mb-6 flex items-center">
                                             <span className="bg-purple-100 text-purple-700 w-10 h-10 rounded-full flex items-center justify-center mr-4 text-xl">1</span>
                                             Artificial Intelligence & Future Tech
@@ -87,7 +244,7 @@ const EmergingTrends = () => {
                                     </section>
 
                                     {/* MODULE 2: Big Data */}
-                                    <section className="bg-white shadow-xl shadow-slate-200/50 border border-slate-200 rounded-2xl p-6 md:p-10 border-t-4 border-t-blue-600 hover-lift">
+                                    <section id="big-data" className="scroll-mt-32 os-reveal bg-white shadow-xl shadow-slate-200/50 border border-slate-200 rounded-2xl p-6 md:p-10 border-t-4 border-t-blue-600 hover-lift">
                                         <h2 className="text-2xl md:text-3xl font-serif font-bold text-slate-800 mb-6 flex items-center">
                                             <span className="bg-blue-100 text-blue-700 w-10 h-10 rounded-full flex items-center justify-center mr-4 text-xl">2</span>
                                             The Big Data Paradigm
@@ -166,7 +323,7 @@ const EmergingTrends = () => {
                                     </section>
 
                                     {/* MODULE 3: Internet of Things (IoT) */}
-                                    <section className="bg-white shadow-xl shadow-slate-200/50 border border-slate-200 rounded-2xl p-6 md:p-10 border-t-4 border-t-emerald-500 hover-lift">
+                                    <section id="iot" className="scroll-mt-32 os-reveal bg-white shadow-xl shadow-slate-200/50 border border-slate-200 rounded-2xl p-6 md:p-10 border-t-4 border-t-emerald-500 hover-lift">
                                         <div className="flex justify-between items-start mb-6">
                                             <h2 className="text-2xl md:text-3xl font-serif font-bold text-slate-800 flex items-center">
                                                 <span className="bg-emerald-100 text-emerald-700 w-10 h-10 rounded-full flex items-center justify-center mr-4 text-xl">3</span>
@@ -315,7 +472,7 @@ const EmergingTrends = () => {
                                     </section>
 
                                     {/* MODULE 4: Cloud Computing */}
-                                    <section className="bg-white shadow-xl shadow-slate-200/50 border border-slate-200 rounded-2xl p-6 md:p-10 border-t-4 border-t-sky-500 hover-lift">
+                                    <section id="cloud" className="scroll-mt-32 os-reveal bg-white shadow-xl shadow-slate-200/50 border border-slate-200 rounded-2xl p-6 md:p-10 border-t-4 border-t-sky-500 hover-lift">
                                         <h2 className="text-2xl md:text-3xl font-serif font-bold text-slate-800 mb-6 flex items-center">
                                             <span className="bg-sky-100 text-sky-700 w-10 h-10 rounded-full flex items-center justify-center mr-4 text-xl">4</span>
                                             Cloud Computing Architecture
@@ -392,7 +549,7 @@ const EmergingTrends = () => {
 
 
                                     {/* BPSC EXAM STRATEGY SECTION */}
-                                    <section className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-6 md:p-10 shadow-2xl relative overflow-hidden mt-16 text-white border border-slate-700">
+                                    <section id="strategy" className="scroll-mt-32 os-reveal bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-6 md:p-10 shadow-2xl relative overflow-hidden mt-16 text-white border border-slate-700">
                                         {/* Decorative Elements */}
                                         <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full border-4 border-white/10"></div>
                                         <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-48 h-48 rounded-full border-4 border-white/10"></div>

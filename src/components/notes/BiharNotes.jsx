@@ -154,190 +154,212 @@ const QuizQuestion = ({ questionNumber, question, options, correctIndex }) => {
 };
 
 // --- Main Application ---
-export default function BiharNotes({ embedded = false }) {
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [activeSection, setActiveSection] = useState('overview');
+export default function BiharNotes() {
+    const [activeSection, setActiveSection] = useState('');
+    const [isScrolled, setIsScrolled] = useState(false);
+    const [mobileNavOpen, setMobileNavOpen] = useState(false);
+    
+    // Timeline specific states
     const timelineRef = useRef(null);
     const [timelineProgress, setTimelineProgress] = useState(0);
 
+    const navItems = [
+        { id: 'overview', label: 'Overview', icon: '📖' },
+        { id: 'bpsc-tre', label: 'TRE Focus', icon: '🎯' },
+        { id: 'geo-admin', label: 'Geo & Admin', icon: '📍' },
+        { id: 'economy-flora', label: 'Econ & Flora', icon: '🌿' },
+        { id: 'ancient-heritage', label: 'Heritage', icon: '📜' },
+        { id: 'timeline', label: 'Timeline', icon: '⏱️' },
+        { id: 'movements', label: 'Movements', icon: '⚔️' },
+        { id: 'personalities', label: 'Eminent', icon: '👤' },
+        { id: 'culture-health', label: 'Culture', icon: '🎨' },
+        { id: 'quiz', label: 'Quiz', icon: '✅' }
+    ];
+
+    const scrollToSection = (e, id) => {
+        if(e) e.preventDefault();
+        const element = document.getElementById(id);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+            window.history.pushState(null, '', `#${id}`);
+        }
+    };
+
     useEffect(() => {
+        const observerOptions = { root: null, rootMargin: '0px 0px -80px 0px', threshold: 0.08 };
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    const children = entry.target.querySelectorAll('.os-stagger');
+                    children.forEach((child, i) => {
+                        child.style.transitionDelay = `${i * 0.08}s`;
+                        child.classList.add('is-visible');
+                    });
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.os-reveal').forEach(el => observer.observe(el));
+
+        const sectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    setActiveSection(entry.target.id);
+                }
+            });
+        }, { root: null, rootMargin: '-30% 0px -60% 0px', threshold: 0 });
+
+        document.querySelectorAll('section[id]').forEach(el => sectionObserver.observe(el));
+
         const handleScroll = () => {
+            setIsScrolled(window.scrollY > 60);
+            
+            // Timeline progress
             if (!timelineRef.current) return;
             const rect = timelineRef.current.getBoundingClientRect();
             const windowHeight = window.innerHeight;
             const top = rect.top;
             const height = rect.height;
-            // trigger point: how far down the screen the "fill" happens (55% down the viewport)
             const triggerPoint = windowHeight * 0.55;
             let progress = ((triggerPoint - top) / height) * 100;
             progress = Math.max(0, Math.min(100, progress));
             setTimelineProgress(progress);
         };
-
-        window.addEventListener('scroll', handleScroll);
+        
+        window.addEventListener('scroll', handleScroll, { passive: true });
         setTimeout(handleScroll, 100);
 
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
-
-    const navLinks = [
-        { id: 'overview', title: 'Overview', icon: <BookOpen size={16} /> },
-        { id: 'bpsc-tre', title: 'TRE Focus', icon: <Target size={16} /> },
-        { id: 'geo-admin', title: 'Geo & Admin', icon: <MapPin size={16} /> },
-        { id: 'economy-flora', title: 'Econ & Flora', icon: <Leaf size={16} /> },
-        { id: 'ancient-heritage', title: 'Heritage', icon: <Scroll size={16} /> },
-        { id: 'timeline', title: 'Timeline', icon: <Clock size={16} /> },
-        { id: 'movements', title: 'Movements', icon: <History size={16} /> },
-        { id: 'personalities', title: 'Eminent', icon: <UserCheck size={16} /> },
-        { id: 'culture-health', title: 'Culture', icon: <Activity size={16} /> },
-        { id: 'quiz', title: 'Quiz', icon: <HelpCircle size={16} /> },
-    ];
-
-    const scrollToSection = (id) => {
-        const element = document.getElementById(id);
-        if (element) {
-            element.scrollIntoView({ behavior: 'smooth' });
-            setActiveSection(id);
-            setIsMobileMenuOpen(false);
-        }
-    };
-
-    useEffect(() => {
-        const observer = new IntersectionObserver(
-            (entries) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting) {
-                        setActiveSection(entry.target.id);
-                    }
-                });
-            },
-            { rootMargin: '-20% 0px -60% 0px' }
-        );
-
-        navLinks.forEach(({ id }) => {
-            const el = document.getElementById(id);
-            if (el) observer.observe(el);
-        });
-
-        return () => observer.disconnect();
-    }, []);
-
-    // Handle hash highlighting on mount
-    useEffect(() => {
-        const hash = window.location.hash.replace('#', '');
-        if (hash) {
-            const element = document.getElementById(hash);
-            if (element) {
-                element.classList.add('highlight-pulse');
-                setTimeout(() => {
-                    element.classList.remove('highlight-pulse');
-                }, 4000);
-            }
-        }
+        return () => {
+            observer.disconnect();
+            sectionObserver.disconnect();
+            window.removeEventListener('scroll', handleScroll);
+        };
     }, []);
 
     return (
-        <div className={`${embedded ? '' : 'min-h-screen'} bg-[#f8fafc] font-sans text-slate-800`}>
-
-            {/* Navbar (Fixed Top) — hidden when embedded inside the app */}
-            {!embedded && <nav className="fixed top-0 left-0 w-full bg-slate-900 text-slate-300 z-50 shadow-xl border-b border-slate-800 transition-all">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex items-center justify-between h-16 md:h-20">
-
-                        {/* Logo area */}
-                        <div className="flex-shrink-0 flex items-center gap-3 cursor-pointer" onClick={() => scrollToSection('overview')}>
-                            <Landmark className="text-indigo-400" size={28} />
-                            <div>
-                                <h1 className="text-white font-bold text-lg md:text-xl leading-none">Bihar Special</h1>
-                                <p className="text-[10px] text-indigo-400 font-bold tracking-widest uppercase mt-0.5">Master Guide</p>
-                            </div>
+        <div className="font-sans text-slate-800 antialiased leading-relaxed w-full bg-[#f8fafc] min-h-screen pb-10">
+            {/* ═══ STICKY GLASS HEADER ═══ */}
+            <header className={`os-glass-header fixed top-0 w-full z-50 text-white py-3 px-4 md:px-6 ${isScrolled ? 'scrolled' : ''}`}>
+                <div className="w-full mx-auto flex justify-between items-center px-2 lg:px-4">
+                    <div className="flex items-center gap-3 shrink-0">
+                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 to-rose-500 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-rose-500/25">
+                            HS
                         </div>
-
-                        {/* Desktop Menu */}
-                        <div className="hidden xl:flex xl:items-center overflow-x-auto">
-                            <div className="flex space-x-1">
-                                {navLinks.map((link) => (
-                                    <button
-                                        key={link.id}
-                                        onClick={() => scrollToSection(link.id)}
-                                        className={`flex items-center gap-1.5 px-3 py-2 rounded-md transition-all text-sm font-medium whitespace-nowrap
-                      ${activeSection === link.id
-                                                ? 'bg-indigo-600 text-white shadow-md'
-                                                : 'hover:bg-slate-800 hover:text-white'
-                                            }`}
-                                    >
-                                        <span className={activeSection === link.id ? 'text-white' : (link.id === 'bpsc-tre' ? 'text-rose-400' : 'text-indigo-400')}>
-                                            {link.icon}
-                                        </span>
-                                        {link.title}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Mobile menu button */}
-                        <div className="xl:hidden flex items-center gap-4">
-                            <button
-                                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                                className="p-2 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 focus:outline-none transition-colors"
-                            >
-                                {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
-                            </button>
+                        <div className="hidden sm:block">
+                            <h1 className="text-sm font-bold tracking-wide leading-none">Bihar Special</h1>
+                            <p className="text-[11px] text-slate-400 font-medium mt-0.5">BPSC TRE 4.0</p>
                         </div>
                     </div>
+
+                    <nav className="hidden lg:flex items-center gap-1 overflow-x-auto no-scrollbar max-w-[70%]">
+                        {navItems.map(item => (
+                            <a
+                                key={item.id}
+                                href={`#${item.id}`}
+                                className={`os-nav-pill os-focus-ring flex-shrink-0 ${activeSection === item.id ? 'os-nav-pill-active' : ''}`}
+                                onClick={(e) => {
+                                    scrollToSection(e, item.id);
+                                    setMobileNavOpen(false);
+                                }}
+                            >
+                                <span className="mr-1.5 text-xs">{item.icon}</span>
+                                {item.label}
+                            </a>
+                        ))}
+                    </nav>
+
+                    <button
+                        className="lg:hidden p-2 rounded-lg hover:bg-white/10 transition-colors"
+                        onClick={() => setMobileNavOpen(!mobileNavOpen)}
+                        aria-label="Toggle navigation"
+                    >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            {mobileNavOpen
+                                ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                            }
+                        </svg>
+                    </button>
                 </div>
 
-                {/* Mobile Dropdown Menu */}
-                {isMobileMenuOpen && (
-                    <div className="xl:hidden bg-slate-900 border-t border-slate-800 shadow-2xl absolute w-full left-0">
-                        <div className="px-2 pt-2 pb-4 space-y-1 sm:px-3 max-h-[75vh] overflow-y-auto custom-scrollbar">
-                            {navLinks.map((link) => (
-                                <button
-                                    key={link.id}
-                                    onClick={() => scrollToSection(link.id)}
-                                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-md transition-all text-left text-base font-medium
-                    ${activeSection === link.id
-                                            ? 'bg-indigo-600 text-white shadow-md'
-                                            : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-                                        }`}
+                {mobileNavOpen && (
+                    <div className="lg:hidden mt-3 pb-3 border-t border-white/10 pt-3">
+                        <div className="grid grid-cols-3 gap-2 max-w-md mx-auto overflow-y-auto max-h-[60vh]">
+                            {navItems.map(item => (
+                                <a
+                                    key={item.id}
+                                    href={`#${item.id}`}
+                                    className="flex flex-col items-center gap-1 p-3 rounded-xl hover:bg-white/10 transition-colors text-center"
+                                    onClick={(e) => {
+                                        scrollToSection(e, item.id);
+                                        setMobileNavOpen(false);
+                                    }}
                                 >
-                                    <span className={activeSection === link.id ? 'text-white' : (link.id === 'bpsc-tre' ? 'text-rose-400' : 'text-indigo-400')}>
-                                        {link.icon}
-                                    </span>
-                                    {link.title}
-                                </button>
+                                    <span className="text-lg">{item.icon}</span>
+                                    <span className="text-[11px] font-medium text-slate-300">{item.label}</span>
+                                </a>
                             ))}
                         </div>
                     </div>
                 )}
-            </nav>}
+            </header>
 
-            {/* Main Content Area */}
-            <main className={`w-full p-4 sm:p-6 md:p-8 lg:p-10 ${embedded ? 'pt-4' : 'pt-24 md:pt-32'} space-y-16`}>
+            {/* ═══ HERO SECTION ═══ */}
+            <section id="overview" className="scroll-mt-32 os-reveal os-hero-gradient os-grid-pattern pt-28 pb-20 md:pt-36 md:pb-28 px-4 sm:px-6 lg:px-8 relative">
+                <div className="absolute top-16 right-[10%] w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl animate-os-float pointer-events-none"></div>
+                <div className="absolute bottom-10 left-[5%] w-56 h-56 bg-rose-500/10 rounded-full blur-3xl animate-os-float-delayed pointer-events-none"></div>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-amber-500/5 rounded-full blur-3xl pointer-events-none"></div>
 
-                {/* Header Section */}
-                <motion.header 
-                    id="overview" 
-                    className="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-slate-200 relative overflow-hidden scroll-mt-28 md:scroll-mt-32"
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                >
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50 rounded-bl-full -z-10 opacity-60"></div>
-
-                    <div className="inline-block bg-indigo-100 text-indigo-800 px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase mb-6 shadow-sm">
-                        Comprehensive Study Material
+                <div className="w-full mx-auto relative z-10 lg:px-8">
+                    <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-5 py-2 mb-8 backdrop-blur-sm">
+                        <span className="w-2 h-2 bg-rose-400 rounded-full animate-pulse"></span>
+                        <span className="text-sm font-medium text-slate-300">BPSC TRE 4.0 — Master Guide</span>
                     </div>
-                    <h1 className="text-4xl md:text-6xl font-extrabold text-slate-900 mb-6 tracking-tight leading-tight">
-                        Bihar Special: <br className="hidden md:block" /> Detailed Notes
-                    </h1>
-                    <p className="text-slate-500 text-lg md:text-xl max-w-2xl leading-relaxed">
+
+                    <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white leading-[1.1] mb-6 tracking-tight">
+                        Bihar Special
+                        <br />
+                        <span className="bg-gradient-to-r from-rose-400 via-amber-400 to-indigo-400 bg-clip-text text-transparent">
+                            Detailed Notes
+                        </span>
+                        <span className="os-cursor"></span>
+                    </h2>
+
+                    <p className="text-lg md:text-xl text-slate-400 max-w-2xl leading-relaxed mb-10 font-jakarta">
                         An exhaustive, integrated guide covering the geography, administration, historical timelines, modern movements, and culture of Bihar. Contains minute high-yield details tailored for BPSC TRE 4.0.
                     </p>
-                </motion.header>
+
+                    <div className="flex flex-wrap gap-4 items-center mb-12">
+                        <a href="#bpsc-tre" onClick={(e) => scrollToSection(e, 'bpsc-tre')} className="inline-flex items-center gap-3 bg-gradient-to-r from-rose-600 to-rose-500 text-white text-base font-bold px-8 py-4 rounded-xl shadow-xl shadow-rose-500/25 hover:shadow-rose-500/40 hover:-translate-y-1 transition-all duration-300 group os-pulse-glow">
+                            Start Learning
+                            <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                        </a>
+                    </div>
+
+                    <div className="flex flex-wrap gap-6 text-sm">
+                        <div className="flex items-center gap-2 text-slate-400">
+                            <span className="w-8 h-8 rounded-lg bg-rose-500/15 flex items-center justify-center text-rose-400 text-base">📍</span>
+                            <span><strong className="text-white">Geo & Admin</strong></span>
+                        </div>
+                        <div className="flex items-center gap-2 text-slate-400">
+                            <span className="w-8 h-8 rounded-lg bg-amber-500/15 flex items-center justify-center text-amber-400 text-base">⏱️</span>
+                            <span><strong className="text-white">Historical Timelines</strong></span>
+                        </div>
+                    </div>
+
+                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 os-scroll-indicator hidden md:block">
+                        <svg className="w-6 h-6 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                    </div>
+                </div>
+            </section>
+
+            {/* Main Content Area */}
+            <main className="w-full mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-16 space-y-24">
 
                 {/* EXAM FOCUS: BPSC TRE 4.0 */}
-                <section id="bpsc-tre" className="scroll-mt-28 md:scroll-mt-32">
+                <section id="bpsc-tre" className="scroll-mt-28 md:scroll-mt-32 os-reveal">
                     <div className="bg-gradient-to-br from-rose-600 to-rose-800 rounded-3xl p-8 md:p-10 shadow-lg text-white relative overflow-hidden">
                         <Target className="absolute -bottom-10 -right-10 text-rose-900 opacity-30 w-72 h-72" />
 
@@ -401,7 +423,7 @@ export default function BiharNotes({ embedded = false }) {
                 </section>
 
                 {/* 1. Geography & Administration */}
-                <section id="geo-admin" className="scroll-mt-28 md:scroll-mt-32">
+                <section id="geo-admin" className="scroll-mt-28 md:scroll-mt-32 os-reveal">
                     <div className="flex items-center gap-3 mb-8 border-b border-slate-200 pb-4">
                         <div className="bg-blue-100 p-2.5 rounded-xl text-blue-600 shadow-sm">
                             <MapPin size={24} />
@@ -490,7 +512,7 @@ export default function BiharNotes({ embedded = false }) {
                 </section>
 
                 {/* 1.2 Economy, Census & Geography Deep Dive */}
-                <section id="economy-flora" className="scroll-mt-28 md:scroll-mt-32">
+                <section id="economy-flora" className="scroll-mt-28 md:scroll-mt-32 os-reveal">
                     <div className="flex items-center gap-3 mb-8 border-b border-slate-200 pb-4">
                         <div className="bg-emerald-100 p-2.5 rounded-xl text-emerald-600 shadow-sm">
                             <Leaf size={24} />
@@ -571,7 +593,7 @@ export default function BiharNotes({ embedded = false }) {
                 </section>
 
                 {/* 1.5 Ancient & Religious Heritage */}
-                <section id="ancient-heritage" className="scroll-mt-28 md:scroll-mt-32">
+                <section id="ancient-heritage" className="scroll-mt-28 md:scroll-mt-32 os-reveal">
                     <div className="flex items-center gap-3 mb-8 border-b border-slate-200 pb-4">
                         <div className="bg-amber-100 p-2.5 rounded-xl text-amber-600 shadow-sm">
                             <Scroll size={24} />
@@ -731,7 +753,7 @@ export default function BiharNotes({ embedded = false }) {
                 </motion.section>
 
                 {/* 3. Modern History & Movements */}
-                <section id="movements" className="scroll-mt-28 md:scroll-mt-32">
+                <section id="movements" className="scroll-mt-28 md:scroll-mt-32 os-reveal">
                     <div className="flex items-center gap-3 mb-8 border-b border-slate-200 pb-4">
                         <div className="bg-rose-100 p-2.5 rounded-xl text-rose-600 shadow-sm">
                             <History size={24} />
@@ -860,7 +882,7 @@ export default function BiharNotes({ embedded = false }) {
                 </section>
 
                 {/* 4. Eminent Personalities */}
-                <section id="personalities" className="scroll-mt-28 md:scroll-mt-32">
+                <section id="personalities" className="scroll-mt-28 md:scroll-mt-32 os-reveal">
                     <div className="flex items-center gap-3 mb-8 border-b border-slate-200 pb-4">
                         <div className="bg-amber-100 p-2.5 rounded-xl text-amber-600 shadow-sm">
                             <UserCheck size={24} />
@@ -878,7 +900,7 @@ export default function BiharNotes({ embedded = false }) {
                 </section>
 
                 {/* 5. Culture & Health */}
-                <section id="culture-health" className="scroll-mt-28 md:scroll-mt-32">
+                <section id="culture-health" className="scroll-mt-28 md:scroll-mt-32 os-reveal">
                     <div className="flex items-center gap-3 mb-8 border-b border-slate-200 pb-4">
                         <div className="bg-teal-100 p-2.5 rounded-xl text-teal-600 shadow-sm">
                             <Activity size={24} />
@@ -989,7 +1011,7 @@ export default function BiharNotes({ embedded = false }) {
                 </section>
 
                 {/* 6. Interactive Quiz */}
-                <section id="quiz" className="scroll-mt-28 md:scroll-mt-32 mb-12">
+                <section id="quiz" className="scroll-mt-28 md:scroll-mt-32 os-reveal mb-12">
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b-2 border-slate-200 pb-6 mb-8 mt-12">
                         <div className="flex items-center gap-4">
                             <div className="bg-indigo-100 p-3 rounded-xl text-indigo-600 shadow-sm">

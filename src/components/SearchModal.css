@@ -51,6 +51,7 @@
   
   /* Transition ALL properties for perfectly smooth docking */
   transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+  color: #1e293b; /* Explicit default text color */
 }
 
 @keyframes colorShift {
@@ -67,9 +68,10 @@
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
   .search-modal {
-    background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9), rgba(30, 30, 50, 0.9), rgba(20, 40, 40, 0.9));
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95), rgba(30, 30, 50, 0.95), rgba(20, 40, 40, 0.95));
     background-size: 300% 300%;
     border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #f1f5f9; /* Explicit dark mode text color */
   }
 }
 
@@ -140,7 +142,13 @@
   justify-content: center;
   padding: 60px 20px;
   text-align: center;
-  color: #64748b;
+  color: #475569;
+}
+
+@media (prefers-color-scheme: dark) {
+  .search-empty {
+    color: #94a3b8;
+  }
 }
 
 .search-hint-icon {
@@ -216,7 +224,7 @@
 .item-name {
   font-weight: 600;
   font-size: 0.95rem;
-  color: #1e293b;
+  color: #0f172a;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -225,7 +233,7 @@
 
 @media (prefers-color-scheme: dark) {
   .item-name {
-    color: #f1f5f9;
+    color: #ffffff;
   }
 }
 
@@ -236,19 +244,38 @@
   padding: 0 2px;
 }
 
+@media (prefers-color-scheme: dark) {
+  .item-name mark {
+    background: rgba(129, 140, 248, 0.3);
+    color: #c7d2fe;
+  }
+}
+
 .item-meta {
   display: flex;
   align-items: center;
   gap: 6px;
   font-size: 0.75rem;
-  color: #64748b;
+  color: #475569;
+}
+
+@media (prefers-color-scheme: dark) {
+  .item-meta {
+    color: #94a3b8;
+  }
 }
 
 .item-category {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.02em;
-  color: #6366f1;
+  color: #4f46e5;
+}
+
+@media (prefers-color-scheme: dark) {
+  .item-category {
+    color: #818cf8;
+  }
 }
 
 .item-action {

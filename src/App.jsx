@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SUBJECTS } from './data';
 import { db } from './firebase';
-import { doc, getDoc, setDoc, onSnapshot, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, onSnapshot, updateDoc, deleteField } from 'firebase/firestore';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
 import PDFList from './components/PDFList';
@@ -285,7 +285,12 @@ function App() {
     const unsubscribe = onSnapshot(docRef, (docSnap) => {
       let cloudRevisions = {};
       if (docSnap.exists()) {
-        cloudRevisions = docSnap.data().revisions || {};
+        const rawRevisions = docSnap.data().revisions || {};
+        // Filter out any null/falsy values that may have leaked through
+        cloudRevisions = {};
+        for (const [k, v] of Object.entries(rawRevisions)) {
+          if (v) cloudRevisions[k] = v;
+        }
         setRevisionData(cloudRevisions);
       } else {
         // Initialize if doc doesn't exist
@@ -335,21 +340,38 @@ function App() {
       return;
     }
 
-    // Optimistic UI update
-    const newValue = revisionData[key] ? null : Date.now();
-    const updatedRevisions = {
-      ...revisionData,
-      [key]: newValue
-    };
-    
-    setRevisionData(updatedRevisions);
+    const isCurrentlyChecked = !!revisionData[key];
+    const newValue = isCurrentlyChecked ? null : Date.now();
 
-    // Save to Firebase
+    // Optimistic UI update (local state only)
+    setRevisionData(prev => {
+      const updated = { ...prev };
+      if (newValue === null) {
+        delete updated[key];
+      } else {
+        updated[key] = newValue;
+      }
+      return updated;
+    });
+
+    // Save ONLY this specific field to Firebase (atomic update, no overwrite)
     try {
       const docRef = doc(db, 'appData', DOC_ID);
-      await setDoc(docRef, { revisions: updatedRevisions }, { merge: true });
+      await updateDoc(docRef, {
+        [`revisions.${key}`]: isCurrentlyChecked ? deleteField() : newValue
+      });
     } catch (error) {
-      console.error("Error saving data:", error);
+      console.error("Error saving revision:", error);
+      // Revert optimistic update on failure
+      setRevisionData(prev => {
+        const reverted = { ...prev };
+        if (isCurrentlyChecked) {
+          reverted[key] = revisionData[key]; // restore original value
+        } else {
+          delete reverted[key];
+        }
+        return reverted;
+      });
     }
   }, [revisionData, isAdmin]);
 

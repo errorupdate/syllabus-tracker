@@ -327,6 +327,7 @@ export default function SearchModal({ isOpen, onClose, onNavigate }) {
                 </motion.div>
               ) : (
                 <motion.div
+                  key={searchTerm} // Force remount on search to trigger entrance animation
                   initial="hidden"
                   animate="visible"
                   variants={{

@@ -138,62 +138,187 @@ export const POWERS_DATA = [
 ];
 
 const App = () => {
-    const [activeTab, setActiveTab] = useState('notes');
+    const [activeSection, setActiveSection] = useState('');
+    const [isScrolled, setIsScrolled] = useState(false);
+    const [mobileNavOpen, setMobileNavOpen] = useState(false);
     const [expandedPower, setExpandedPower] = useState(null);
 
-    const tabs = [
-        { id: 'notes', label: 'Detailed Notes & Infographics', icon: <BookOpen className="w-5 h-5" /> },
-        { id: 'strategy', label: 'BPSC Master Strategy', icon: <Target className="w-5 h-5" /> }
+    const navItems = [
+        { id: 'notes', label: 'Detailed Notes', icon: '📖' },
+        { id: 'strategy', label: 'BPSC Strategy', icon: '🎯' }
     ];
 
     const powersData = POWERS_DATA;
 
+    const scrollToSection = (e, id) => {
+        e.preventDefault();
+        const element = document.getElementById(id);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+            window.history.pushState(null, '', `#${id}`);
+        }
+    };
+
+    React.useEffect(() => {
+        const observerOptions = { root: null, rootMargin: '0px 0px -80px 0px', threshold: 0.08 };
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    const children = entry.target.querySelectorAll('.os-stagger');
+                    children.forEach((child, i) => {
+                        child.style.transitionDelay = `${i * 0.08}s`;
+                        child.classList.add('is-visible');
+                    });
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.os-reveal').forEach(el => observer.observe(el));
+
+        const sectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    setActiveSection(entry.target.id);
+                }
+            });
+        }, { root: null, rootMargin: '-30% 0px -60% 0px', threshold: 0 });
+
+        document.querySelectorAll('section[id]').forEach(el => sectionObserver.observe(el));
+
+        const handleScroll = () => setIsScrolled(window.scrollY > 60);
+        window.addEventListener('scroll', handleScroll, { passive: true });
+
+        return () => {
+            observer.disconnect();
+            sectionObserver.disconnect();
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, []);
+
     return (
-        <div className="min-h-screen bg-slate-50 font-sans text-gray-800">
-            {/* Header */}
-            <header className="bg-indigo-900 text-white shadow-lg sticky top-0 z-30 border-b border-indigo-700">
-                <div className="w-full px-4 md:px-8 py-6">
-                    <div className="flex flex-col md:flex-row justify-between items-center">
-                        <div>
-                            <h1 className="text-3xl font-extrabold tracking-tight flex items-center">
-                                <Ship className="w-8 h-8 mr-3 text-indigo-300" />
-                                Advent of Europeans
-                            </h1>
-                            <p className="text-indigo-200 mt-1 font-medium text-sm md:text-base ml-11">Historical Timeline & Strategy for BPSC TRE 4.0</p>
+        <div className="font-sans text-slate-800 antialiased leading-relaxed w-full bg-[#f8fafc] min-h-screen">
+            {/* ═══ STICKY GLASS HEADER ═══ */}
+            <header className={`os-glass-header fixed top-0 w-full z-50 text-white py-3 px-4 md:px-6 ${isScrolled ? 'scrolled' : ''}`}>
+                <div className="w-full mx-auto flex justify-between items-center px-2 lg:px-4">
+                    <div className="flex items-center gap-3 shrink-0">
+                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-emerald-500 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-indigo-500/25">
+                            HS
                         </div>
-                        <div className="mt-4 md:mt-0 bg-indigo-950 px-5 py-2.5 rounded-full border border-indigo-500 shadow-inner flex items-center space-x-2">
-                            <Target className="w-5 h-5 text-yellow-400" />
-                            <span className="font-bold text-yellow-400 tracking-wider text-sm">BPSC MASTERCLASS</span>
+                        <div className="hidden sm:block">
+                            <h1 className="text-sm font-bold tracking-wide leading-none">Advent of Europeans</h1>
+                            <p className="text-[11px] text-slate-400 font-medium mt-0.5">BPSC TRE 4.0</p>
                         </div>
                     </div>
+
+                    <nav className="hidden lg:flex items-center gap-1">
+                        {navItems.map(item => (
+                            <a
+                                key={item.id}
+                                href={`#${item.id}`}
+                                className={`os-nav-pill os-focus-ring ${activeSection === item.id ? 'os-nav-pill-active' : ''}`}
+                                onClick={(e) => {
+                                    scrollToSection(e, item.id);
+                                    setMobileNavOpen(false);
+                                }}
+                            >
+                                <span className="mr-1.5 text-xs">{item.icon}</span>
+                                {item.label}
+                            </a>
+                        ))}
+                    </nav>
+
+                    <button
+                        className="lg:hidden p-2 rounded-lg hover:bg-white/10 transition-colors"
+                        onClick={() => setMobileNavOpen(!mobileNavOpen)}
+                        aria-label="Toggle navigation"
+                    >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            {mobileNavOpen
+                                ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                            }
+                        </svg>
+                    </button>
                 </div>
 
-                {/* Navigation */}
-                <div className="w-full px-4 md:px-8">
-                    <div className="flex space-x-2 overflow-x-auto no-scrollbar pt-2">
-                        {tabs.map(tab => (
-                            <button
-                                key={tab.id}
-                                onClick={() => setActiveTab(tab.id)}
-                                className={`flex items-center space-x-2 px-6 py-3 font-bold rounded-t-xl transition-all duration-200 whitespace-nowrap ${activeTab === tab.id
-                                        ? 'bg-slate-50 text-indigo-900 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]'
-                                        : 'bg-indigo-800 text-indigo-200 hover:bg-indigo-700'
-                                    }`}
-                            >
-                                {tab.icon}
-                                <span>{tab.label}</span>
-                            </button>
-                        ))}
+                {mobileNavOpen && (
+                    <div className="lg:hidden mt-3 pb-3 border-t border-white/10 pt-3">
+                        <div className="grid grid-cols-2 gap-2 max-w-md mx-auto">
+                            {navItems.map(item => (
+                                <a
+                                    key={item.id}
+                                    href={`#${item.id}`}
+                                    className="flex flex-col items-center gap-1 p-3 rounded-xl hover:bg-white/10 transition-colors text-center"
+                                    onClick={(e) => {
+                                        scrollToSection(e, item.id);
+                                        setMobileNavOpen(false);
+                                    }}
+                                >
+                                    <span className="text-lg">{item.icon}</span>
+                                    <span className="text-[11px] font-medium text-slate-300">{item.label}</span>
+                                </a>
+                            ))}
+                        </div>
                     </div>
-                </div>
+                )}
             </header>
 
+            {/* ═══ HERO SECTION ═══ */}
+            <section className="os-hero-gradient os-grid-pattern pt-28 pb-20 md:pt-36 md:pb-28 px-4 sm:px-6 lg:px-8 relative">
+                <div className="absolute top-16 right-[10%] w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl animate-os-float pointer-events-none"></div>
+                <div className="absolute bottom-10 left-[5%] w-56 h-56 bg-emerald-500/10 rounded-full blur-3xl animate-os-float-delayed pointer-events-none"></div>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-red-500/5 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div className="w-full mx-auto relative z-10 lg:px-8">
+                    <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-5 py-2 mb-8 backdrop-blur-sm">
+                        <span className="w-2 h-2 bg-indigo-400 rounded-full animate-pulse"></span>
+                        <span className="text-sm font-medium text-slate-300">BPSC TRE 4.0 — History Module</span>
+                    </div>
+
+                    <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white leading-[1.1] mb-6 tracking-tight">
+                        Advent of Europeans
+                        <br />
+                        <span className="bg-gradient-to-r from-indigo-400 via-emerald-400 to-amber-400 bg-clip-text text-transparent">
+                            in India
+                        </span>
+                        <span className="os-cursor"></span>
+                    </h2>
+
+                    <p className="text-lg md:text-xl text-slate-400 max-w-2xl leading-relaxed mb-10 font-jakarta">
+                        Historical timeline and strategic notes specifically tailored for maximum retention in the BPSC General Studies paper.
+                    </p>
+
+                    <div className="flex flex-wrap gap-4 items-center mb-12">
+                        <a href="#notes" onClick={(e) => scrollToSection(e, 'notes')} className="inline-flex items-center gap-3 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white text-base font-bold px-8 py-4 rounded-xl shadow-xl shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-1 transition-all duration-300 group os-pulse-glow">
+                            Start Learning
+                            <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                        </a>
+                    </div>
+
+                    <div className="flex flex-wrap gap-6 text-sm">
+                        <div className="flex items-center gap-2 text-slate-400">
+                            <span className="w-8 h-8 rounded-lg bg-indigo-500/15 flex items-center justify-center text-indigo-400 text-base">📖</span>
+                            <span><strong className="text-white">Historical</strong> Context</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-slate-400">
+                            <span className="w-8 h-8 rounded-lg bg-amber-500/15 flex items-center justify-center text-amber-400 text-base">⚡</span>
+                            <span><strong className="text-white">BPSC</strong> Exam Insights</span>
+                        </div>
+                    </div>
+
+                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 os-scroll-indicator hidden md:block">
+                        <svg className="w-6 h-6 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                    </div>
+                </div>
+            </section>
+
             {/* Main Content */}
-            <main className="w-full px-4 md:px-8 py-8">
+            <main className="w-full mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-16 space-y-24">
 
                 {/* TAB 1: DETAILED NOTES & INFOGRAPHICS */}
-                {activeTab === 'notes' && (
-                    <div className="space-y-12 animate-fadeIn">
+                <section id="notes" className="scroll-mt-32 os-reveal space-y-12">
 
                         {/* INFOGRAPHIC 1: The Ottoman Blockade & The Need for a New Route */}
                         <section className="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-slate-200">
@@ -621,12 +746,10 @@ const App = () => {
                                 </div>
                             </div>
                         </section>
-                    </div>
-                )}
+                </section>
 
                 {/* TAB 2: EXTREMELY DETAILED BPSC STRATEGY */}
-                {activeTab === 'strategy' && (
-                    <div className="space-y-12 animate-fadeIn">
+                <section id="strategy" className="scroll-mt-32 os-reveal space-y-12">
 
                         {/* Strategy Banner */}
                         <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white p-8 rounded-3xl shadow-lg relative overflow-hidden">
@@ -734,8 +857,7 @@ const App = () => {
                                 </div>
                             </div>
                         </div>
-                    </div>
-                )}
+                </section>
             </main>
         </div>
     );

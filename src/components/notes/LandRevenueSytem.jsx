@@ -1,48 +1,204 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { BookOpen, Map, Clock, Swords, CheckCircle2, Target, Lightbulb, Anchor, Compass, Award, Ship } from "lucide-react";
 
 export default function LandRevenueSystem() {
-  return (
-    <div className="antialiased min-h-screen bg-[#f4f7f6] text-slate-800 font-sans pb-10">
-      <style>{`
-        .hero-pattern {
-          background-color: #0f172a;
-          background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231e293b' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-        }
-        .glass-card {
-          background: rgba(255, 255, 255, 0.95);
-          backdrop-filter: blur(10px);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-        }
-        .hover-lift {transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease; }
-        .hover-lift:hover {transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
-        .fraction {display: inline-flex; flex-direction: column; text-align: center; vertical-align: middle; line-height: 1.2; font-weight: bold; }
-        .fraction span:first-child {border-bottom: 2px solid currentColor; padding-bottom: 1px; }
-        .fraction span:last-child {padding-top: 1px; }
-      `}</style>
-      
+    const [activeSection, setActiveSection] = useState('');
+    const [isScrolled, setIsScrolled] = useState(false);
+    const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
-                        {/*  Hero Header  */}
-                        <header className="hero-pattern text-white py-20 px-6 relative border-b-4 border-amber-500">
-                            <div className="w-full mx-auto text-center relative z-10 px-4">
-                                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-900/50 border border-blue-400/30 text-blue-200 text-xs font-bold tracking-widest uppercase mb-6 shadow-sm">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-                                    History Module • Indian National Movement & Economy
-                                </div>
-                                <h1 className="text-4xl md:text-6xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-100 to-white leading-tight">
-                                    Land Revenue Systems in India
-                                </h1>
-                                <p className="text-lg md:text-xl font-light text-slate-300 w-full mx-auto mb-8 font-sans px-4">
-                                    A definitive deep-dive into agrarian policies, explicitly curated to secure maximum marks in the BPSC Teacher Recruitment Examination.
-                                </p>
-                            </div>
-                        </header>
+    const navItems = [
+        { id: 'foundations', label: 'Foundations', icon: '🏛️' },
+        { id: 'british', label: 'British Era', icon: '👑' },
+        { id: 'bihar', label: 'Bihar Connect', icon: '🌾' },
+        { id: 'strategy', label: 'Strategy', icon: '🎯' },
+    ];
 
-                        <main className="w-full mx-auto px-4 sm:px-6 py-12 space-y-20 -mt-10 relative z-20">
+    const scrollToSection = (e, id) => {
+        e.preventDefault();
+        const element = document.getElementById(id);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+            window.history.pushState(null, '', `#${id}`);
+        }
+    };
+
+    useEffect(() => {
+        const observerOptions = { root: null, rootMargin: '0px 0px -80px 0px', threshold: 0.08 };
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    const children = entry.target.querySelectorAll('.os-stagger');
+                    children.forEach((child, i) => {
+                        child.style.transitionDelay = `${i * 0.08}s`;
+                        child.classList.add('is-visible');
+                    });
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.os-reveal').forEach(el => observer.observe(el));
+
+        const sectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    setActiveSection(entry.target.id);
+                }
+            });
+        }, { root: null, rootMargin: '-30% 0px -60% 0px', threshold: 0 });
+
+        document.querySelectorAll('section[id]').forEach(el => sectionObserver.observe(el));
+
+        const handleScroll = () => setIsScrolled(window.scrollY > 60);
+        window.addEventListener('scroll', handleScroll, { passive: true });
+
+        return () => {
+            observer.disconnect();
+            sectionObserver.disconnect();
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, []);
+
+    return (
+        <div className="antialiased min-h-screen bg-[#f4f7f6] text-slate-800 font-sans pb-10">
+            <style>{`
+                .hero-pattern {
+                    background-color: #0f172a;
+                    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231e293b' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+                }
+                .glass-card {
+                    background: rgba(255, 255, 255, 0.95);
+                    backdrop-filter: blur(10px);
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+                }
+                .hover-lift {transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease; }
+                .hover-lift:hover {transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+                .fraction {display: inline-flex; flex-direction: column; text-align: center; vertical-align: middle; line-height: 1.2; font-weight: bold; }
+                .fraction span:first-child {border-bottom: 2px solid currentColor; padding-bottom: 1px; }
+                .fraction span:last-child {padding-top: 1px; }
+            `}</style>
+            
+            {/* ═══ STICKY GLASS HEADER ═══ */}
+            <header className={`os-glass-header fixed top-0 w-full z-50 text-white py-3 px-4 md:px-6 ${isScrolled ? 'scrolled' : ''}`}>
+                <div className="w-full mx-auto flex justify-between items-center px-2 lg:px-4">
+                    <div className="flex items-center gap-3 shrink-0">
+                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-red-500 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-red-500/25">
+                            HS
+                        </div>
+                        <div className="hidden sm:block">
+                            <h1 className="text-sm font-bold tracking-wide leading-none">Land Revenue</h1>
+                            <p className="text-[11px] text-slate-400 font-medium mt-0.5">BPSC TRE 4.0</p>
+                        </div>
+                    </div>
+
+                    <nav className="hidden lg:flex items-center gap-1">
+                        {navItems.map(item => (
+                            <a
+                                key={item.id}
+                                href={`#${item.id}`}
+                                className={`os-nav-pill os-focus-ring ${activeSection === item.id ? 'os-nav-pill-active' : ''}`}
+                                onClick={(e) => {
+                                    scrollToSection(e, item.id);
+                                    setMobileNavOpen(false);
+                                }}
+                            >
+                                <span className="mr-1.5 text-xs">{item.icon}</span>
+                                {item.label}
+                            </a>
+                        ))}
+                    </nav>
+
+                    <button
+                        className="lg:hidden p-2 rounded-lg hover:bg-white/10 transition-colors"
+                        onClick={() => setMobileNavOpen(!mobileNavOpen)}
+                        aria-label="Toggle navigation"
+                    >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            {mobileNavOpen
+                                ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                            }
+                        </svg>
+                    </button>
+                </div>
+
+                {mobileNavOpen && (
+                    <div className="lg:hidden mt-3 pb-3 border-t border-white/10 pt-3">
+                        <div className="grid grid-cols-4 gap-2 max-w-md mx-auto">
+                            {navItems.map(item => (
+                                <a
+                                    key={item.id}
+                                    href={`#${item.id}`}
+                                    className="flex flex-col items-center gap-1 p-3 rounded-xl hover:bg-white/10 transition-colors text-center"
+                                    onClick={(e) => {
+                                        scrollToSection(e, item.id);
+                                        setMobileNavOpen(false);
+                                    }}
+                                >
+                                    <span className="text-lg">{item.icon}</span>
+                                    <span className="text-[11px] font-medium text-slate-300">{item.label}</span>
+                                </a>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </header>
+
+            {/* ═══ HERO SECTION ═══ */}
+            <section className="os-hero-gradient os-grid-pattern pt-28 pb-20 md:pt-36 md:pb-28 px-4 sm:px-6 lg:px-8 relative">
+                <div className="absolute top-16 right-[10%] w-72 h-72 bg-amber-500/10 rounded-full blur-3xl animate-os-float pointer-events-none"></div>
+                <div className="absolute bottom-10 left-[5%] w-56 h-56 bg-red-500/10 rounded-full blur-3xl animate-os-float-delayed pointer-events-none"></div>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-sky-500/5 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div className="w-full mx-auto relative z-10 lg:px-8">
+                    <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-5 py-2 mb-8 backdrop-blur-sm">
+                        <span className="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></span>
+                        <span className="text-sm font-medium text-slate-300">BPSC TRE 4.0 — History Module</span>
+                    </div>
+
+                    <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white leading-[1.1] mb-6 tracking-tight">
+                        Land Revenue
+                        <br />
+                        <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-red-400 bg-clip-text text-transparent">
+                            Systems in India
+                        </span>
+                        <span className="os-cursor"></span>
+                    </h2>
+
+                    <p className="text-lg md:text-xl text-slate-400 max-w-2xl leading-relaxed mb-10 font-jakarta">
+                        A definitive deep-dive into agrarian policies, explicitly curated to secure maximum marks in the BPSC Teacher Recruitment Examination.
+                    </p>
+
+                    <div className="flex flex-wrap gap-4 items-center mb-12">
+                        <a href="#foundations" onClick={(e) => scrollToSection(e, 'foundations')} className="inline-flex items-center gap-3 bg-gradient-to-r from-amber-600 to-orange-500 text-white text-base font-bold px-8 py-4 rounded-xl shadow-xl shadow-amber-500/25 hover:shadow-amber-500/40 hover:-translate-y-1 transition-all duration-300 group os-pulse-glow">
+                            Start Learning
+                            <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                        </a>
+                    </div>
+
+                    <div className="flex flex-wrap gap-6 text-sm">
+                        <div className="flex items-center gap-2 text-slate-400">
+                            <span className="w-8 h-8 rounded-lg bg-amber-500/15 flex items-center justify-center text-amber-400 text-base">📖</span>
+                            <span><strong className="text-white">Historical</strong> Context</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-slate-400">
+                            <span className="w-8 h-8 rounded-lg bg-red-500/15 flex items-center justify-center text-red-400 text-base">⚡</span>
+                            <span><strong className="text-white">BPSC</strong> Exam Insights</span>
+                        </div>
+                    </div>
+
+                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 os-scroll-indicator hidden md:block">
+                        <svg className="w-6 h-6 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                    </div>
+                </div>
+            </section>
+
+            <main className="w-full mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-16 space-y-24">
 
                             {/*  Section 1: Foundations  */}
-                            <section className="glass-card rounded-2xl p-8 md:p-12">
+                            <section id="foundations" className="scroll-mt-32 os-reveal glass-card rounded-2xl p-8 md:p-12">
                                 <div className="mb-8 border-b border-slate-200 pb-4">
                                     <h2 className="text-3xl font-bold text-slate-800">I. The Genesis of Land Revenue</h2>
                                     <p className="text-slate-500 mt-2 font-sans text-lg">Understanding the administrative evolution before British intervention.</p>
@@ -109,7 +265,7 @@ export default function LandRevenueSystem() {
                             </section>
 
                             {/*  Section 2: British Expansion  */}
-                            <section>
+                            <section id="british" className="scroll-mt-32 os-reveal">
                                 <div className="mb-10 text-center">
                                     <span className="text-red-600 font-bold tracking-wider uppercase text-sm font-sans bg-red-100 px-3 py-1 rounded-full">Colonial Exploitation</span>
                                     <h2 className="text-4xl font-bold text-slate-800 mt-4">II. The British Revenue Policies</h2>
@@ -276,7 +432,7 @@ export default function LandRevenueSystem() {
                             </section>
 
                             {/*  Section 3: Bihar Deep Dive (Tinkathia)  */}
-                            <section>
+                            <section id="bihar" className="scroll-mt-32 os-reveal">
                                 <div className="bg-[#0a2540] rounded-3xl shadow-2xl overflow-hidden text-white relative">
                                     {/*  Decorative background elements  */}
                                     <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 transform translate-x-1/2 -translate-y-1/2"></div>
@@ -355,7 +511,7 @@ export default function LandRevenueSystem() {
                             </section>
 
                             {/*  Section 4: Exam Strategy Matrix  */}
-                            <section>
+                            <section id="strategy" className="scroll-mt-32 os-reveal">
                                 <div className="mb-10 border-l-4 border-slate-800 pl-4">
                                     <h2 className="text-3xl font-bold text-slate-800">Mastery Cheatsheet: BPSC Exam Strategy</h2>
                                     <p className="text-slate-500 mt-2 font-sans">High-probability question patterns to secure your marks, specifically tailored for BPSC TRE 4.0.</p>
