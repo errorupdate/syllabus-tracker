@@ -409,6 +409,63 @@ const Dsa = () => {
                                             </div>
                                         </div>
 
+                                        {/* Expression Conversion Detailed Explanation */}
+                                        <div className="mt-8 bg-white dark:bg-slate-900 p-6 md:p-8 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                                            <h3 className="font-bold text-xl text-slate-800 dark:text-slate-100 mb-4 border-b border-slate-200 dark:border-slate-700 pb-2">Detailed Notations &amp; Conversions</h3>
+                                            
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                                                <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                                                    <strong className="text-slate-800 dark:text-slate-200 block mb-1">1. Infix Notation</strong>
+                                                    <p className="text-slate-600 dark:text-slate-400 mb-2">Operator is <span className="font-bold">IN BETWEEN</span> operands. Human readable.</p>
+                                                    <code className="bg-white dark:bg-slate-900 px-2 py-1 rounded text-indigo-600 dark:text-indigo-400 font-mono">A + B * C</code>
+                                                </div>
+                                                <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                                                    <strong className="text-slate-800 dark:text-slate-200 block mb-1">2. Prefix (Polish)</strong>
+                                                    <p className="text-slate-600 dark:text-slate-400 mb-2">Operator is <span className="font-bold">BEFORE</span> operands. No parentheses needed.</p>
+                                                    <code className="bg-white dark:bg-slate-900 px-2 py-1 rounded text-indigo-600 dark:text-indigo-400 font-mono">+ A * B C</code>
+                                                </div>
+                                                <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                                                    <strong className="text-slate-800 dark:text-slate-200 block mb-1">3. Postfix (Reverse Polish)</strong>
+                                                    <p className="text-slate-600 dark:text-slate-400 mb-2">Operator is <span className="font-bold">AFTER</span> operands. Best for machines/stack.</p>
+                                                    <code className="bg-white dark:bg-slate-900 px-2 py-1 rounded text-indigo-600 dark:text-indigo-400 font-mono">A B C * +</code>
+                                                </div>
+                                            </div>
+
+                                            <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800 mt-4">
+                                                <strong className="text-indigo-800 dark:text-indigo-300 block mb-2 text-base">📚 Exam Type Questions &amp; Conversions</strong>
+                                                <div className="space-y-4 text-sm text-slate-700 dark:text-slate-300">
+                                                    <div className="bg-white/50 dark:bg-slate-900/50 p-3 rounded">
+                                                        <p className="font-bold text-slate-800 dark:text-slate-200 mb-1">Q1. Convert Infix to Postfix: <code className="text-rose-600 dark:text-rose-400">a + b * c</code></p>
+                                                        <p>1. Identify highest precedence: <code className="font-mono">b * c</code> &rarr; <code className="font-mono">bc*</code></p>
+                                                        <p>2. Substitute back: <code className="font-mono">a + (bc*)</code></p>
+                                                        <p>3. Convert addition: <code className="font-mono text-emerald-600 dark:text-emerald-400 font-bold">a b c * +</code></p>
+                                                    </div>
+                                                    <div className="bg-white/50 dark:bg-slate-900/50 p-3 rounded">
+                                                        <p className="font-bold text-slate-800 dark:text-slate-200 mb-1">Q2. Convert Infix to Postfix with parenthesis: <code className="text-rose-600 dark:text-rose-400">(A + B) * C</code></p>
+                                                        <p>1. Solve parentheses first: <code className="font-mono">(A + B)</code> &rarr; <code className="font-mono">AB+</code></p>
+                                                        <p>2. Substitute back: <code className="font-mono">(AB+) * C</code></p>
+                                                        <p>3. Convert multiplication: <code className="font-mono text-emerald-600 dark:text-emerald-400 font-bold">A B + C *</code></p>
+                                                    </div>
+                                                    <div className="bg-white/50 dark:bg-slate-900/50 p-3 rounded">
+                                                        <p className="font-bold text-slate-800 dark:text-slate-200 mb-1">Q3. Convert Infix to Prefix: <code className="text-rose-600 dark:text-rose-400">X + Y / Z</code></p>
+                                                        <p>1. Identify highest precedence: <code className="font-mono">Y / Z</code> &rarr; <code className="font-mono">/YZ</code></p>
+                                                        <p>2. Substitute back: <code className="font-mono">X + (/YZ)</code></p>
+                                                        <p>3. Convert addition (Prefix puts operator before): <code className="font-mono text-emerald-600 dark:text-emerald-400 font-bold">+ X / Y Z</code></p>
+                                                    </div>
+                                                    <div className="bg-white/50 dark:bg-slate-900/50 p-3 rounded border-l-4 border-amber-400">
+                                                        <p className="font-bold text-slate-800 dark:text-slate-200 mb-1">💡 BPSC Exam Trick!</p>
+                                                        <p>If the question asks to evaluate a postfix expression like <code className="font-mono">2 3 + 4 *</code>, simulate a stack:</p>
+                                                        <ul className="list-disc ml-5 mt-1 space-y-1">
+                                                            <li>Push 2, Push 3</li>
+                                                            <li>Read '+', Pop 3 and 2 &rarr; Calculate 2+3 = 5 &rarr; Push 5</li>
+                                                            <li>Push 4</li>
+                                                            <li>Read '*', Pop 4 and 5 &rarr; Calculate 5*4 = 20 &rarr; Result is 20</li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
                                         {/* Recursion */}
                                         <div className="mt-8 bg-white dark:bg-slate-900 p-6 md:p-8 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
                                             <h3 className="font-bold text-xl text-slate-800 dark:text-slate-100 mb-4">Recursion</h3>
@@ -574,6 +631,49 @@ const Dsa = () => {
                                                     <code className="text-sm font-mono text-slate-700 dark:text-slate-300">&lt;left&gt;&lt;right&gt;&lt;root&gt;</code>
                                                 </div>
                                             </div>
+                                            
+                                            {/* Tree Traversal Detailed Explanation */}
+                                            <div className="mt-6 space-y-4">
+                                                <h4 className="font-bold text-lg text-slate-800 dark:text-slate-100 border-b border-slate-200 dark:border-slate-700 pb-2">Detailed Explanations &amp; Exam Type Questions</h4>
+                                                
+                                                <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800 mb-4">
+                                                    <p className="text-sm text-slate-700 dark:text-slate-300 mb-3"><strong className="text-emerald-800 dark:text-emerald-300">In-order Traversal (Left, Root, Right):</strong> Used to get nodes of a Binary Search Tree (BST) in non-decreasing order. To get decreasing order, use Reverse In-order (Right, Root, Left).</p>
+                                                    <p className="text-sm text-slate-700 dark:text-slate-300 mb-3"><strong className="text-amber-800 dark:text-amber-300">Pre-order Traversal (Root, Left, Right):</strong> Used to create a copy of the tree or to get prefix expressions from an expression tree.</p>
+                                                    <p className="text-sm text-slate-700 dark:text-slate-300"><strong className="text-violet-800 dark:text-violet-300">Post-order Traversal (Left, Right, Root):</strong> Used to delete the tree (since children must be deleted before the parent) or get postfix expressions.</p>
+                                                </div>
+
+                                                <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
+                                                    <strong className="text-slate-800 dark:text-slate-200 block mb-3 text-base">📚 Traversal Exam Questions &amp; Hacks</strong>
+                                                    
+                                                    <div className="space-y-4 text-sm text-slate-700 dark:text-slate-300">
+                                                        <div className="bg-white dark:bg-slate-900 p-3 rounded shadow-sm">
+                                                            <p className="font-bold text-slate-800 dark:text-slate-200 mb-1">Q1. Given Inorder: [4, 2, 5, 1, 3] and Preorder: [1, 2, 4, 5, 3]. Find Postorder.</p>
+                                                            <ul className="list-disc ml-5 mt-1 space-y-1">
+                                                                <li><strong>Hack:</strong> Root is ALWAYS the first element in Preorder. So, Root = 1.</li>
+                                                                <li>Find 1 in Inorder: [4, 2, 5] are Left Subtree, [3] is Right Subtree.</li>
+                                                                <li>Recursively apply to left subtree (Preorder: [2, 4, 5], Inorder: [4, 2, 5]). Root = 2.</li>
+                                                                <li>Tree structure: 1 has left child 2 and right child 3. 2 has left child 4 and right child 5.</li>
+                                                                <li><strong>Postorder (Left, Right, Root):</strong> <code className="font-mono text-emerald-600 dark:text-emerald-400 font-bold">4, 5, 2, 3, 1</code></li>
+                                                            </ul>
+                                                        </div>
+
+                                                        <div className="bg-white dark:bg-slate-900 p-3 rounded shadow-sm">
+                                                            <p className="font-bold text-slate-800 dark:text-slate-200 mb-1">Q2. Which traversal visits the nodes in sorted ascending order for a BST?</p>
+                                                            <p><strong>Answer:</strong> <code className="font-mono text-emerald-600 dark:text-emerald-400 font-bold">In-order traversal</code>. This is a very frequent BPSC exam question!</p>
+                                                        </div>
+
+                                                        <div className="bg-white dark:bg-slate-900 p-3 rounded shadow-sm border-l-4 border-amber-400">
+                                                            <p className="font-bold text-slate-800 dark:text-slate-200 mb-1">💡 Tree Reconstruction Rules</p>
+                                                            <p>To uniquely construct a binary tree, you MUST have either:</p>
+                                                            <ul className="list-disc ml-5 mt-1">
+                                                                <li>In-order + Pre-order</li>
+                                                                <li>In-order + Post-order</li>
+                                                            </ul>
+                                                            <p className="text-rose-600 dark:text-rose-400 font-medium mt-1">Note: Pre-order + Post-order CANNOT uniquely identify a general binary tree!</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
 
                                         {/* BST & AVL */}
@@ -655,9 +755,169 @@ const Dsa = () => {
                                     </section>
 
 
-{/* ═══ SECTION: BPSC Numerical Practice ═══ */}
-                                    <section id="numericals" className="glass-card p-6 md:p-10 rounded-3xl border-t-4 border-t-indigo-500 fade-in-section dark:bg-slate-800">
-                                        <h2 className="font-serif text-2xl md:text-3xl font-bold text-slate-800 dark:text-slate-100 mb-8">BPSC Numerical Practice Problems</h2>
+                                    {/* ═══ SECTION 8: Sorting Algorithms ═══ */}
+                                    <section id="sorting" className="glass-card p-6 md:p-10 rounded-3xl border-t-4 border-t-amber-500 fade-in-section dark:bg-slate-800 mb-10">
+                                        <div className="flex items-center mb-8 border-b-2 border-slate-200 dark:border-slate-700 pb-4">
+                                            <span className="bg-amber-600 text-white text-xl md:text-2xl font-serif font-bold w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-xl mr-4 shrink-0 shadow-md">8</span>
+                                            <h2 className="font-serif text-2xl md:text-4xl font-bold text-slate-800 dark:text-slate-100">Sorting Algorithms Masterclass</h2>
+                                        </div>
+
+                                        <div className="bg-white dark:bg-slate-900 p-6 md:p-8 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm mb-8">
+                                            <p className="text-sm text-slate-600 dark:text-slate-400 mb-6 font-medium">Sorting is one of the most frequently tested topics. Memorize the time complexities, space complexities, and specific properties (stable, in-place).</p>
+                                            
+                                            <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm mb-8">
+                                                <table className="w-full text-xs md:text-sm border-collapse min-w-[700px]">
+                                                    <thead>
+                                                        <tr className="bg-slate-100 dark:bg-slate-800">
+                                                            <th className="p-3 text-left font-bold text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-700">Algorithm</th>
+                                                            <th className="p-3 font-bold text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-700 text-center text-emerald-600 dark:text-emerald-400">Best Time</th>
+                                                            <th className="p-3 font-bold text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-700 text-center text-blue-600 dark:text-blue-400">Average Time</th>
+                                                            <th className="p-3 font-bold text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-700 text-center text-rose-600 dark:text-rose-400">Worst Time</th>
+                                                            <th className="p-3 font-bold text-slate-800 dark:text-slate-200 text-center">Space Complexity</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-slate-200 dark:divide-slate-700 text-slate-700 dark:text-slate-300">
+                                                        <tr className="hover:bg-slate-50 dark:hover:bg-slate-700/50">
+                                                            <td className="p-3 font-bold border-r border-slate-200 dark:border-slate-700">Bubble Sort</td>
+                                                            <td className="p-3 text-center text-emerald-600 dark:text-emerald-400 border-r border-slate-200 dark:border-slate-700">&Omega;(n)</td>
+                                                            <td className="p-3 text-center text-blue-600 dark:text-blue-400 border-r border-slate-200 dark:border-slate-700">&Theta;(n&sup2;)</td>
+                                                            <td className="p-3 text-center text-rose-600 dark:text-rose-400 border-r border-slate-200 dark:border-slate-700">O(n&sup2;)</td>
+                                                            <td className="p-3 text-center font-mono">O(1)</td>
+                                                        </tr>
+                                                        <tr className="hover:bg-slate-50 dark:hover:bg-slate-700/50">
+                                                            <td className="p-3 font-bold border-r border-slate-200 dark:border-slate-700">Selection Sort</td>
+                                                            <td className="p-3 text-center text-rose-600 dark:text-rose-400 border-r border-slate-200 dark:border-slate-700">&Omega;(n&sup2;)</td>
+                                                            <td className="p-3 text-center text-rose-600 dark:text-rose-400 border-r border-slate-200 dark:border-slate-700">&Theta;(n&sup2;)</td>
+                                                            <td className="p-3 text-center text-rose-600 dark:text-rose-400 border-r border-slate-200 dark:border-slate-700">O(n&sup2;)</td>
+                                                            <td className="p-3 text-center font-mono">O(1)</td>
+                                                        </tr>
+                                                        <tr className="hover:bg-slate-50 dark:hover:bg-slate-700/50">
+                                                            <td className="p-3 font-bold border-r border-slate-200 dark:border-slate-700">Insertion Sort</td>
+                                                            <td className="p-3 text-center text-emerald-600 dark:text-emerald-400 border-r border-slate-200 dark:border-slate-700">&Omega;(n)</td>
+                                                            <td className="p-3 text-center text-blue-600 dark:text-blue-400 border-r border-slate-200 dark:border-slate-700">&Theta;(n&sup2;)</td>
+                                                            <td className="p-3 text-center text-rose-600 dark:text-rose-400 border-r border-slate-200 dark:border-slate-700">O(n&sup2;)</td>
+                                                            <td className="p-3 text-center font-mono">O(1)</td>
+                                                        </tr>
+                                                        <tr className="hover:bg-slate-50 dark:hover:bg-slate-700/50 bg-indigo-50/30 dark:bg-indigo-900/10">
+                                                            <td className="p-3 font-bold border-r border-slate-200 dark:border-slate-700">Merge Sort</td>
+                                                            <td className="p-3 text-center text-blue-600 dark:text-blue-400 border-r border-slate-200 dark:border-slate-700">&Omega;(n log n)</td>
+                                                            <td className="p-3 text-center text-blue-600 dark:text-blue-400 border-r border-slate-200 dark:border-slate-700">&Theta;(n log n)</td>
+                                                            <td className="p-3 text-center text-blue-600 dark:text-blue-400 border-r border-slate-200 dark:border-slate-700">O(n log n)</td>
+                                                            <td className="p-3 text-center font-mono text-rose-600 dark:text-rose-400">O(n)</td>
+                                                        </tr>
+                                                        <tr className="hover:bg-slate-50 dark:hover:bg-slate-700/50">
+                                                            <td className="p-3 font-bold border-r border-slate-200 dark:border-slate-700">Quick Sort</td>
+                                                            <td className="p-3 text-center text-blue-600 dark:text-blue-400 border-r border-slate-200 dark:border-slate-700">&Omega;(n log n)</td>
+                                                            <td className="p-3 text-center text-blue-600 dark:text-blue-400 border-r border-slate-200 dark:border-slate-700">&Theta;(n log n)</td>
+                                                            <td className="p-3 text-center text-rose-600 dark:text-rose-400 border-r border-slate-200 dark:border-slate-700">O(n&sup2;)</td>
+                                                            <td className="p-3 text-center font-mono">O(log n)</td>
+                                                        </tr>
+                                                        <tr className="hover:bg-slate-50 dark:hover:bg-slate-700/50 bg-emerald-50/30 dark:bg-emerald-900/10">
+                                                            <td className="p-3 font-bold border-r border-slate-200 dark:border-slate-700">Heap Sort</td>
+                                                            <td className="p-3 text-center text-blue-600 dark:text-blue-400 border-r border-slate-200 dark:border-slate-700">&Omega;(n log n)</td>
+                                                            <td className="p-3 text-center text-blue-600 dark:text-blue-400 border-r border-slate-200 dark:border-slate-700">&Theta;(n log n)</td>
+                                                            <td className="p-3 text-center text-blue-600 dark:text-blue-400 border-r border-slate-200 dark:border-slate-700">O(n log n)</td>
+                                                            <td className="p-3 text-center font-mono text-emerald-600 dark:text-emerald-400">O(1)</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <div className="p-5 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800">
+                                                    <strong className="text-amber-800 dark:text-amber-300 block mb-3 text-lg">🎯 BPSC Exam Hacks</strong>
+                                                    <ul className="text-sm text-slate-700 dark:text-slate-300 space-y-3">
+                                                        <li className="flex gap-2"><span className="shrink-0 text-amber-500">👉</span> <span><strong>Best for almost sorted data?</strong> Insertion Sort (O(n) best case).</span></li>
+                                                        <li className="flex gap-2"><span className="shrink-0 text-amber-500">👉</span> <span><strong>Which is NOT stable?</strong> Quick Sort, Selection Sort, and Heap Sort. (Stable means equal elements retain original relative order).</span></li>
+                                                        <li className="flex gap-2"><span className="shrink-0 text-amber-500">👉</span> <span><strong>O(1) space but O(n log n) time?</strong> Heap Sort. It is an excellent strictly in-place algorithm.</span></li>
+                                                        <li className="flex gap-2"><span className="shrink-0 text-amber-500">👉</span> <span><strong>When is Quick Sort worst case O(n&sup2;)?</strong> When the pivot chosen is always the smallest or largest element (e.g., array is already sorted).</span></li>
+                                                    </ul>
+                                                </div>
+                                                
+                                                <div className="space-y-4">
+                                                    <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                                                        <strong className="text-slate-800 dark:text-slate-200 block mb-1">Divide &amp; Conquer</strong>
+                                                        <p className="text-xs text-slate-600 dark:text-slate-400">Merge Sort and Quick Sort use recursion to break arrays into smaller subarrays.</p>
+                                                    </div>
+                                                    <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                                                        <strong className="text-slate-800 dark:text-slate-200 block mb-1">In-Place Sorting</strong>
+                                                        <p className="text-xs text-slate-600 dark:text-slate-400">Algorithms that don't need extra arrays (O(1) space). Examples: Bubble, Insertion, Selection, Heap.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </section>
+
+                                    {/* ═══ SECTION 9: Graph Theory ═══ */}
+                                    <section id="graphs" className="glass-card p-6 md:p-10 rounded-3xl border-t-4 border-t-violet-500 fade-in-section dark:bg-slate-800 mb-10">
+                                        <div className="flex items-center mb-8 border-b-2 border-slate-200 dark:border-slate-700 pb-4">
+                                            <span className="bg-violet-600 text-white text-xl md:text-2xl font-serif font-bold w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-xl mr-4 shrink-0 shadow-md">9</span>
+                                            <h2 className="font-serif text-2xl md:text-4xl font-bold text-slate-800 dark:text-slate-100">Graph Theory &amp; Traversals</h2>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                                            <div className="bg-white dark:bg-slate-900 p-6 md:p-8 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                                                <h3 className="font-bold text-xl text-slate-800 dark:text-slate-100 mb-4">Graph Terminology</h3>
+                                                <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">A non-linear structure of Nodes (Vertices) connected by Edges. Used for networks, maps, social connections.</p>
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                                                    <div className="p-3 bg-violet-50 dark:bg-violet-900/20 rounded-lg border border-violet-200 dark:border-violet-800"><strong className="text-violet-800 dark:text-violet-300 block mb-1">Directed Graph (Digraph)</strong><span className="text-xs text-slate-600 dark:text-slate-400">Edges have a specific direction (A &rarr; B).</span></div>
+                                                    <div className="p-3 bg-violet-50 dark:bg-violet-900/20 rounded-lg border border-violet-200 dark:border-violet-800"><strong className="text-violet-800 dark:text-violet-300 block mb-1">Undirected Graph</strong><span className="text-xs text-slate-600 dark:text-slate-400">Edges are bi-directional (A &harr; B).</span></div>
+                                                    <div className="p-3 bg-violet-50 dark:bg-violet-900/20 rounded-lg border border-violet-200 dark:border-violet-800"><strong className="text-violet-800 dark:text-violet-300 block mb-1">Weighted Graph</strong><span className="text-xs text-slate-600 dark:text-slate-400">Edges have values/costs (e.g., distance).</span></div>
+                                                    <div className="p-3 bg-violet-50 dark:bg-violet-900/20 rounded-lg border border-violet-200 dark:border-violet-800"><strong className="text-violet-800 dark:text-violet-300 block mb-1">Degree</strong><span className="text-xs text-slate-600 dark:text-slate-400">Number of edges connected to a vertex.</span></div>
+                                                </div>
+                                            </div>
+
+                                            <div className="bg-white dark:bg-slate-900 p-6 md:p-8 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                                                <h3 className="font-bold text-xl text-slate-800 dark:text-slate-100 mb-4">Graph Representation</h3>
+                                                <div className="space-y-4">
+                                                    <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                                                        <strong className="text-slate-800 dark:text-slate-200 block mb-2">1. Adjacency Matrix</strong>
+                                                        <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">A 2D array of size <code className="font-mono">V x V</code>. <code className="font-mono">matrix[i][j] = 1</code> if edge exists.</p>
+                                                        <p className="text-xs text-slate-500 dark:text-slate-500 font-bold uppercase"><span className="text-red-500">Space: O(V&sup2;)</span> — Bad for sparse graphs. Fast edge lookup O(1).</p>
+                                                    </div>
+                                                    <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                                                        <strong className="text-slate-800 dark:text-slate-200 block mb-2">2. Adjacency List</strong>
+                                                        <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">An array of linked lists. Array size <code className="font-mono">V</code>, lists contain neighbors.</p>
+                                                        <p className="text-xs text-slate-500 dark:text-slate-500 font-bold uppercase"><span className="text-emerald-500">Space: O(V + E)</span> — Best for sparse graphs. Slower edge lookup O(V).</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* BFS vs DFS */}
+                                        <div className="bg-white dark:bg-slate-900 p-6 md:p-8 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                                            <h3 className="font-bold text-xl text-slate-800 dark:text-slate-100 mb-4">Graph Traversals: BFS vs DFS</h3>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <div className="p-5 bg-sky-50 dark:bg-sky-900/20 rounded-xl border border-sky-200 dark:border-sky-800 relative overflow-hidden">
+                                                    <div className="absolute top-0 right-0 bg-sky-200 dark:bg-sky-800 text-sky-800 dark:text-sky-200 text-xs font-bold px-3 py-1 rounded-bl-lg">Uses QUEUE</div>
+                                                    <strong className="text-sky-800 dark:text-sky-300 block mb-3 text-lg">Breadth-First Search (BFS)</strong>
+                                                    <p className="text-sm text-slate-700 dark:text-slate-300 mb-4">Explores level-by-level radially outward from the source.</p>
+                                                    <ul className="text-xs text-slate-600 dark:text-slate-400 space-y-2 list-disc ml-4">
+                                                        <li>Requires a <strong>Queue</strong> data structure.</li>
+                                                        <li>Time Complexity: <strong className="text-slate-800 dark:text-slate-200">O(V + E)</strong></li>
+                                                        <li><strong>Best For:</strong> Finding the Shortest Path in an unweighted graph, Peer-to-Peer networks, GPS navigation.</li>
+                                                    </ul>
+                                                </div>
+                                                <div className="p-5 bg-rose-50 dark:bg-rose-900/20 rounded-xl border border-rose-200 dark:border-rose-800 relative overflow-hidden">
+                                                    <div className="absolute top-0 right-0 bg-rose-200 dark:bg-rose-800 text-rose-800 dark:text-rose-200 text-xs font-bold px-3 py-1 rounded-bl-lg">Uses STACK</div>
+                                                    <strong className="text-rose-800 dark:text-rose-300 block mb-3 text-lg">Depth-First Search (DFS)</strong>
+                                                    <p className="text-sm text-slate-700 dark:text-slate-300 mb-4">Plunges as deep as possible along each branch before backtracking.</p>
+                                                    <ul className="text-xs text-slate-600 dark:text-slate-400 space-y-2 list-disc ml-4">
+                                                        <li>Requires a <strong>Stack</strong> (or Recursion).</li>
+                                                        <li>Time Complexity: <strong className="text-slate-800 dark:text-slate-200">O(V + E)</strong></li>
+                                                        <li><strong>Best For:</strong> Cycle Detection, Topological Sorting, Path finding, solving Mazes/Puzzles.</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </section>
+
+                                    {/* ═══ SECTION 10: BPSC Numerical Practice ═══ */}
+                                    <section id="numericals" className="glass-card p-6 md:p-10 rounded-3xl border-t-4 border-t-indigo-500 fade-in-section dark:bg-slate-800 mb-10">
+                                        <div className="flex items-center mb-8 border-b-2 border-slate-200 dark:border-slate-700 pb-4">
+                                            <span className="bg-indigo-600 text-white text-xl md:text-2xl font-serif font-bold w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-xl mr-4 shrink-0 shadow-md">10</span>
+                                            <h2 className="font-serif text-2xl md:text-4xl font-bold text-slate-800 dark:text-slate-100">BPSC Numerical Practice Problems</h2>
+                                        </div>
                                         <div className="space-y-8">
 
                                             {/* Numerical 1: Infix to Postfix Stack Trace */}
@@ -826,7 +1086,7 @@ const Dsa = () => {
                                     </section>
 
 
-{/*  SECTION 9: BPSC TRE 4.0 EXAM STRATEGY  */}
+{/*  SECTION 11: BPSC TRE 4.0 EXAM STRATEGY  */}
                                     <section id="strategy" className="bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+CgkJPGcgc3Ryb2tlPSIjZmZmZmZmIiBzdHJva2Utd2lkdGg9IjEiIHN0cm9rZS1vcGFjaXR5PSIwLjA1Ij4KCQkJPHBhdGggZD0iTTAgNDBoNDBNNDAgMGgtNDBNMCAyMGg0ME0yMCAwdjQwIi8+CgkJPC9nPgoJPC9zdmc+')] bg-[#0f172a] text-white p-6 md:p-12 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative overflow-hidden fade-in-section border border-slate-700">
 
                                         <div className="absolute -top-32 -right-32 w-96 h-96 bg-emerald-500 opacity-20 rounded-full blur-[100px] pointer-events-none animate-pulse-slow"></div>
