@@ -214,9 +214,9 @@ const OperatingSystem = () => {
                                             <h3 className="text-3xl font-bold text-secondary">Foundations & System Architecture</h3>
                                         </div>
 
-                                        <div className="space-y-8">
+                                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                                             {/*  UX: F-Pattern (Text-heavy content aligned left, spanning 8 cols)  */}
-                                            <div className="space-y-8">
+                                            <div className="lg:col-span-8 space-y-8">
                                                 <div className="glass-panel p-8 rounded-2xl">
                                                     <h4 className="text-xl font-bold text-secondary mb-3">Definition & Core Functions</h4>
                                                     <p className="text-slate-700 leading-relaxed">The Operating System (OS) is the quintessential system software that manages computer hardware, software resources, and provides common services for application programs. It acts as the critical intermediary between the user (via CLI/GUI) and the underlying bare-metal hardware.</p>
@@ -240,7 +240,7 @@ const OperatingSystem = () => {
                                             </div>
 
                                             {/*  Gestalt: Visual grouping on the right (4 cols)  */}
-                                            <div className="space-y-6">
+                                            <div className="lg:col-span-4 space-y-6">
                                                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
                                                     <h4 className="text-lg font-bold text-center text-secondary mb-6 font-merriweather">The Bootstrapping Paradigm</h4>
                                                     <div className="flex flex-col items-center space-y-3">
@@ -430,8 +430,8 @@ const OperatingSystem = () => {
                                             <h3 className="text-3xl font-bold text-secondary">Process Management & Dual-Mode</h3>
                                         </div>
 
-                                        <div className="space-y-8">
-                                            <div className="space-y-8">
+                                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                                            <div className="lg:col-span-8 space-y-8">
                                                 <p className="text-lg text-slate-700 leading-relaxed">Under the <strong>Von Neumann Architecture</strong>, instructions and data share the same memory space. A <em className="font-semibold text-secondary">Program</em> is a passive entity (binary code on disk), whereas a <em className="font-semibold text-secondary">Process</em> is an active entity (a program in execution loaded into Main Memory).</p>
 
                                                 <div className="glass-panel p-8 rounded-2xl border-l-4 border-l-accent-500">
@@ -520,7 +520,7 @@ const OperatingSystem = () => {
                                                 </div>
                                             </div>
 
-                                            <div className="">
+                                            <div className="lg:col-span-4">
                                                 <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-lg sticky top-24">
                                                     <h4 className="text-xl font-bold text-secondary mb-6 text-center font-merriweather">Process Memory Layout</h4>
                                                     <div className="memory-layout">
@@ -941,9 +941,9 @@ const OperatingSystem = () => {
                                             <h3 className="text-3xl font-bold text-secondary">Process Synchronization & Concurrency</h3>
                                         </div>
 
-                                        <div className="space-y-8">
+                                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                                             {/*  F-Pattern Layout  */}
-                                            <div className="space-y-8">
+                                            <div className="lg:col-span-7 space-y-8">
                                                 <div className="glass-panel p-8 rounded-2xl border-t-4 border-t-violet-500">
                                                     <h4 className="text-2xl font-bold text-secondary mb-4">Data Integrity & Race Conditions</h4>
                                                     <p className="text-slate-700 mb-4">Concurrent access to shared data may result in data inconsistency. A <strong>Race Condition</strong> occurs when several processes access and manipulate shared data concurrently. The final value depends crucially on which process finishes last.</p>
@@ -994,7 +994,7 @@ const OperatingSystem = () => {
                                                                 </div>
 
                                                                 {/*  Gestalt: Visual Grouping of Solutions  */}
-                                                                <div className="space-y-6">
+                                                                <div className="lg:col-span-5 space-y-6">
                                                                     <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
                                                                         <h4 className="text-lg font-bold text-secondary mb-4 font-merriweather">Taxonomy of Solutions</h4>
 
@@ -1311,9 +1311,9 @@ const OperatingSystem = () => {
                                                                                                     <h3 className="text-3xl font-bold text-secondary">Memory Management & Partitioning</h3>
                                                                                                 </div>
 
-                                                                                                <div className="space-y-8">
+                                                                                                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                                                                                                     {/*  F-Pattern Layout  */}
-                                                                                                    <div className="space-y-6">
+                                                                                                    <div className="lg:col-span-7 space-y-6">
 
                                                                                                         {/*  NEW: Extracted from Lecture 07 - Memory Hardware Physics  */}
                                                                                                         <div className="bg-slate-900 p-6 rounded-2xl border border-slate-700 shadow-md text-white relative overflow-hidden">
